@@ -72,6 +72,25 @@ class PlayerViewSet(viewsets.ModelViewSet):
             return PlayerListSerializer
         return PlayerSerializer
     
+    def get_queryset(self):
+        queryset = Player.objects.all()
+        
+        # Check if pagination should be disabled
+        if self.request.query_params.get('limit') == '1000':
+            self.pagination_class = None
+        
+        # Filter by position if provided
+        position = self.request.query_params.get('position', None)
+        if position:
+            queryset = queryset.filter(position__icontains=position)
+        
+        # Filter by team if provided
+        team = self.request.query_params.get('team', None)
+        if team:
+            queryset = queryset.filter(team=team)
+        
+        return queryset
+    
     @action(detail=False, methods=['post'])
     def refresh_players(self, request):
         """Refresh player data from NBA API"""
@@ -167,13 +186,19 @@ class PlayerViewSet(viewsets.ModelViewSet):
 
 class LineupViewSet(viewsets.ModelViewSet):
     serializer_class = LineupSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]  # Allow anonymous users
     
     def get_queryset(self):
-        return Lineup.objects.filter(user=self.request.user)
+        if self.request.user.is_authenticated:
+            return Lineup.objects.filter(user=self.request.user)
+        return Lineup.objects.none()
     
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        if self.request.user.is_authenticated:
+            serializer.save(user=self.request.user)
+        else:
+            # For anonymous users, create lineup without user
+            serializer.save(user=None)
     
     @action(detail=True, methods=['post'])
     def optimize(self, request, pk=None):
@@ -209,10 +234,16 @@ class LineupViewSet(viewsets.ModelViewSet):
 
 class LineupComparisonViewSet(viewsets.ModelViewSet):
     serializer_class = LineupComparisonSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]  # Allow anonymous users
     
     def get_queryset(self):
-        return LineupComparison.objects.filter(user=self.request.user)
+        if self.request.user.is_authenticated:
+            return LineupComparison.objects.filter(user=self.request.user)
+        return LineupComparison.objects.filter(user=None)
     
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        if self.request.user.is_authenticated:
+            serializer.save(user=self.request.user)
+        else:
+            # For anonymous users, create comparison without user
+            serializer.save(user=None)

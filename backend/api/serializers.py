@@ -20,8 +20,12 @@ class PlayerSerializer(serializers.ModelSerializer):
         fields = '__all__'
     
     def get_team_name(self, obj):
-        if obj.team:
-            return f"{obj.team.city} {obj.team.name}"
+        try:
+            if obj.team:
+                return f"{obj.team.city} {obj.team.name}"
+        except Exception:
+            # Handle case where team doesn't exist
+            pass
         return "Free Agent"  # Default for players without a team
 
 class PlayerListSerializer(serializers.ModelSerializer):
@@ -34,8 +38,12 @@ class PlayerListSerializer(serializers.ModelSerializer):
                   'points_per_game', 'rebounds_per_game', 'assists_per_game']
     
     def get_team_name(self, obj):
-        if obj.team:
-            return f"{obj.team.city} {obj.team.name}"
+        try:
+            if obj.team:
+                return f"{obj.team.city} {obj.team.name}"
+        except Exception:
+            # Handle case where team doesn't exist
+            pass
         return "Free Agent"  # Default for players without a team
 
 class LineupPlayerSerializer(serializers.ModelSerializer):
@@ -49,8 +57,12 @@ class LineupPlayerSerializer(serializers.ModelSerializer):
                   'points_per_game', 'rebounds_per_game', 'assists_per_game']
     
     def get_team_name(self, obj):
-        if obj.team:
-            return f"{obj.team.city} {obj.team.name}"
+        try:
+            if obj.team:
+                return f"{obj.team.city} {obj.team.name}"
+        except Exception:
+            # Handle case where team doesn't exist
+            pass
         return "Free Agent"  # Default for players without a team
 
 class LineupSerializer(serializers.ModelSerializer):

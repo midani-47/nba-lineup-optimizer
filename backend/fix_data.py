@@ -35,11 +35,11 @@ def fix_player_data():
         player.save()
         count += 1
     
-    # Top NBA players with realistic stats by ID
+    # Top NBA players with realistic stats by ID - Updated with latest stats from NBA.com
     top_players_by_id = [
         {"id": 1629029, "name": "Luka Doncic", "ppg": 33.9, "rpg": 9.2, "apg": 9.8, "position": "G", "team_id": 1610612742},
-        {"id": 203507, "name": "Giannis Antetokounmpo", "ppg": 30.4, "rpg": 11.5, "apg": 6.5, "position": "F", "team_id": 1610612749},
-        {"id": 203954, "name": "Joel Embiid", "ppg": 33.1, "rpg": 11.3, "apg": 4.2, "position": "C", "team_id": 1610612755},
+        {"id": 203954, "name": "Joel Embiid", "ppg": 34.7, "rpg": 11.2, "apg": 5.6, "position": "C", "team_id": 1610612755},
+        {"id": 203507, "name": "Giannis Antetokounmpo", "ppg": 30.7, "rpg": 11.5, "apg": 6.5, "position": "F", "team_id": 1610612749},
         {"id": 1628983, "name": "Shai Gilgeous-Alexander", "ppg": 30.1, "rpg": 5.5, "apg": 6.2, "position": "G", "team_id": 1610612760},
         {"id": 203999, "name": "Nikola Jokic", "ppg": 26.4, "rpg": 12.4, "apg": 9.0, "position": "C", "team_id": 1610612743},
         {"id": 1628369, "name": "Jayson Tatum", "ppg": 26.9, "rpg": 8.1, "apg": 4.7, "position": "F", "team_id": 1610612738},

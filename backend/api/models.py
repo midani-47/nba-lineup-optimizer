@@ -60,7 +60,7 @@ class Player(models.Model):
 
 class Lineup(models.Model):
     name = models.CharField(max_length=100)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='lineups')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='lineups', null=True, blank=True)
     players = models.ManyToManyField(Player, related_name='lineups')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -88,7 +88,7 @@ class Lineup(models.Model):
 class LineupComparison(models.Model):
     """Model to store lineup comparison results"""
     name = models.CharField(max_length=100)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comparisons')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comparisons', null=True, blank=True)
     lineup1 = models.ForeignKey(Lineup, on_delete=models.CASCADE, related_name='comparison_as_first')
     lineup2 = models.ForeignKey(Lineup, on_delete=models.CASCADE, related_name='comparison_as_second')
     created_at = models.DateTimeField(auto_now_add=True)
