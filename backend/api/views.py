@@ -189,11 +189,30 @@ class LineupViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]  # Allow anonymous users
     
     def get_queryset(self):
+        """
+        Return all lineups for authenticated users,
+        or only public lineups (user=None) for anonymous users.
+        Also handles the public query parameter.
+        """
+        queryset = Lineup.objects.all()
+        
+        # Check if public filter is applied
+        public = self.request.query_params.get('public', None)
+        if public:
+            return queryset.filter(user=None)
+            
+        # For authenticated users, return their lineups
         if self.request.user.is_authenticated:
-            return Lineup.objects.filter(user=self.request.user)
-        return Lineup.objects.none()
+            return queryset.filter(user=self.request.user)
+            
+        # For anonymous users, return public lineups
+        return queryset.filter(user=None)
     
     def perform_create(self, serializer):
+        """
+        Create a lineup with the current user if authenticated,
+        or as a public lineup (user=None) if anonymous.
+        """
         if self.request.user.is_authenticated:
             serializer.save(user=self.request.user)
         else:
@@ -203,34 +222,45 @@ class LineupViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def optimize(self, request, pk=None):
         """Optimize a lineup based on specific criteria"""
-        lineup = self.get_object()
-        optimization_type = request.data.get('optimization_type', 'balanced')
-        
-        # Get all available players
-        all_players = Player.objects.filter(is_active=True)
-        
-        # Simple optimization logic (this would be more sophisticated in a real app)
-        if optimization_type == 'offense':
-            # Optimize for offense - get players with highest offensive ratings
-            optimized_players = all_players.order_by('-offensive_rating')[:5]
-        elif optimization_type == 'defense':
-            # Optimize for defense - get players with lowest defensive ratings (lower is better)
-            optimized_players = all_players.order_by('defensive_rating')[:5]
-        else:  # balanced
-            # Optimize for net rating (offensive - defensive)
-            optimized_players = all_players.annotate(
-                net_rating=F('offensive_rating') - F('defensive_rating')
-            ).order_by('-net_rating')[:5]
-        
-        # Update lineup with optimized players
-        lineup.players.clear()
-        for player in optimized_players:
-            lineup.players.add(player)
-        
-        lineup.calculate_ratings()
-        
-        serializer = self.get_serializer(lineup)
-        return Response(serializer.data)
+        try:
+            lineup = self.get_object()
+            optimization_type = request.data.get('optimization_type', 'balanced')
+            
+            # Perform optimization based on type
+            if optimization_type == 'offensive':
+                # Sort players by offensive rating
+                players = sorted(lineup.players.all(), key=lambda p: p.offensive_rating, reverse=True)
+                # Take top 5 players
+                optimized_players = players[:5]
+            elif optimization_type == 'defensive':
+                # Sort players by defensive rating (lower is better)
+                players = sorted(lineup.players.all(), key=lambda p: p.defensive_rating)
+                # Take top 5 players
+                optimized_players = players[:5]
+            else:  # balanced
+                # Sort players by net rating
+                players = sorted(lineup.players.all(), key=lambda p: p.offensive_rating - p.defensive_rating, reverse=True)
+                # Take top 5 players
+                optimized_players = players[:5]
+            
+            # Create a new lineup with optimized players
+            optimized_lineup = Lineup.objects.create(
+                name=f"{lineup.name} (Optimized - {optimization_type.capitalize()})",
+                user=lineup.user
+            )
+            
+            # Add optimized players to the new lineup
+            for player in optimized_players:
+                optimized_lineup.players.add(player)
+            
+            # Calculate ratings
+            optimized_lineup.calculate_ratings()
+            
+            # Return the new lineup
+            serializer = self.get_serializer(optimized_lineup)
+            return Response(serializer.data)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class LineupComparisonViewSet(viewsets.ModelViewSet):
     serializer_class = LineupComparisonSerializer
