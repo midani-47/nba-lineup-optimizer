@@ -226,39 +226,91 @@ class LineupViewSet(viewsets.ModelViewSet):
             lineup = self.get_object()
             optimization_type = request.data.get('optimization_type', 'balanced')
             
-            # Perform optimization based on type
-            if optimization_type == 'offensive':
-                # Sort players by offensive rating
-                players = sorted(lineup.players.all(), key=lambda p: p.offensive_rating, reverse=True)
-                # Take top 5 players
-                optimized_players = players[:5]
-            elif optimization_type == 'defensive':
-                # Sort players by defensive rating (lower is better)
-                players = sorted(lineup.players.all(), key=lambda p: p.defensive_rating)
-                # Take top 5 players
-                optimized_players = players[:5]
-            else:  # balanced
-                # Sort players by net rating
-                players = sorted(lineup.players.all(), key=lambda p: p.offensive_rating - p.defensive_rating, reverse=True)
-                # Take top 5 players
-                optimized_players = players[:5]
+            # Get all available players instead of just the ones in the lineup
+            all_players = Player.objects.all()
             
-            # Create a new lineup with optimized players
+            # Create a new lineup with the same name plus optimization type
             optimized_lineup = Lineup.objects.create(
                 name=f"{lineup.name} (Optimized - {optimization_type.capitalize()})",
                 user=lineup.user
             )
             
-            # Add optimized players to the new lineup
-            for player in optimized_players:
-                optimized_lineup.players.add(player)
+            # Different optimization strategies
+            if optimization_type == 'offensive':
+                # For offensive optimization, prioritize scoring and shooting
+                # Get one player from each position for a balanced lineup
+                positions = ['G', 'G', 'F', 'F', 'C']  # Standard basketball positions
+                
+                for position in positions:
+                    # Find players matching this position (partial match)
+                    position_players = all_players.filter(position__icontains=position)
+                    
+                    # Sort by offensive metrics
+                    if position == 'G':  # Guards - prioritize scoring and assists
+                        player = position_players.order_by('-points_per_game', '-assists_per_game').first()
+                    elif position == 'F':  # Forwards - prioritize scoring and rebounds
+                        player = position_players.order_by('-points_per_game', '-rebounds_per_game').first()
+                    elif position == 'C':  # Centers - prioritize rebounds and efficiency
+                        player = position_players.order_by('-rebounds_per_game', '-field_goal_percentage').first()
+                    
+                    if player:
+                        # Add to lineup if not already there
+                        if not optimized_lineup.players.filter(player_id=player.player_id).exists():
+                            optimized_lineup.players.add(player)
+                        else:
+                            # If player already exists, get the next best
+                            next_player = position_players.exclude(player_id=player.player_id).order_by('-points_per_game').first()
+                            if next_player:
+                                optimized_lineup.players.add(next_player)
             
-            # Calculate ratings
+            elif optimization_type == 'defensive':
+                # For defensive optimization, prioritize rebounds, blocks, and defensive rating
+                positions = ['G', 'G', 'F', 'F', 'C']
+                
+                for position in positions:
+                    position_players = all_players.filter(position__icontains=position)
+                    
+                    if position == 'G':  # Guards - prioritize steals and defensive rating
+                        player = position_players.order_by('-steals_per_game', 'defensive_rating').first()
+                    elif position == 'F':  # Forwards - prioritize defensive rating and rebounds
+                        player = position_players.order_by('defensive_rating', '-rebounds_per_game').first()
+                    elif position == 'C':  # Centers - prioritize blocks and rebounds
+                        player = position_players.order_by('-blocks_per_game', '-rebounds_per_game').first()
+                    
+                    if player:
+                        if not optimized_lineup.players.filter(player_id=player.player_id).exists():
+                            optimized_lineup.players.add(player)
+                        else:
+                            next_player = position_players.exclude(player_id=player.player_id).order_by('defensive_rating').first()
+                            if next_player:
+                                optimized_lineup.players.add(next_player)
+            
+            else:  # balanced
+                # For balanced optimization, create a well-rounded lineup
+                # Use a mix of offensive and defensive metrics
+                positions = ['G', 'G', 'F', 'F', 'C']
+                
+                for position in positions:
+                    position_players = all_players.filter(position__icontains=position)
+                    
+                    # For balanced, use player efficiency rating which accounts for both offense and defense
+                    player = position_players.order_by('-player_efficiency_rating').first()
+                    
+                    if player:
+                        if not optimized_lineup.players.filter(player_id=player.player_id).exists():
+                            optimized_lineup.players.add(player)
+                        else:
+                            next_player = position_players.exclude(player_id=player.player_id).order_by('-player_efficiency_rating').first()
+                            if next_player:
+                                optimized_lineup.players.add(next_player)
+            
+            # Calculate ratings for the new lineup
             optimized_lineup.calculate_ratings()
             
-            # Return the new lineup
+            # Return the optimized lineup
             serializer = self.get_serializer(optimized_lineup)
             return Response(serializer.data)
+        
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 

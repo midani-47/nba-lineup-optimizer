@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import Team, Player, Lineup, LineupComparison
+from django.db.models import Avg
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -153,6 +154,6 @@ class LineupComparisonSerializer(serializers.ModelSerializer):
     
     def _calculate_stat_diff(self, lineup1, lineup2, stat_field):
         """Calculate the difference in average stats between two lineups"""
-        lineup1_avg = lineup1.players.aggregate(avg=serializers.Avg(stat_field))['avg'] or 0
-        lineup2_avg = lineup2.players.aggregate(avg=serializers.Avg(stat_field))['avg'] or 0
+        lineup1_avg = lineup1.players.aggregate(avg=Avg(stat_field))['avg'] or 0
+        lineup2_avg = lineup2.players.aggregate(avg=Avg(stat_field))['avg'] or 0
         return lineup1_avg - lineup2_avg 
