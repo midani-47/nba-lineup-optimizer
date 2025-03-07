@@ -1,4 +1,4 @@
-# 🏀 NBA Lineup Optimizer ⛹🏾‍♂️
+# 🏀 NBA Lineup Optimizer
 
 ## Project Description
 The NBA Lineup Optimizer is a full-stack web application designed to help users build, compare, and optimize NBA lineups. It leverages real-time player data to provide insights and analytics for lineup management.
@@ -10,78 +10,111 @@ The NBA Lineup Optimizer is a full-stack web application designed to help users 
 - **Lineup Comparison**: Compare two lineups side by side with statistical and radar charts.
 - **Lineup Optimizer**: Optimize lineups based on criteria like offense, defense, or balanced performance.
 
-## Initialization
+## Prerequisites
+- Python 3.8 or higher
+- Node.js 14 or higher
+- npm 6 or higher
 
-### Quick Start
-For a quick start, you can use the provided shell script:
+## Installation and Setup
+
+### 1. Clone the Repository
 ```bash
-chmod +x start.sh  # Make the script executable
-./start.sh         # Start both backend and frontend
+git clone https://github.com/midani-47/nba-lineup-optimizer.git
+cd nba-lineup-optimizer
 ```
-Use `./start.sh --reload-data` to force reload the NBA data.
 
-### Manual Setup
-1. **Backend Setup**:
-   - Navigate to the backend directory:
-     ```bash
-     cd nba_lineup_optimizer/backend
-     ```
-   - Create and activate a virtual environment:
-     ```bash
-     python -m venv venv
-     source venv/bin/activate  # On Windows: venv\Scripts\activate
-     ```
-   - Install the required packages:
-     ```bash
-     pip install -r ../requirements.txt
-     ```
-   - Apply database migrations:
-     ```bash
-     python manage.py migrate
-     ```
-   - Load initial NBA data:
-     ```bash
-     python manage.py load_nba_data
-     ```
-   - Run the Django development server:
-     ```bash
-     python manage.py runserver 8001
-     ```
+### 2. Backend Setup
+```bash
+# Create and activate virtual environment
+python3 -m venv venv
+source venv/bin/activate  # On Windows: .\venv\Scripts\activate
 
-2. **Frontend Setup**:
-   - Navigate to the frontend directory:
-     ```bash
-     cd nba_lineup_optimizer/frontend
-     ```
-   - Install the required packages:
-     ```bash
-     npm install --legacy-peer-deps
-     ```
-   - Start the React development server:
-     ```bash
-     npm start
-     ```
+# Install dependencies
+pip install -r requirements.txt
 
-3. **Access the Application**:
-   - Open your browser and go to `http://localhost:3000` to access the application.
+# Navigate to backend directory
+cd backend
+
+# Apply database migrations
+python3 manage.py migrate
+
+# Load initial data and fix player stats
+python3 manage.py load_nba_data
+python3 fix_data.py
+
+# Start the backend server
+python3 manage.py runserver 8001
+```
+
+### 3. Frontend Setup
+Open a new terminal window and run:
+```bash
+# Navigate to frontend directory
+cd frontend
+
+# Install dependencies
+npm install --legacy-peer-deps
+
+# Start the frontend server
+npm start
+```
+
+### 4. Access the Application
+- Frontend: Open your browser and go to `http://localhost:3000`
+- Backend API: Available at `http://localhost:8001/api`
 
 ## Troubleshooting
-- **Backend Port Issues**: If port 8001 is already in use, you can specify a different port:
-  ```bash
-  python manage.py runserver 8002
-  ```
-  Remember to update the API_URL in `frontend/src/services/api.js` to match the new port.
 
-- **Missing Data**: If you don't see player data in the frontend, make sure you've run the `load_nba_data` command and that the backend server is running.
+### Backend Issues
+1. If you see "command not found: python":
+   - Use `python3` instead of `python` on macOS
+   - Ensure Python 3 is installed: `brew install python3`
 
-- **WebSocket Support**: For real-time updates, install the optional channels package:
-  ```bash
-  pip install channels channels-redis
-  ```
-  You'll also need Redis running locally for WebSocket support.
+2. If the database is not populated:
+   ```bash
+   cd backend
+   source ../venv/bin/activate
+   python3 manage.py migrate
+   python3 fix_data.py
+   ```
 
-## Next Steps
-- Implement user authentication for personalized experiences.
-- Enhance optimization algorithms for better lineup suggestions.
-- Add mobile responsiveness for better accessibility on different devices.
-- Improve performance and scalability for larger datasets. # nba-lineup-optimizer
+3. If the server won't start:
+   - Check if port 8001 is in use: `lsof -i :8001`
+   - Kill any existing process: `kill -9 <PID>`
+
+### Frontend Issues
+1. If npm install fails:
+   ```bash
+   rm -rf node_modules
+   npm cache clean --force
+   npm install --legacy-peer-deps
+   ```
+
+2. If the frontend can't connect to the backend:
+   - Ensure backend is running on port 8001
+   - Check browser console for CORS errors
+   - Verify API_URL in `src/services/api.js`
+
+## Files to Include in Version Control
+- All source code files (*.py, *.js, *.jsx, *.css)
+- Configuration files (requirements.txt, package.json, etc.)
+- Documentation files (README.md, CHANGELOG.md)
+- Migration files
+
+## Files to Exclude (already in .gitignore)
+- Virtual environment (venv/)
+- Node modules (node_modules/)
+- Database files (db.sqlite3)
+- Compiled Python files (__pycache__/)
+- Environment files (.env)
+- Build directories (build/, dist/)
+- Media and upload files (uploads/, media/)
+- IDE specific files (.vscode/, .idea/)
+- System files (.DS_Store)
+
+## Contributing
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request

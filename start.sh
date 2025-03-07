@@ -1,86 +1,99 @@
 #!/bin/bash
 
-# Start the NBA Lineup Optimizer application
+# NBA Lineup Optimizer Startup Script
+echo "🏀 Starting NBA Lineup Optimizer..."
 
-# Function to check if a command exists
-command_exists() {
-  command -v "$1" >/dev/null 2>&1
-}
-
-# Check for required commands
-if ! command_exists python3; then
-  echo "Error: python3 is required but not installed."
-  exit 1
+# Check if Python 3 is installed
+if ! command -v python3 &> /dev/null; then
+    echo "❌ Error: Python 3 is not installed. Please install Python 3 first."
+    exit 1
 fi
 
-if ! command_exists npm; then
-  echo "Error: npm is required but not installed."
-  exit 1
+# Check if Node.js is installed
+if ! command -v node &> /dev/null; then
+    echo "❌ Error: Node.js is not installed. Please install Node.js first."
+    exit 1
 fi
 
-# Set up the backend
-echo "Setting up the backend..."
-cd backend
+# Check if npm is installed
+if ! command -v npm &> /dev/null; then
+    echo "❌ Error: npm is not installed. Please install npm first."
+    exit 1
+fi
 
-# Create virtual environment if it doesn't exist
+# Set up virtual environment if it doesn't exist
 if [ ! -d "venv" ]; then
-  echo "Creating virtual environment..."
-  python3 -m venv venv
+    echo "🔧 Creating virtual environment..."
+    python3 -m venv venv
 fi
 
 # Activate virtual environment
-echo "Activating virtual environment..."
+echo "🔧 Activating virtual environment..."
 source venv/bin/activate
 
-# Install requirements
-echo "Installing backend requirements..."
-pip install -r ../requirements.txt
+# Install backend dependencies
+echo "📦 Installing backend dependencies..."
+pip install -r requirements.txt
 
-# Apply migrations
-echo "Applying database migrations..."
-python manage.py migrate
-
-# Load NBA data if needed
-if [ ! -f "db.sqlite3" ] || [ "$1" == "--reload-data" ]; then
-  echo "Loading NBA data..."
-  python manage.py load_nba_data
+# Check if we need to reload data
+RELOAD_DATA=false
+if [ "$1" == "--reload-data" ]; then
+    RELOAD_DATA=true
 fi
 
-# Start the backend server in the background
-echo "Starting backend server on port 8001..."
-python manage.py runserver 8001 &
+# Navigate to backend directory
+cd backend
+
+# Apply migrations
+echo "🔄 Applying database migrations..."
+python3 manage.py migrate
+
+# Load data if requested or if database is empty
+if [ "$RELOAD_DATA" = true ]; then
+    echo "🔄 Reloading NBA data..."
+    python3 manage.py load_nba_data
+fi
+
+# Fix player data
+echo "🔄 Fixing player data..."
+python3 fix_data.py
+
+# Start backend server in the background
+echo "🚀 Starting backend server..."
+python3 manage.py runserver 8001 &
 BACKEND_PID=$!
 
-# Go back to the root directory
-cd ..
+# Wait for backend to start
+echo "⏳ Waiting for backend to start..."
+sleep 5
 
-# Set up the frontend
-echo "Setting up the frontend..."
-cd frontend
+# Navigate to frontend directory
+cd ../frontend
 
-# Install dependencies
-echo "Installing frontend dependencies..."
+# Install frontend dependencies
+echo "📦 Installing frontend dependencies..."
 npm install --legacy-peer-deps
 
-# Start the frontend server
-echo "Starting frontend server..."
+# Start frontend server
+echo "🚀 Starting frontend server..."
 npm start &
 FRONTEND_PID=$!
 
 # Function to handle script termination
 cleanup() {
-  echo "Shutting down servers..."
-  kill $BACKEND_PID
-  kill $FRONTEND_PID
-  exit 0
+    echo "🛑 Stopping servers..."
+    kill $BACKEND_PID
+    kill $FRONTEND_PID
+    exit 0
 }
 
-# Register the cleanup function for script termination
+# Set up trap to catch termination signals
 trap cleanup SIGINT SIGTERM
 
-# Keep the script running
-echo "NBA Lineup Optimizer is running!"
-echo "Backend: http://localhost:8001/api/"
-echo "Frontend: http://localhost:3000/"
-echo "Press Ctrl+C to stop the servers."
+echo "✅ NBA Lineup Optimizer is running!"
+echo "📊 Frontend: http://localhost:3000"
+echo "🔌 Backend API: http://localhost:8001/api"
+echo "Press Ctrl+C to stop both servers."
+
+# Keep script running
 wait 
