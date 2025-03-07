@@ -1,4 +1,4 @@
-# NBA Lineup Optimizer
+# 🏀 NBA Lineup Optimizer
 
 ## Project Description
 The NBA Lineup Optimizer is a full-stack web application designed to help users build, compare, and optimize NBA lineups. It leverages real-time player data to provide insights and analytics for lineup management.
