@@ -226,6 +226,15 @@ class LineupViewSet(viewsets.ModelViewSet):
             lineup = self.get_object()
             optimization_type = request.data.get('optimization_type', 'balanced')
             
+            # Check if an optimized lineup with the same type already exists
+            existing_optimized_lineup = Lineup.objects.filter(
+                name=f"{lineup.name} (Optimized - {optimization_type.capitalize()})",
+                user=lineup.user
+            ).first()
+            
+            if existing_optimized_lineup:
+                return Response({"error": "An optimized lineup with this type already exists."}, status=status.HTTP_400_BAD_REQUEST)
+            
             # Get all available players instead of just the ones in the lineup
             all_players = Player.objects.all()
             

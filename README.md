@@ -49,8 +49,8 @@ python3 manage.py runserver 8001
 ### 3. Frontend Setup
 Open a new terminal window and run:
 ```bash
-# Navigate to frontend directory
-cd frontend
+# Navigate to frontend directory from the project root
+cd nba-lineup-optimizer/frontend  # Make sure you're in the correct directory
 
 # Install dependencies
 npm install --legacy-peer-deps
@@ -82,6 +82,13 @@ npm start
    - Check if port 8001 is in use: `lsof -i :8001`
    - Kill any existing process: `kill -9 <PID>`
 
+4. If player data shows incorrect teams:
+   ```bash
+   cd backend
+   source ../venv/bin/activate
+   python3 fix_data.py
+   ```
+
 ### Frontend Issues
 1. If npm install fails:
    ```bash
@@ -94,6 +101,15 @@ npm start
    - Ensure backend is running on port 8001
    - Check browser console for CORS errors
    - Verify API_URL in `src/services/api.js`
+
+3. If drag-and-drop functionality doesn't work:
+   - Check browser console for errors
+   - Make sure you're using the latest version of the code
+   - Try refreshing the page
+
+4. If you can't save lineups with the same name:
+   - This is by design to prevent duplicate lineup names
+   - Choose a different name for each lineup
 
 ## Files to Include in Version Control
 - All source code files (*.py, *.js, *.jsx, *.css)

@@ -131,6 +131,11 @@ class LineupComparisonSerializer(serializers.ModelSerializer):
         read_only_fields = ['points_diff', 'rebounds_diff', 'assists_diff', 'net_rating_diff']
     
     def create(self, validated_data):
+        # Check if a comparison with this name already exists
+        name = validated_data.get('name')
+        if name and LineupComparison.objects.filter(name__iexact=name).exists():
+            raise serializers.ValidationError({"name": "A lineup comparison with this name already exists."})
+            
         comparison = LineupComparison.objects.create(**validated_data)
         self._calculate_comparison_metrics(comparison)
         return comparison
