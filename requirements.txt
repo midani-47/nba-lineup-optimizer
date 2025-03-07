@@ -1,0 +1,13 @@
+Django>=3.2,<4.0
+Django-REST-Framework>=3.12,<4.0
+channels>=3.0,<4.0
+channels-redis>=3.0,<4.0
+django-cors-headers==4.7.0
+pandas==2.2.3
+numpy==1.26.4
+scikit-learn==1.6.1
+nba_api==1.7.0
+requests==2.32.3
+daphne==4.1.0
+python-dateutil==2.9.0.post0
+pytz==2025.1 
