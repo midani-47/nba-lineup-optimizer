@@ -92,6 +92,9 @@ export const getPlayers = async (params = {}) => {
           const team = teams[Math.floor(Math.random() * teams.length)];
           const position = positions[Math.floor(Math.random() * positions.length)];
           
+          // Use consistent image URLs that will work
+          const imageUrl = `https://robohash.org/${firstName}${lastName}${playerId}?set=set4&bgset=bg1&size=200x200`;
+          
           additionalPlayers.push({
             player_id: playerId,
             name: `${firstName} ${lastName}`,
@@ -105,7 +108,7 @@ export const getPlayers = async (params = {}) => {
             fg_pct: +(Math.random() * 0.2 + 0.4).toFixed(3),
             fg3_pct: +(Math.random() * 0.2 + 0.3).toFixed(3),
             ft_pct: +(Math.random() * 0.2 + 0.7).toFixed(3),
-            image_url: `https://via.placeholder.com/200x200?text=${firstName.charAt(0)}${lastName.charAt(0)}`
+            image_url: imageUrl
           });
         }
         
@@ -321,8 +324,75 @@ export const deleteLineup = async (lineupId) => {
 // Lineup Optimization
 export const optimizeLineup = async (lineupId, strategy) => {
   try {
-    const response = await api.post(`/lineups/${lineupId}/optimize/`, { strategy });
-    return response.data;
+    // For development, use mock data
+    console.log(`Optimizing lineup ${lineupId} with strategy ${strategy}`);
+    
+    // Get all lineups (including user-created ones)
+    const allLineups = await getLineups();
+    
+    // Find the lineup by ID
+    const lineup = allLineups.find(l => l.id === Number(lineupId));
+    
+    if (!lineup) {
+      console.error(`Lineup with ID ${lineupId} not found`);
+      return null;
+    }
+    
+    // Get all players for optimization
+    const allPlayers = await getPlayers();
+    
+    // Simulate optimization based on strategy
+    let optimizedPlayers;
+    switch (strategy) {
+      case 'scoring':
+        optimizedPlayers = allPlayers.sort((a, b) => b.ppg - a.ppg).slice(0, 5);
+        break;
+      case 'defense':
+        optimizedPlayers = allPlayers.sort((a, b) => (b.spg + b.bpg) - (a.spg + a.bpg)).slice(0, 5);
+        break;
+      case 'balanced':
+      default:
+        optimizedPlayers = allPlayers.sort((a, b) => {
+          const aScore = a.ppg + a.rpg + a.apg + a.spg + a.bpg;
+          const bScore = b.ppg + b.rpg + b.apg + b.spg + b.bpg;
+          return bScore - aScore;
+        }).slice(0, 5);
+    }
+    
+    // Calculate totals for optimized lineup
+    const total_ppg = optimizedPlayers.reduce((sum, p) => sum + p.ppg, 0);
+    const total_rpg = optimizedPlayers.reduce((sum, p) => sum + p.rpg, 0);
+    const total_apg = optimizedPlayers.reduce((sum, p) => sum + p.apg, 0);
+    const total_spg = optimizedPlayers.reduce((sum, p) => sum + p.spg, 0);
+    const total_bpg = optimizedPlayers.reduce((sum, p) => sum + p.bpg, 0);
+    const total_fg_pct = optimizedPlayers.reduce((sum, p) => sum + p.fg_pct, 0) / 5;
+    const total_fg3_pct = optimizedPlayers.reduce((sum, p) => sum + p.fg3_pct, 0) / 5;
+    const total_ft_pct = optimizedPlayers.reduce((sum, p) => sum + p.ft_pct, 0) / 5;
+    
+    return {
+      original_lineup: lineup,
+      optimized_lineup: {
+        name: `${lineup.name} (Optimized - ${strategy})`,
+        players: optimizedPlayers,
+        total_ppg,
+        total_rpg,
+        total_apg,
+        total_spg,
+        total_bpg,
+        total_fg_pct,
+        total_fg3_pct,
+        total_ft_pct
+      },
+      improvement: {
+        ppg: total_ppg - lineup.total_ppg,
+        rpg: total_rpg - lineup.total_rpg,
+        apg: total_apg - lineup.total_apg,
+      }
+    };
+    
+    // Uncomment for production:
+    // const response = await api.post(`/lineups/${lineupId}/optimize/`, { strategy });
+    // return response.data;
   } catch (error) {
     console.error(`Error optimizing lineup ${lineupId}:`, error);
     console.log('Using mock lineup optimization as fallback');

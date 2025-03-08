@@ -400,7 +400,7 @@ const Home = () => {
             <Box
               sx={{
                 position: 'absolute',
-                bottom: '10%',
+                top: '10%',
                 left: '50%',
                 transform: 'translateX(-50%)',
                 width: '140px',
@@ -412,7 +412,7 @@ const Home = () => {
               <Box
                 sx={{
                   position: 'absolute',
-                  bottom: '60px',
+                  top: '0',
                   left: '50%',
                   transform: 'translateX(-50%)',
                   width: '90px',
@@ -441,7 +441,7 @@ const Home = () => {
               <Box
                 sx={{
                   position: 'absolute',
-                  bottom: '40px',
+                  top: '60px',
                   left: '50%',
                   transform: 'translateX(-50%)',
                   width: '45px',
@@ -458,7 +458,7 @@ const Home = () => {
                 viewBox="0 0 45 45"
                 sx={{
                   position: 'absolute',
-                  bottom: '0',
+                  top: '65px',
                   left: '50%',
                   transform: 'translateX(-50%)',
                   width: '45px',
@@ -492,7 +492,7 @@ const Home = () => {
               <Box
                 sx={{
                   position: 'absolute',
-                  bottom: '40px',
+                  top: '40px',
                   left: '50%',
                   transform: 'translateX(-50%)',
                   width: '10px',
