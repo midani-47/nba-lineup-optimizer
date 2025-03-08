@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   Container,
   Grid,
@@ -25,9 +25,13 @@ import { getPlayerById } from '../services/api';
 const PlayerDetail = () => {
   const { playerId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [loading, setLoading] = useState(true);
   const [player, setPlayer] = useState(null);
   const [error, setError] = useState(null);
+  
+  // Check if we're coming from the performances page
+  const isFromPerformances = location.state?.from === 'performances';
 
   useEffect(() => {
     const fetchPlayerData = async () => {
@@ -303,17 +307,46 @@ const PlayerDetail = () => {
         </TableContainer>
       </Paper>
       
-      {/* Add to Lineup Button */}
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-        <Button
-          variant="contained"
-          color="primary"
-          size="large"
-          onClick={() => navigate('/lineup-builder', { state: { selectedPlayer: player } })}
-        >
-          Add to Lineup
-        </Button>
-      </Box>
+      {/* Recent Games */}
+      <Typography variant="h5" gutterBottom>
+        Recent Games
+      </Typography>
+      <Paper sx={{ mb: 4, overflow: 'hidden' }}>
+        {/* ... existing recent games code ... */}
+      </Paper>
+      
+      {/* Season Highs */}
+      <Typography variant="h5" gutterBottom>
+        Season Highs
+      </Typography>
+      <Paper sx={{ mb: 4, overflow: 'hidden' }}>
+        {/* ... existing season highs code ... */}
+      </Paper>
+      
+      {/* Actions */}
+      <Grid container spacing={2} sx={{ mt: 4 }}>
+        <Grid item>
+          <Button
+            variant="outlined"
+            onClick={handleGoBack}
+          >
+            Back to Players
+          </Button>
+        </Grid>
+        
+        {/* Only show Add to Lineup button if not coming from performances page */}
+        {!isFromPerformances && (
+          <Grid item>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => navigate('/lineup-builder', { state: { addPlayer: player } })}
+            >
+              Add to Lineup
+            </Button>
+          </Grid>
+        )}
+      </Grid>
     </Container>
   );
 };

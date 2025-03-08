@@ -23,6 +23,11 @@ export const mockPlayers = [
   { player_id: 18, name: 'Bam Adebayo', team: 'MIA', position: 'C', ppg: 19.3, rpg: 10.4, apg: 3.9, spg: 1.1, bpg: 0.9, fg_pct: 0.541, fg3_pct: 0.000, ft_pct: 0.803, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/1628389.png' },
   { player_id: 19, name: 'Kyrie Irving', team: 'DAL', position: 'PG', ppg: 25.6, rpg: 5.1, apg: 5.2, spg: 1.3, bpg: 0.4, fg_pct: 0.499, fg3_pct: 0.412, ft_pct: 0.904, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/202681.png' },
   { player_id: 20, name: 'Zion Williamson', team: 'NOP', position: 'PF', ppg: 22.9, rpg: 6.8, apg: 4.9, spg: 1.1, bpg: 0.7, fg_pct: 0.594, fg3_pct: 0.333, ft_pct: 0.699, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/1629627.png' },
+  { player_id: 21, name: 'Victor Wembanyama', team: 'SAS', position: 'C', ppg: 21.4, rpg: 10.6, apg: 3.9, spg: 1.2, bpg: 3.6, fg_pct: 0.467, fg3_pct: 0.328, ft_pct: 0.802, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/1641705.png' },
+  { player_id: 22, name: 'Chet Holmgren', team: 'OKC', position: 'C', ppg: 16.5, rpg: 7.9, apg: 2.4, spg: 0.7, bpg: 2.3, fg_pct: 0.530, fg3_pct: 0.372, ft_pct: 0.787, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/1631096.png' },
+  { player_id: 23, name: 'Paolo Banchero', team: 'ORL', position: 'PF', ppg: 22.6, rpg: 6.9, apg: 5.4, spg: 0.9, bpg: 0.6, fg_pct: 0.459, fg3_pct: 0.338, ft_pct: 0.756, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/1631094.png' },
+  { player_id: 24, name: 'Anthony Edwards', team: 'MIN', position: 'SG', ppg: 25.9, rpg: 5.4, apg: 5.1, spg: 1.3, bpg: 0.5, fg_pct: 0.461, fg3_pct: 0.352, ft_pct: 0.833, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/1630162.png' },
+  { player_id: 25, name: 'Shai Gilgeous-Alexander', team: 'OKC', position: 'PG', ppg: 30.1, rpg: 5.5, apg: 6.2, spg: 2.0, bpg: 0.9, fg_pct: 0.534, fg3_pct: 0.355, ft_pct: 0.874, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/1628983.png' },
 ];
 
 // Mock Lineups

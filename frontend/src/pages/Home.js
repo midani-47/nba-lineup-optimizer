@@ -233,15 +233,15 @@ const Home = () => {
           <Box 
             sx={{ 
               position: 'relative',
-              height: { xs: 300, md: 400 },
+              height: { xs: 350, md: 450 },
               maxWidth: 1000,
               mx: 'auto',
               mb: 10,
               mt: 5,
-              perspective: '1000px'
+              perspective: '1200px'
             }}
           >
-            {/* Half Court - Facing the Net */}
+            {/* Half Court - Facing the Net - Upside Down */}
             <Box 
               sx={{ 
                 position: 'absolute',
@@ -249,24 +249,36 @@ const Home = () => {
                 left: '50%',
                 width: '90%',
                 height: '100%',
-                transform: 'translateX(-50%) rotateX(30deg)',
-                borderRadius: '10px',
-                border: '4px solid rgba(255,255,255,0.3)',
-                background: 'linear-gradient(to bottom, rgba(30,60,114,0.4), rgba(21,101,192,0.3))',
-                boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+                transform: 'translateX(-50%) rotateX(25deg)',
+                borderRadius: '16px',
+                border: '5px solid rgba(255,255,255,0.6)',
+                background: 'linear-gradient(to top, rgba(30,60,114,0.7), rgba(21,101,192,0.6))',
+                boxShadow: '0 20px 50px rgba(0,0,0,0.4), inset 0 0 100px rgba(0,0,0,0.2)',
                 overflow: 'hidden',
                 transformStyle: 'preserve-3d'
               }}
             >
+              {/* Center court line */}
+              <Box 
+                sx={{ 
+                  position: 'absolute',
+                  top: '0%',
+                  left: '0',
+                  width: '100%',
+                  height: '5px',
+                  backgroundColor: 'rgba(255,255,255,0.9)'
+                }}
+              />
+              
               {/* Free throw line */}
               <Box 
                 sx={{ 
                   position: 'absolute',
-                  top: '70%',
+                  top: '30%',
                   left: '0',
                   width: '100%',
-                  height: '2px',
-                  backgroundColor: 'rgba(255,255,255,0.7)'
+                  height: '4px',
+                  backgroundColor: 'rgba(255,255,255,0.9)'
                 }}
               />
               
@@ -274,13 +286,13 @@ const Home = () => {
               <Box 
                 sx={{ 
                   position: 'absolute',
-                  top: '70%',
+                  top: '30%',
                   left: '25%',
                   width: '50%',
-                  height: '20%',
+                  height: '15%',
                   borderTopLeftRadius: '100px',
                   borderTopRightRadius: '100px',
-                  border: '2px solid rgba(255,255,255,0.5)',
+                  border: '4px solid rgba(255,255,255,0.8)',
                   borderBottom: 'none'
                 }}
               />
@@ -289,14 +301,14 @@ const Home = () => {
               <Box 
                 sx={{ 
                   position: 'absolute',
-                  top: '40%',
+                  top: '5%',
                   left: '10%',
                   width: '80%',
-                  height: '60%',
-                  border: '2px dashed rgba(255,255,255,0.4)',
-                  borderTopLeftRadius: '200px',
-                  borderTopRightRadius: '200px',
-                  borderBottom: 'none'
+                  height: '50%',
+                  border: '4px solid rgba(255,255,255,0.8)',
+                  borderBottomLeftRadius: '200px',
+                  borderBottomRightRadius: '200px',
+                  borderTop: 'none'
                 }}
               />
               
@@ -304,28 +316,44 @@ const Home = () => {
               <Box 
                 sx={{ 
                   position: 'absolute',
-                  top: '70%',
+                  top: '0%',
                   left: '30%',
                   width: '40%',
                   height: '30%',
-                  backgroundColor: 'rgba(30,60,114,0.3)',
-                  borderTop: '2px solid rgba(255,255,255,0.5)'
+                  backgroundColor: 'rgba(30,60,114,0.6)',
+                  borderBottom: '4px solid rgba(255,255,255,0.8)',
+                  borderLeft: '4px solid rgba(255,255,255,0.8)',
+                  borderRight: '4px solid rgba(255,255,255,0.8)'
                 }}
               />
               
-              {/* Center court line */}
-              <Box 
-                sx={{ 
-                  position: 'absolute',
-                  top: '0%',
-                  left: '0',
-                  width: '100%',
-                  height: '3px',
-                  backgroundColor: 'rgba(255,255,255,0.7)'
-                }}
-              />
+              {/* Lane markers on free throw line */}
+              {[...Array(6)].map((_, i) => (
+                <React.Fragment key={`lane-marker-${i}`}>
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      top: `${5 + i * 5}%`,
+                      left: '30%',
+                      width: '3px',
+                      height: '15px',
+                      backgroundColor: 'rgba(255,255,255,0.9)'
+                    }}
+                  />
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      top: `${5 + i * 5}%`,
+                      left: '70%',
+                      width: '3px',
+                      height: '15px',
+                      backgroundColor: 'rgba(255,255,255,0.9)'
+                    }}
+                  />
+                </React.Fragment>
+              ))}
               
-              {/* Center circle (half) */}
+              {/* Center court circle */}
               <Box 
                 sx={{ 
                   position: 'absolute',
@@ -335,36 +363,48 @@ const Home = () => {
                   height: '30%',
                   borderBottomLeftRadius: '100px',
                   borderBottomRightRadius: '100px',
-                  border: '2px solid rgba(255,255,255,0.5)',
+                  border: '4px solid rgba(255,255,255,0.8)',
                   borderTop: 'none'
                 }}
               />
               
-              {/* Lane markers on free throw line */}
-              {[...Array(5)].map((_, i) => (
-                <Box
-                  key={`lane-marker-${i}`}
-                  sx={{
-                    position: 'absolute',
-                    top: `${70 + i * 3}%`,
-                    left: i % 2 === 0 ? '30%' : '68%',
-                    width: '2%',
-                    height: '1px',
-                    backgroundColor: 'rgba(255,255,255,0.5)'
-                  }}
-                />
-              ))}
+              {/* Court texture overlay */}
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' viewBox=\'0 0 100 100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z\' fill=\'%23ffffff\' fill-opacity=\'0.05\' fill-rule=\'evenodd\'/%3E%3C/svg%3E")',
+                  backgroundSize: '100px 100px',
+                  opacity: 0.7
+                }}
+              />
+              
+              {/* Glossy reflection */}
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  background: 'linear-gradient(to bottom, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 40%)',
+                  pointerEvents: 'none'
+                }}
+              />
             </Box>
             
             {/* Basketball Hoop and Net */}
             <Box
               sx={{
                 position: 'absolute',
-                bottom: '5%',
+                bottom: '10%',
                 left: '50%',
                 transform: 'translateX(-50%)',
-                width: '120px',
-                height: '100px',
+                width: '140px',
+                height: '120px',
                 zIndex: 2
               }}
             >
@@ -375,11 +415,11 @@ const Home = () => {
                   bottom: '60px',
                   left: '50%',
                   transform: 'translateX(-50%)',
-                  width: '80px',
-                  height: '50px',
-                  backgroundColor: 'rgba(255,255,255,0.9)',
-                  borderRadius: '3px',
-                  boxShadow: '0 5px 15px rgba(0,0,0,0.2)'
+                  width: '90px',
+                  height: '60px',
+                  backgroundColor: 'rgba(255,255,255,0.95)',
+                  borderRadius: '4px',
+                  boxShadow: '0 5px 15px rgba(0,0,0,0.3)'
                 }}
               >
                 {/* Backboard square */}
@@ -389,10 +429,10 @@ const Home = () => {
                     bottom: '5px',
                     left: '50%',
                     transform: 'translateX(-50%)',
-                    width: '30px',
-                    height: '25px',
-                    border: '2px solid rgba(255,109,0,0.7)',
-                    borderRadius: '1px'
+                    width: '35px',
+                    height: '30px',
+                    border: '3px solid rgba(255,109,0,0.8)',
+                    borderRadius: '2px'
                   }}
                 />
               </Box>
@@ -404,36 +444,35 @@ const Home = () => {
                   bottom: '40px',
                   left: '50%',
                   transform: 'translateX(-50%)',
-                  width: '40px',
-                  height: '20px',
-                  border: '3px solid #ff6d00',
-                  borderRadius: '0 0 20px 20px',
-                  borderTop: 'none',
-                  boxShadow: '0 3px 10px rgba(0,0,0,0.3)'
+                  width: '45px',
+                  height: '6px',
+                  border: '4px solid #ff6d00',
+                  borderRadius: '20px',
+                  boxShadow: '0 3px 10px rgba(0,0,0,0.4)'
                 }}
               />
               
-              {/* Net - using SVG for more realistic look */}
+              {/* Net - simplified and more natural */}
               <Box
                 component="svg"
-                viewBox="0 0 40 40"
+                viewBox="0 0 45 45"
                 sx={{
                   position: 'absolute',
                   bottom: '0',
                   left: '50%',
                   transform: 'translateX(-50%)',
-                  width: '40px',
-                  height: '40px'
+                  width: '45px',
+                  height: '45px'
                 }}
               >
                 {/* Vertical net lines */}
-                {[...Array(9)].map((_, i) => (
+                {[...Array(8)].map((_, i) => (
                   <path
                     key={`net-v-${i}`}
-                    d={`M${5 + i * 4},0 Q${5 + i * 4},20 ${3 + i * 4.5},40`}
+                    d={`M${5 + i * 5},0 Q${5 + i * 5},20 ${3 + i * 6},45`}
                     fill="none"
-                    stroke="rgba(255,255,255,0.8)"
-                    strokeWidth="0.5"
+                    stroke="rgba(255,255,255,0.9)"
+                    strokeWidth="0.8"
                   />
                 ))}
                 
@@ -441,49 +480,76 @@ const Home = () => {
                 {[...Array(6)].map((_, i) => (
                   <path
                     key={`net-h-${i}`}
-                    d={`M0,${5 + i * 7} Q20,${8 + i * 7} 40,${5 + i * 7}`}
+                    d={`M0,${7 + i * 7} Q22.5,${10 + i * 7} 45,${7 + i * 7}`}
                     fill="none"
-                    stroke="rgba(255,255,255,0.6)"
-                    strokeWidth="0.5"
+                    stroke="rgba(255,255,255,0.8)"
+                    strokeWidth="0.8"
                   />
                 ))}
               </Box>
+              
+              {/* Rim support */}
+              <Box
+                sx={{
+                  position: 'absolute',
+                  bottom: '40px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: '10px',
+                  height: '20px',
+                  backgroundColor: '#d32f2f',
+                  zIndex: -1
+                }}
+              />
             </Box>
             
             {/* Bouncing Basketball with improved animation */}
             <Box 
-              component="img"
-              src="/basketball-icon.svg"
-              alt="Basketball"
               sx={{ 
                 position: 'absolute',
-                width: 50,
-                height: 50,
-                top: '50%',
+                width: 60,
+                height: 60,
+                top: '60%',
                 left: '50%',
+                borderRadius: '50%',
+                background: 'radial-gradient(circle at 30% 30%, #f57c00 0%, #e65100 70%)',
+                boxShadow: '0 5px 15px rgba(0,0,0,0.4)',
                 transform: 'translate(-50%, -50%)',
-                filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.4))',
-                animation: 'bounce-and-rotate 2.5s infinite ease-in-out',
+                animation: 'bounce-and-rotate 2s infinite ease-in-out',
                 zIndex: 3,
+                '&::before': {
+                  content: '""',
+                  position: 'absolute',
+                  top: '0',
+                  left: '0',
+                  width: '100%',
+                  height: '100%',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(to right, transparent 45%, rgba(0,0,0,0.1) 50%, transparent 55%), linear-gradient(to bottom, transparent 45%, rgba(0,0,0,0.1) 50%, transparent 55%)',
+                  transform: 'rotate(30deg)'
+                },
+                '&::after': {
+                  content: '""',
+                  position: 'absolute',
+                  top: '0',
+                  left: '0',
+                  width: '100%',
+                  height: '100%',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(to right, transparent 48%, rgba(0,0,0,0.1) 50%, transparent 52%), linear-gradient(to bottom, transparent 48%, rgba(0,0,0,0.1) 50%, transparent 52%)',
+                  transform: 'rotate(60deg)'
+                },
                 '@keyframes bounce-and-rotate': {
                   '0%': { 
-                    transform: 'translate(-50%, -30%) rotate(0deg) scale(1)', 
-                    animationTimingFunction: 'cubic-bezier(0.17, 0.67, 0.83, 0.67)' 
-                  },
-                  '25%': { 
-                    transform: 'translate(-50%, 30%) rotate(90deg) scale(0.95)', 
+                    transform: 'translate(-50%, -80%) rotate(0deg)', 
                     animationTimingFunction: 'cubic-bezier(0.17, 0.67, 0.83, 0.67)' 
                   },
                   '50%': { 
-                    transform: 'translate(-50%, -15%) rotate(180deg) scale(1)', 
-                    animationTimingFunction: 'cubic-bezier(0.17, 0.67, 0.83, 0.67)' 
-                  },
-                  '75%': { 
-                    transform: 'translate(-50%, 15%) rotate(270deg) scale(0.98)', 
+                    transform: 'translate(-50%, 0%) rotate(180deg) scale(0.95)', 
                     animationTimingFunction: 'cubic-bezier(0.17, 0.67, 0.83, 0.67)' 
                   },
                   '100%': { 
-                    transform: 'translate(-50%, -30%) rotate(360deg) scale(1)', 
+                    transform: 'translate(-50%, -80%) rotate(360deg)', 
                     animationTimingFunction: 'cubic-bezier(0.17, 0.67, 0.83, 0.67)' 
                   }
                 }
@@ -497,11 +563,25 @@ const Home = () => {
                 bottom: '-20px',
                 left: '50%',
                 transform: 'translateX(-50%)',
-                width: '80%',
-                height: '20px',
+                width: '85%',
+                height: '25px',
                 borderRadius: '50%',
-                background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 70%)',
+                background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 70%)',
                 zIndex: 1
+              }}
+            />
+            
+            {/* Spotlight effect */}
+            <Box
+              sx={{
+                position: 'absolute',
+                top: '-50px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '300px',
+                height: '300px',
+                background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%)',
+                zIndex: 0
               }}
             />
           </Box>

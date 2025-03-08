@@ -126,7 +126,7 @@ const StatsSection = memo(({ title, players, statKey, statLabel, onPlayerClick }
               player={player} 
               statKey={statKey} 
               statLabel={statLabel}
-              onClick={onPlayerClick}
+              onClick={(playerId) => onPlayerClick(playerId, 'performances')}
             />
           ))
         ) : (
@@ -271,8 +271,8 @@ const Performances = () => {
     setChartTab(newValue);
   };
 
-  const handlePlayerClick = (playerId) => {
-    navigate(`/players/${playerId}`);
+  const handlePlayerClick = (playerId, source = 'players') => {
+    navigate(`/players/${playerId}`, { state: { from: source } });
   };
 
   // Prepare data for top performances bar chart
@@ -306,6 +306,105 @@ const Performances = () => {
     ];
   };
 
+  // Render the chart section with improved chart
+  const renderChartSection = () => {
+    if (!Array.isArray(stats.recentGames) || stats.recentGames.length === 0) {
+      return (
+        <Paper
+          sx={{
+            p: 3,
+            display: 'flex',
+            flexDirection: 'column',
+            height: 400,
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}
+          elevation={3}
+        >
+          <Alert severity="info">No recent game data available</Alert>
+        </Paper>
+      );
+    }
+
+    return (
+      <Paper
+        sx={{
+          p: 3,
+          display: 'flex',
+          flexDirection: 'column',
+          height: 400
+        }}
+        elevation={3}
+      >
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography variant="h6">
+            Team Performance - Last 5 Games
+          </Typography>
+          <Tabs
+            value={chartTab}
+            onChange={(e, newValue) => setChartTab(newValue)}
+            textColor="primary"
+            indicatorColor="primary"
+            aria-label="chart tabs"
+          >
+            <Tab label="Line Chart" />
+            <Tab label="Bar Chart" />
+          </Tabs>
+        </Box>
+        
+        <Box sx={{ height: 300, mt: 2 }}>
+          <Suspense fallback={<Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}><CircularProgress /></Box>}>
+            {chartTab === 0 ? (
+              <LazyLineChart 
+                data={stats.recentGames}
+                xLegend="Game"
+                yLegend="Value"
+                title="Team Stats by Game"
+                tooltipTitle="Game Performance"
+                tooltipFormat={(value) => `${value}`}
+              />
+            ) : (
+              <LazyBarChart 
+                data={stats.recentGames.map(series => ({
+                  ...series,
+                  data: series.data.map(point => ({
+                    ...point,
+                    indexValue: point.x,
+                    value: point.y
+                  }))
+                }))}
+                keys={['value']}
+                indexBy="indexValue"
+                title="Team Stats by Game"
+                tooltipFormat={(value) => `${value}`}
+              />
+            )}
+          </Suspense>
+        </Box>
+        
+        {/* Chart Legend and Explanation */}
+        <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 2 }}>
+          {stats.recentGames.map((series, index) => (
+            <Chip 
+              key={index}
+              label={series.id}
+              sx={{ 
+                backgroundColor: index === 0 ? '#ff6d00' : index === 1 ? '#2196f3' : '#4caf50',
+                color: 'white',
+                fontWeight: 'bold'
+              }}
+            />
+          ))}
+        </Box>
+        
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 2, textAlign: 'center' }}>
+          This chart shows the team's performance metrics over the last 5 games. 
+          Points represent scoring efficiency, Assists show team playmaking, and Rebounds indicate defensive presence.
+        </Typography>
+      </Paper>
+    );
+  };
+
   if (loading) {
     return (
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -319,11 +418,14 @@ const Performances = () => {
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Typography variant="h4" component="h1" gutterBottom className="page-title">
-        Performances
+        Performance Dashboard
       </Typography>
       
+      {/* Top Performers */}
+      <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
+        Top Performers
+      </Typography>
       <Grid container spacing={3}>
-        {/* Top Scorers */}
         <StatsSection 
           title="Top Scorers" 
           players={stats.topScorers} 
@@ -331,8 +433,6 @@ const Performances = () => {
           statLabel="PPG"
           onPlayerClick={handlePlayerClick}
         />
-        
-        {/* Top Rebounders */}
         <StatsSection 
           title="Top Rebounders" 
           players={stats.topRebounders} 
@@ -340,175 +440,97 @@ const Performances = () => {
           statLabel="RPG"
           onPlayerClick={handlePlayerClick}
         />
-        
-        {/* Top Assists */}
         <StatsSection 
-          title="Top Assists" 
+          title="Top Playmakers" 
           players={stats.topAssists} 
           statKey="apg" 
           statLabel="APG"
           onPlayerClick={handlePlayerClick}
         />
-        
-        {/* Charts Section */}
-        <Grid item xs={12}>
-          <Paper
-            sx={{
-              p: 2,
-              display: 'flex',
-              flexDirection: 'column',
-              minHeight: 450,
-            }}
-            elevation={3}
-            className="card-hover"
-          >
-            <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
-              <Tabs 
-                value={chartTab} 
-                onChange={handleChartTabChange} 
-                aria-label="performance charts tabs"
-                variant="fullWidth"
+      </Grid>
+      
+      {/* Recent Games Chart */}
+      <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
+        Recent Team Performance
+      </Typography>
+      {renderChartSection()}
+      
+      {/* Top Individual Performances */}
+      <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
+        Top Individual Performances
+      </Typography>
+      <Grid container spacing={3}>
+        {Array.isArray(stats.topPerformances) && stats.topPerformances.length > 0 ? (
+          stats.topPerformances.map((performance, index) => (
+            <Grid item xs={12} sm={6} md={4} key={index}>
+              <Card 
+                sx={{ 
+                  height: '100%',
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                  '&:hover': {
+                    transform: 'translateY(-5px)',
+                    boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
+                  },
+                }}
+                onClick={() => handlePlayerClick(performance.player_id, 'performances')}
               >
-                <Tab label="Recent Games" />
-                <Tab label="Top Performances" />
-              </Tabs>
-            </Box>
-            
-            {chartTab === 0 && (
-              <>
-                <Typography variant="h6" gutterBottom>
-                  Recent Games Performance
-                </Typography>
-                <Box sx={{ height: 350, mt: 2 }}>
-                  <Suspense fallback={<Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}><CircularProgress /></Box>}>
-                    {Array.isArray(stats.recentGames) && stats.recentGames.length > 0 ? (
-                      <LazyLineChart data={stats.recentGames} />
-                    ) : (
-                      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                        <Alert severity="info">No recent game data available</Alert>
-                      </Box>
-                    )}
-                  </Suspense>
-                </Box>
-              </>
-            )}
-            
-            {chartTab === 1 && (
-              <>
-            <Typography variant="h6" gutterBottom>
-                  Top Individual Performances
-            </Typography>
-                <Box sx={{ height: 350, mt: 2 }}>
-                  <Suspense fallback={<Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}><CircularProgress /></Box>}>
-                    {Array.isArray(stats.topPerformances) && stats.topPerformances.length > 0 ? (
-                      <LazyBarChart data={getTopPerformancesChartData()} />
-                    ) : (
-                      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                        <Alert severity="info">No top performance data available</Alert>
-                      </Box>
-                    )}
-                  </Suspense>
-                </Box>
-              </>
-            )}
-          </Paper>
-        </Grid>
-        
-        {/* Top Individual Performances */}
-        <Grid item xs={12}>
-          <Paper
-            sx={{
-              p: 2,
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-            elevation={3}
-            className="card-hover"
-          >
-            <Typography variant="h6" gutterBottom>
-              Recent Top Individual Performances
-            </Typography>
-            
-            {Array.isArray(stats.topPerformances) && stats.topPerformances.length > 0 ? (
-              <Grid container spacing={2}>
-                {stats.topPerformances.map((performance, index) => (
-                  <Grid item xs={12} md={6} lg={4} key={`${performance.player_id}-${index}`}>
-                    <Card 
-                      sx={{ 
-                        cursor: 'pointer',
-                        transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-                        '&:hover': {
-                          transform: 'translateY(-5px)',
-                          boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
-                        },
+                <CardContent>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <CardMedia
+                      component="img"
+                      sx={{ width: 60, height: 60, borderRadius: '50%', mr: 2, objectFit: 'cover' }}
+                      image={performance.image_url || `https://cdn.nba.com/headshots/nba/latest/1040x760/${performance.player_id}.png`}
+                      alt={performance.name}
+                      onError={(e) => {
+                        e.target.src = `https://via.placeholder.com/60x60?text=${performance.name ? performance.name.charAt(0) : 'N/A'}`;
                       }}
-                      onClick={() => handlePlayerClick(performance.player_id)}
-                    >
-                      <Box sx={{ display: 'flex', p: 2 }}>
-                        <CardMedia
-                          component="img"
-                          sx={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover' }}
-                          image={performance.image_url || `https://cdn.nba.com/headshots/nba/latest/1040x760/${performance.player_id}.png`}
-                          alt={performance.name || 'Player'}
-                          onError={(e) => {
-                            e.target.src = `https://via.placeholder.com/80x80?text=${performance.name ? performance.name.charAt(0) : 'N/A'}`;
-                          }}
-                        />
-                        <Box sx={{ ml: 2 }}>
-                          <Typography variant="h6" component="div">
-                            {performance.name || 'Unknown Player'}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            {performance.team || 'N/A'} vs {performance.opponent || 'N/A'}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            {performance.date || 'Unknown date'}
-                          </Typography>
-                        </Box>
-                      </Box>
-                      <Divider />
-                      <Box sx={{ display: 'flex', justifyContent: 'space-around', p: 1.5 }}>
-                        <Box sx={{ textAlign: 'center' }}>
-                          <Typography variant="h6" color="primary">
-                            {performance.points || 0}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            PTS
-                          </Typography>
-                        </Box>
-                        <Box sx={{ textAlign: 'center' }}>
-                          <Typography variant="h6" color="primary">
-                            {performance.rebounds || 0}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            REB
-                          </Typography>
-                        </Box>
-                        <Box sx={{ textAlign: 'center' }}>
-                          <Typography variant="h6" color="primary">
-                            {performance.assists || 0}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            AST
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </Card>
-                  </Grid>
-                ))}
-              </Grid>
-            ) : (
-              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 4 }}>
-                <Alert severity="info">No top performance data available</Alert>
-            </Box>
-            )}
-          </Paper>
-        </Grid>
+                    />
+                    <Box>
+                      <Typography variant="h6" component="div">
+                        {performance.name}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {performance.team} vs {performance.opponent} • {performance.date}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-around', mt: 2 }}>
+                    <Box sx={{ textAlign: 'center' }}>
+                      <Typography variant="h5" color="primary">
+                        {performance.points}
+                      </Typography>
+                      <Typography variant="body2">PTS</Typography>
+                    </Box>
+                    <Box sx={{ textAlign: 'center' }}>
+                      <Typography variant="h5" color="primary">
+                        {performance.rebounds}
+                      </Typography>
+                      <Typography variant="body2">REB</Typography>
+                    </Box>
+                    <Box sx={{ textAlign: 'center' }}>
+                      <Typography variant="h5" color="primary">
+                        {performance.assists}
+                      </Typography>
+                      <Typography variant="body2">AST</Typography>
+                    </Box>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))
+        ) : (
+          <Grid item xs={12}>
+            <Paper sx={{ p: 3, textAlign: 'center' }}>
+              <Typography variant="body1">No top performances available</Typography>
+            </Paper>
+          </Grid>
+        )}
       </Grid>
       
       {/* Error Snackbar */}
-      <Snackbar open={!!error} autoHideDuration={6000} onClose={handleCloseError}>
-        <Alert onClose={handleCloseError} severity="error" sx={{ width: '100%' }}>
+      <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
+        <Alert onClose={() => setError(null)} severity="error" sx={{ width: '100%' }}>
           {error}
         </Alert>
       </Snackbar>
