@@ -6,7 +6,7 @@ The NBA Lineup Optimizer is a full-stack web application designed to help users 
 ## Features
 - **Dashboard**: View top performers and quick actions to build or optimize lineups.
 - **Players Page**: Browse and filter NBA players by name, position, and team.
-- **Lineup Builder**: Create custom lineups with drag-and-drop functionality.
+- **Lineup Builder**: Create custom lineups with search and add functionality.
 - **Lineup Comparison**: Compare two lineups side by side with statistical and radar charts.
 - **Lineup Optimizer**: Optimize lineups based on criteria like offense, defense, or balanced performance.
 
@@ -24,10 +24,12 @@ cd nba-lineup-optimizer
 ```
 
 ### 2. Backend Setup
+
+#### Windows
 ```bash
 # Create and activate virtual environment
-python -m venv venv # On macOS: python3 -m venv venv
-.\venv\Scripts\activate # On macOS: source venv/bin/activate
+python -m venv venv
+venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
@@ -36,18 +38,54 @@ pip install -r requirements.txt
 cd backend
 
 # Apply database migrations
-python manage.py migrate # On macOS: python3 manage.py migrate
+python manage.py migrate
 
 # Load initial data and fix player stats
-python manage.py load_nba_data # On macOS: python3 manage.py load_nba_data
-python fix_data.py # On macOS: python3 fix_data.py
+python manage.py load_nba_data
+python fix_data.py
 
 # Start the backend server
-python manage.py runserver 8001 # On macOS: python3 manage.py runserver 
+python manage.py runserver 8001
+```
+
+#### macOS/Linux
+```bash
+# Create and activate virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Navigate to backend directory
+cd backend
+
+# Apply database migrations
+python3 manage.py migrate
+
+# Load initial data and fix player stats
+python3 manage.py load_nba_data
+python3 fix_data.py
+
+# Start the backend server
+python3 manage.py runserver 8001
 ```
 
 ### 3. Frontend Setup
-Open a new terminal window and run:
+
+#### Windows
+```bash
+# Navigate to frontend directory from the project root
+cd frontend  # Make sure you're in the correct directory
+
+# Install dependencies
+npm install --legacy-peer-deps
+
+# Start the frontend server
+npm start
+```
+
+#### macOS/Linux
 ```bash
 # Navigate to frontend directory from the project root
 cd frontend  # Make sure you're in the correct directory
@@ -66,6 +104,37 @@ npm start
 ## Troubleshooting
 
 ### Backend Issues
+
+#### Windows
+1. If you encounter dependency conflicts:
+   ```bash
+   pip uninstall channels daphne
+   pip install channels>=4.0.0 daphne>=3.0,<4.0
+   ```
+
+2. If the database is not populated:
+   ```bash
+   cd backend
+   ..\venv\Scripts\activate
+   python manage.py migrate
+   python fix_data.py
+   ```
+
+3. If the server won't start:
+   - Check if port 8001 is in use: `netstat -ano | findstr :8001`
+   - Kill any existing process: `taskkill /F /PID <PID>`
+
+4. If player data shows incorrect teams:
+   ```bash
+   cd backend
+   ..\venv\Scripts\activate
+   python fix_data.py
+   ```
+
+5. If you see "No module named 'cgi'" error:
+   - Update to channels 4.0.0 or higher: `pip install channels>=4.0.0`
+
+#### macOS/Linux
 1. If you see "command not found: python":
    - Use `python3` instead of `python` on macOS
    - Ensure Python 3 is installed: `brew install python3`
@@ -90,6 +159,25 @@ npm start
    ```
 
 ### Frontend Issues
+
+#### Windows
+1. If npm install fails:
+   ```bash
+   rmdir /s /q node_modules
+   npm cache clean --force
+   npm install --legacy-peer-deps
+   ```
+
+2. If the frontend can't connect to the backend:
+   - Ensure backend is running on port 8001
+   - Check browser console for CORS errors
+   - Verify API_URL in `src/services/api.js`
+
+3. If you can't save lineups with the same name:
+   - This is by design to prevent duplicate lineup names
+   - Choose a different name for each lineup
+
+#### macOS/Linux
 1. If npm install fails:
    ```bash
    rm -rf node_modules
@@ -102,12 +190,7 @@ npm start
    - Check browser console for CORS errors
    - Verify API_URL in `src/services/api.js`
 
-3. If drag-and-drop functionality doesn't work:
-   - Check browser console for errors
-   - Make sure you're using the latest version of the code
-   - Try refreshing the page
-
-4. If you can't save lineups with the same name:
+3. If you can't save lineups with the same name:
    - This is by design to prevent duplicate lineup names
    - Choose a different name for each lineup
 
