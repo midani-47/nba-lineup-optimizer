@@ -1,7 +1,62 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo, lazy, Suspense } from 'react';
 import { Container, Grid, Paper, Typography, Box, Card, CardContent, CardMedia, CircularProgress } from '@mui/material';
-import { ResponsiveLine } from '@nivo/line';
 import { getDashboardStats } from '../services/api';
+
+// Lazy load the chart component to improve initial load time
+const LazyLineChart = lazy(() => import('../components/LineChart'));
+
+// Memoized player card component to prevent unnecessary re-renders
+const PlayerCard = memo(({ player, statKey, statLabel }) => (
+  <Card sx={{ display: 'flex', mb: 2, height: 100 }} className="player-card">
+    <CardMedia
+      component="img"
+      sx={{ width: 80, objectFit: 'cover', backgroundColor: '#f0f0f0' }}
+      image={player.image_url || `https://via.placeholder.com/80x100?text=${player.name.charAt(0)}`}
+      alt={player.name}
+    />
+    <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+      <CardContent sx={{ flex: '1 0 auto', py: 1 }}>
+        <Typography component="div" variant="h6" noWrap>
+          {player.name}
+        </Typography>
+        <Typography variant="subtitle2" color="text.secondary" component="div">
+          {player.team}
+        </Typography>
+        <Typography variant="body1" color="primary" fontWeight="bold">
+          {player[statKey]} {statLabel}
+        </Typography>
+      </CardContent>
+    </Box>
+  </Card>
+));
+
+// Memoized stats section to prevent unnecessary re-renders
+const StatsSection = memo(({ title, players, statKey, statLabel }) => (
+  <Grid item xs={12} md={4}>
+    <Paper
+      sx={{
+        p: 2,
+        display: 'flex',
+        flexDirection: 'column',
+        height: 500,
+      }}
+      elevation={3}
+      className="card-hover"
+    >
+      <Typography variant="h6" gutterBottom>
+        {title}
+      </Typography>
+      {players.map((player) => (
+        <PlayerCard 
+          key={player.player_id} 
+          player={player} 
+          statKey={statKey} 
+          statLabel={statLabel} 
+        />
+      ))}
+    </Paper>
+  </Grid>
+));
 
 const Dashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -84,30 +139,6 @@ const Dashboard = () => {
     fetchDashboardData();
   }, []);
 
-  const renderPlayerCard = (player, statKey, statLabel) => (
-    <Card sx={{ display: 'flex', mb: 2, height: 100 }} className="player-card">
-      <CardMedia
-        component="img"
-        sx={{ width: 80, objectFit: 'cover', backgroundColor: '#f0f0f0' }}
-        image={player.image_url || `https://via.placeholder.com/80x100?text=${player.name.charAt(0)}`}
-        alt={player.name}
-      />
-      <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-        <CardContent sx={{ flex: '1 0 auto', py: 1 }}>
-          <Typography component="div" variant="h6" noWrap>
-            {player.name}
-          </Typography>
-          <Typography variant="subtitle2" color="text.secondary" component="div">
-            {player.team}
-          </Typography>
-          <Typography variant="body1" color="primary" fontWeight="bold">
-            {player[statKey]} {statLabel}
-          </Typography>
-        </CardContent>
-      </Box>
-    </Card>
-  );
-
   if (loading) {
     return (
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -126,61 +157,28 @@ const Dashboard = () => {
       
       <Grid container spacing={3}>
         {/* Top Scorers */}
-        <Grid item xs={12} md={4}>
-          <Paper
-            sx={{
-              p: 2,
-              display: 'flex',
-              flexDirection: 'column',
-              height: 500,
-            }}
-            elevation={3}
-            className="card-hover"
-          >
-            <Typography variant="h6" gutterBottom>
-              Top Scorers
-            </Typography>
-            {stats.topScorers.map((player) => renderPlayerCard(player, 'ppg', 'PPG'))}
-          </Paper>
-        </Grid>
+        <StatsSection 
+          title="Top Scorers" 
+          players={stats.topScorers} 
+          statKey="ppg" 
+          statLabel="PPG" 
+        />
         
         {/* Top Rebounders */}
-        <Grid item xs={12} md={4}>
-          <Paper
-            sx={{
-              p: 2,
-              display: 'flex',
-              flexDirection: 'column',
-              height: 500,
-            }}
-            elevation={3}
-            className="card-hover"
-          >
-            <Typography variant="h6" gutterBottom>
-              Top Rebounders
-            </Typography>
-            {stats.topRebounders.map((player) => renderPlayerCard(player, 'rpg', 'RPG'))}
-          </Paper>
-        </Grid>
+        <StatsSection 
+          title="Top Rebounders" 
+          players={stats.topRebounders} 
+          statKey="rpg" 
+          statLabel="RPG" 
+        />
         
         {/* Top Assists */}
-        <Grid item xs={12} md={4}>
-          <Paper
-            sx={{
-              p: 2,
-              display: 'flex',
-              flexDirection: 'column',
-              height: 500,
-            }}
-            elevation={3}
-            className="card-hover"
-          >
-            <Typography variant="h6" gutterBottom>
-              Top Assists
-            </Typography>
-            {stats.topAssists.map((player) => renderPlayerCard(player, 'apg', 'APG'))}
-          </Paper>
-        </Grid>
+        <StatsSection 
+          title="Top Assists" 
+          players={stats.topAssists} 
+          statKey="apg" 
+          statLabel="APG" 
+        />
         
         {/* Recent Games Chart */}
         <Grid item xs={12}>
@@ -198,85 +196,9 @@ const Dashboard = () => {
               Recent Games Performance
             </Typography>
             <Box sx={{ height: 300 }}>
-              <ResponsiveLine
-                data={stats.recentGames}
-                margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
-                xScale={{ type: 'point' }}
-                yScale={{
-                  type: 'linear',
-                  min: 'auto',
-                  max: 'auto',
-                  stacked: false,
-                  reverse: false,
-                }}
-                yFormat=" >-.2f"
-                axisTop={null}
-                axisRight={null}
-                axisBottom={{
-                  tickSize: 5,
-                  tickPadding: 5,
-                  tickRotation: 0,
-                  legend: 'Games',
-                  legendOffset: 36,
-                  legendPosition: 'middle',
-                }}
-                axisLeft={{
-                  tickSize: 5,
-                  tickPadding: 5,
-                  tickRotation: 0,
-                  legend: 'Stats',
-                  legendOffset: -40,
-                  legendPosition: 'middle',
-                }}
-                pointSize={10}
-                pointColor={{ theme: 'background' }}
-                pointBorderWidth={2}
-                pointBorderColor={{ from: 'serieColor' }}
-                pointLabelYOffset={-12}
-                useMesh={true}
-                legends={[
-                  {
-                    anchor: 'bottom-right',
-                    direction: 'column',
-                    justify: false,
-                    translateX: 100,
-                    translateY: 0,
-                    itemsSpacing: 0,
-                    itemDirection: 'left-to-right',
-                    itemWidth: 80,
-                    itemHeight: 20,
-                    itemOpacity: 0.75,
-                    symbolSize: 12,
-                    symbolShape: 'circle',
-                    symbolBorderColor: 'rgba(0, 0, 0, .5)',
-                    effects: [
-                      {
-                        on: 'hover',
-                        style: {
-                          itemBackground: 'rgba(0, 0, 0, .03)',
-                          itemOpacity: 1,
-                        },
-                      },
-                    ],
-                  },
-                ]}
-                tooltip={({ point }) => {
-                  return (
-                    <div
-                      style={{
-                        background: 'rgba(0, 0, 0, 0.8)',
-                        color: '#fff',
-                        padding: '9px 12px',
-                        border: '1px solid #ccc',
-                        borderRadius: '4px',
-                      }}
-                    >
-                      <div>{point.serieId}: {point.data.y}</div>
-                      <div>{point.data.x}</div>
-                    </div>
-                  );
-                }}
-              />
+              <Suspense fallback={<CircularProgress />}>
+                <LazyLineChart data={stats.recentGames} />
+              </Suspense>
             </Box>
           </Paper>
         </Grid>

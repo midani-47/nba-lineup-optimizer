@@ -73,7 +73,10 @@ class PlayerViewSet(viewsets.ModelViewSet):
         return PlayerSerializer
     
     def get_queryset(self):
-        queryset = Player.objects.all()
+        """
+        Optimized queryset with proper filtering and prefetching related data
+        """
+        queryset = Player.objects.all().select_related('team')
         
         # Check if pagination should be disabled
         if self.request.query_params.get('limit') == '1000':
@@ -88,6 +91,25 @@ class PlayerViewSet(viewsets.ModelViewSet):
         team = self.request.query_params.get('team', None)
         if team:
             queryset = queryset.filter(team=team)
+            
+        # Filter by name if provided
+        name = self.request.query_params.get('name', None)
+        if name:
+            queryset = queryset.filter(
+                Q(first_name__icontains=name) | 
+                Q(last_name__icontains=name)
+            )
+        
+        # Ensure all necessary stats are available
+        for player in queryset:
+            if player.player_efficiency_rating is None:
+                player.player_efficiency_rating = 0.0
+            if player.usage_rate is None:
+                player.usage_rate = 0.0
+            if player.true_shooting_percentage is None:
+                player.true_shooting_percentage = 0.0
+            if player.position is None or player.position == '':
+                player.position = 'Unknown'
         
         return queryset
     
@@ -163,26 +185,6 @@ class PlayerViewSet(viewsets.ModelViewSet):
         
         serializer = PlayerListSerializer(players, many=True)
         return Response(serializer.data)
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        # Ensure all necessary stats are available
-        for player in queryset:
-            if player.player_efficiency_rating is None:
-                player.player_efficiency_rating = 0.0
-            if player.usage_rate is None:
-                player.usage_rate = 0.0
-            if player.true_shooting_percentage is None:
-                player.true_shooting_percentage = 0.0
-            if player.position is None:
-                player.position = 'Unknown'
-            if player.height is None:
-                player.height = 0
-            if player.weight is None:
-                player.weight = 0
-            if player.team_id is None:
-                player.team_id = 0
-        return queryset
 
 class LineupViewSet(viewsets.ModelViewSet):
     serializer_class = LineupSerializer

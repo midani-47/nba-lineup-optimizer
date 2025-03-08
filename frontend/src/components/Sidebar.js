@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { styled } from '@mui/material/styles';
 import MuiDrawer from '@mui/material/Drawer';
 import Toolbar from '@mui/material/Toolbar';
@@ -15,6 +15,7 @@ import PeopleIcon from '@mui/icons-material/People';
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
 import CompareIcon from '@mui/icons-material/Compare';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
+import HomeIcon from '@mui/icons-material/Home';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const drawerWidth = 240;
@@ -45,17 +46,58 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
   }),
 );
 
+// Memoized menu item component to prevent unnecessary re-renders
+const MenuItem = memo(({ item, isSelected, open, onClick }) => (
+  <ListItem disablePadding sx={{ display: 'block' }}>
+    <ListItemButton
+      selected={isSelected}
+      onClick={onClick}
+      sx={{
+        minHeight: 48,
+        justifyContent: open ? 'initial' : 'center',
+        px: 2.5,
+      }}
+    >
+      <ListItemIcon
+        sx={{
+          minWidth: 0,
+          mr: open ? 3 : 'auto',
+          justifyContent: 'center',
+          color: isSelected ? 'primary.main' : 'inherit',
+        }}
+      >
+        {item.icon}
+      </ListItemIcon>
+      <ListItemText 
+        primary={item.text} 
+        sx={{ 
+          opacity: open ? 1 : 0,
+          '& .MuiTypography-root': {
+            fontWeight: isSelected ? 600 : 400,
+          }
+        }} 
+      />
+    </ListItemButton>
+  </ListItem>
+));
+
 const Sidebar = ({ open, toggleDrawer }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
   const menuItems = [
-    { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
+    { text: 'Home', icon: <HomeIcon />, path: '/' },
+    { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
     { text: 'Players', icon: <PeopleIcon />, path: '/players' },
     { text: 'Lineup Builder', icon: <SportsSoccerIcon />, path: '/lineup-builder' },
     { text: 'Lineup Comparison', icon: <CompareIcon />, path: '/lineup-comparison' },
     { text: 'Lineup Optimizer', icon: <AutoFixHighIcon />, path: '/lineup-optimizer' },
   ];
+
+  const handleNavigation = (path) => {
+    // Use navigate with replace option to avoid adding to history stack
+    navigate(path, { replace: true });
+  };
 
   return (
     <Drawer variant="permanent" open={open}>
@@ -74,32 +116,17 @@ const Sidebar = ({ open, toggleDrawer }) => {
       <Divider />
       <List component="nav">
         {menuItems.map((item) => (
-          <ListItem key={item.text} disablePadding sx={{ display: 'block' }}>
-            <ListItemButton
-              selected={location.pathname === item.path}
-              onClick={() => navigate(item.path)}
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? 'initial' : 'center',
-                px: 2.5,
-              }}
-            >
-              <ListItemIcon
-                sx={{
-                  minWidth: 0,
-                  mr: open ? 3 : 'auto',
-                  justifyContent: 'center',
-                }}
-              >
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText primary={item.text} sx={{ opacity: open ? 1 : 0 }} />
-            </ListItemButton>
-          </ListItem>
+          <MenuItem
+            key={item.text}
+            item={item}
+            isSelected={location.pathname === item.path}
+            open={open}
+            onClick={() => handleNavigation(item.path)}
+          />
         ))}
       </List>
     </Drawer>
   );
 };
 
-export default Sidebar; 
+export default memo(Sidebar); 

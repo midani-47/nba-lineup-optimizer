@@ -4,6 +4,7 @@
 The NBA Lineup Optimizer is a full-stack web application designed to help users build, compare, and optimize NBA lineups. It leverages real-time player data to provide insights and analytics for lineup management.
 
 ## Features
+- **Homepage**: A beautiful introduction to the app with quick access to all features.
 - **Dashboard**: View top performers and quick actions to build or optimize lineups.
 - **Players Page**: Browse and filter NBA players by name, position, and team.
 - **Lineup Builder**: Create custom lineups with search and add functionality.
@@ -12,8 +13,13 @@ The NBA Lineup Optimizer is a full-stack web application designed to help users 
 
 ## Prerequisites
 - Python 3.8 or higher
-- Node.js 14 or higher
-- npm 6 or higher
+- Node.js 16 or higher (recommended: Node.js 16.x LTS)
+- npm 8 or higher
+
+## Important Version Notes
+- Django 4.2.10 and Django REST Framework 3.14.0 are required for compatibility
+- React 18.2.0 is used for the frontend
+- Using the exact versions in requirements.txt is strongly recommended
 
 ## Installation and Setup
 
@@ -23,9 +29,33 @@ git clone https://github.com/midani-47/nba-lineup-optimizer.git
 cd nba-lineup-optimizer
 ```
 
-### 2. Backend Setup
+### 2. Quick Start
 
 #### Windows
+```bash
+# Simply run the start script
+start.bat
+```
+
+#### macOS/Linux
+```bash
+# Make the script executable
+chmod +x start.sh
+
+# Run the start script
+./start.sh
+```
+
+The start scripts will:
+- Create a virtual environment if it doesn't exist
+- Install all required dependencies
+- Check and fix database issues
+- Apply migrations
+- Start both backend and frontend servers
+
+### 3. Manual Setup (if the quick start doesn't work)
+
+#### Backend Setup (Windows)
 ```bash
 # Create and activate virtual environment
 python -m venv venv
@@ -71,15 +101,18 @@ python3 fix_data.py
 python3 manage.py runserver 8001
 ```
 
-### 3. Frontend Setup
+### 4. Frontend Setup
 
 #### Windows
 ```bash
 # Navigate to frontend directory from the project root
 cd frontend  # Make sure you're in the correct directory
 
-# Install dependencies
+# Option 1: Standard installation
 npm install --legacy-peer-deps
+
+# Option 2: If you encounter dependency issues, use the fix script
+node fix_dependencies.js
 
 # Start the frontend server
 npm start
@@ -90,14 +123,17 @@ npm start
 # Navigate to frontend directory from the project root
 cd frontend  # Make sure you're in the correct directory
 
-# Install dependencies
+# Option 1: Standard installation
 npm install --legacy-peer-deps
+
+# Option 2: If you encounter dependency issues, use the fix script
+node fix_dependencies.js
 
 # Start the frontend server
 npm start
 ```
 
-### 4. Access the Application
+### 5. Access the Application
 - Frontend: Open your browser and go to `http://localhost:3000`
 - Backend API: Available at `http://localhost:8001/api`
 
@@ -108,11 +144,18 @@ npm start
 #### Windows
 1. If you encounter dependency conflicts:
    ```bash
-   pip uninstall channels daphne
-   pip install channels>=4.0.0 daphne>=3.0,<4.0
+   pip uninstall channels daphne djangorestframework
+   pip install -r requirements.txt
    ```
 
-2. If the database is not populated:
+2. If you see "cannot import name 'parse_header'" error:
+   - This is a compatibility issue between Django and DRF versions
+   - Make sure to use Django 4.2.10 and djangorestframework 3.14.0
+   ```bash
+   pip install Django==4.2.10 djangorestframework==3.14.0
+   ```
+
+3. If the database is not populated:
    ```bash
    cd backend
    ..\venv\Scripts\activate
@@ -120,18 +163,18 @@ npm start
    python fix_data.py
    ```
 
-3. If the server won't start:
+4. If the server won't start:
    - Check if port 8001 is in use: `netstat -ano | findstr :8001`
    - Kill any existing process: `taskkill /F /PID <PID>`
 
-4. If player data shows incorrect teams:
+5. If player data shows incorrect teams:
    ```bash
    cd backend
    ..\venv\Scripts\activate
    python fix_data.py
    ```
 
-5. If you see "No module named 'cgi'" error:
+6. If you see "No module named 'cgi'" error:
    - Update to channels 4.0.0 or higher: `pip install channels>=4.0.0`
 
 #### macOS/Linux
@@ -161,12 +204,31 @@ npm start
 ### Frontend Issues
 
 #### Windows
-1. If npm install fails:
+1. If npm install fails with "Cannot find module 'ajv/dist/compile/codegen'" error:
    ```bash
-   rmdir /s /q node_modules
+   # Use our automated fix script
+   cd frontend
+   node fix_dependencies.js
+   ```
+   
+   Or manually:
+   ```bash
+   # PowerShell
+   Remove-Item -Recurse -Force node_modules
+   Remove-Item package-lock.json
    npm cache clean --force
    npm install --legacy-peer-deps
    ```
+
+2. If the frontend is slow to load:
+   - Check browser console for errors
+   - Ensure backend API is responding quickly
+   - Try clearing browser cache
+   - Consider using a production build for better performance:
+     ```bash
+     npm run build
+     npx serve -s build
+     ```
 
 2. If the frontend can't connect to the backend:
    - Ensure backend is running on port 8001
@@ -217,3 +279,21 @@ npm start
 3. Commit your changes
 4. Push to the branch
 5. Create a Pull Request
+
+## Notifications
+The notification icon in the top navigation bar provides real-time updates about:
+
+1. **Player Stats Updates**: Notifications when player statistics are updated with the latest game data
+2. **Lineup Recommendations**: Suggestions for new lineups based on recent player performance
+3. **Game Schedules**: Alerts about upcoming NBA games that might affect your lineup decisions
+4. **Optimization Results**: Notifications when your saved lineups have been automatically optimized
+
+The notification system helps you stay informed about changes that might affect your lineup decisions without having to constantly check for updates manually. Click on the bell icon in the top navigation bar to view your notifications.
+
+## Performance Optimizations
+The application includes several performance optimizations:
+
+1. **API Caching**: Frequently accessed data is cached to reduce API calls
+2. **Lazy Loading**: Components like charts are loaded only when needed
+3. **Memoization**: React components are memoized to prevent unnecessary re-renders
+4. **Database Optimizations**: Queries use select_related and prefetch_related for efficient data retrieval
