@@ -17,6 +17,8 @@ import {
   Pagination,
   Chip,
   Button,
+  Alert,
+  Snackbar,
 } from '@mui/material';
 import { getPlayers } from '../services/api';
 
@@ -30,6 +32,8 @@ const Players = () => {
   const [teamFilter, setTeamFilter] = useState('');
   const [page, setPage] = useState(1);
   const [teams, setTeams] = useState([]);
+  const [positions, setPositions] = useState([]);
+  const [error, setError] = useState(null);
   const playersPerPage = 12;
 
   useEffect(() => {
@@ -37,14 +41,30 @@ const Players = () => {
       try {
         setLoading(true);
         const data = await getPlayers();
-        setPlayers(data);
-        setFilteredPlayers(data);
         
-        // Extract unique teams for filter
-        const uniqueTeams = [...new Set(data.map(player => player.team))].filter(Boolean).sort();
-        setTeams(uniqueTeams);
+        // Ensure data is an array
+        if (Array.isArray(data)) {
+          setPlayers(data);
+          setFilteredPlayers(data);
+          
+          // Extract unique teams for filter
+          const uniqueTeams = [...new Set(data.map(player => player.team))].filter(Boolean).sort();
+          setTeams(uniqueTeams);
+          
+          // Extract unique positions for filter
+          const uniquePositions = [...new Set(data.map(player => player.position))].filter(Boolean).sort();
+          setPositions(uniquePositions);
+        } else {
+          console.error('Expected players data to be an array but got:', data);
+          setPlayers([]);
+          setFilteredPlayers([]);
+          setError('Failed to load players data. Please try again.');
+        }
       } catch (error) {
         console.error('Error fetching players:', error);
+        setPlayers([]);
+        setFilteredPlayers([]);
+        setError('Error loading players. Please try refreshing the page.');
       } finally {
         setLoading(false);
       }
@@ -55,11 +75,16 @@ const Players = () => {
 
   useEffect(() => {
     // Apply filters
-    let result = players;
+    if (!Array.isArray(players)) {
+      setFilteredPlayers([]);
+      return;
+    }
+    
+    let result = [...players];
     
     if (searchTerm) {
       result = result.filter(player => 
-        player.name.toLowerCase().includes(searchTerm.toLowerCase())
+        player.name && player.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
     
@@ -82,38 +107,44 @@ const Players = () => {
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
   };
-
+  
   const handlePositionChange = (event) => {
     setPositionFilter(event.target.value);
   };
-
+  
   const handleTeamChange = (event) => {
     setTeamFilter(event.target.value);
   };
-
+  
   const handlePageChange = (event, value) => {
     setPage(value);
   };
-
+  
   const handlePlayerClick = (playerId) => {
     navigate(`/players/${playerId}`);
   };
-
+  
   const clearFilters = () => {
     setSearchTerm('');
     setPositionFilter('');
     setTeamFilter('');
   };
-
+  
   const getPlayerImageUrl = (playerId) => {
     return `https://cdn.nba.com/headshots/nba/latest/1040x760/${playerId}.png`;
+  };
+  
+  const handleCloseError = () => {
+    setError(null);
   };
 
   // Calculate pagination
   const indexOfLastPlayer = page * playersPerPage;
   const indexOfFirstPlayer = indexOfLastPlayer - playersPerPage;
-  const currentPlayers = filteredPlayers.slice(indexOfFirstPlayer, indexOfLastPlayer);
-  const totalPages = Math.ceil(filteredPlayers.length / playersPerPage);
+  const currentPlayers = Array.isArray(filteredPlayers) 
+    ? filteredPlayers.slice(indexOfFirstPlayer, indexOfLastPlayer) 
+    : [];
+  const totalPages = Math.ceil((Array.isArray(filteredPlayers) ? filteredPlayers.length : 0) / playersPerPage);
 
   if (loading) {
     return (
@@ -128,7 +159,7 @@ const Players = () => {
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Typography variant="h4" component="h1" gutterBottom className="page-title">
-        NBA Players
+        Players
       </Typography>
       
       {/* Filters */}
@@ -144,32 +175,32 @@ const Players = () => {
             />
           </Grid>
           <Grid item xs={12} sm={3}>
-            <FormControl fullWidth variant="outlined">
+            <FormControl fullWidth>
               <InputLabel>Position</InputLabel>
               <Select
                 value={positionFilter}
-                onChange={handlePositionChange}
                 label="Position"
+                onChange={handlePositionChange}
               >
                 <MenuItem value="">All Positions</MenuItem>
-                <MenuItem value="PG">Point Guard (PG)</MenuItem>
-                <MenuItem value="SG">Shooting Guard (SG)</MenuItem>
-                <MenuItem value="SF">Small Forward (SF)</MenuItem>
-                <MenuItem value="PF">Power Forward (PF)</MenuItem>
-                <MenuItem value="C">Center (C)</MenuItem>
+                {Array.isArray(positions) && positions.map((position) => (
+                  <MenuItem key={position} value={position}>
+                    {position}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
           </Grid>
           <Grid item xs={12} sm={3}>
-            <FormControl fullWidth variant="outlined">
+            <FormControl fullWidth>
               <InputLabel>Team</InputLabel>
               <Select
                 value={teamFilter}
-                onChange={handleTeamChange}
                 label="Team"
+                onChange={handleTeamChange}
               >
                 <MenuItem value="">All Teams</MenuItem>
-                {teams.map((team) => (
+                {Array.isArray(teams) && teams.map((team) => (
                   <MenuItem key={team} value={team}>
                     {team}
                   </MenuItem>
@@ -180,7 +211,6 @@ const Players = () => {
           <Grid item xs={12} sm={2}>
             <Button 
               variant="outlined" 
-              color="secondary" 
               onClick={clearFilters}
               fullWidth
             >
@@ -193,43 +223,34 @@ const Players = () => {
       {/* Results count */}
       <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="body1">
-          Showing {filteredPlayers.length} players
+          Showing {Array.isArray(filteredPlayers) ? filteredPlayers.length : 0} players
         </Typography>
-        {(searchTerm || positionFilter || teamFilter) && (
-          <Box>
-            {searchTerm && (
-              <Chip 
-                label={`Search: ${searchTerm}`} 
-                onDelete={() => setSearchTerm('')}
-                sx={{ mr: 1 }}
-              />
-            )}
-            {positionFilter && (
-              <Chip 
-                label={`Position: ${positionFilter}`} 
-                onDelete={() => setPositionFilter('')}
-                sx={{ mr: 1 }}
-              />
-            )}
-            {teamFilter && (
-              <Chip 
-                label={`Team: ${teamFilter}`} 
-                onDelete={() => setTeamFilter('')}
-              />
-            )}
-          </Box>
+        {filteredPlayers.length === 0 && !loading && (
+          <Typography variant="body1" color="error">
+            No players found matching your filters
+          </Typography>
         )}
       </Box>
       
       {/* Players Grid */}
       <Grid container spacing={3}>
-        {currentPlayers.length > 0 ? (
+        {Array.isArray(currentPlayers) && currentPlayers.length > 0 ? (
           currentPlayers.map((player) => (
-            <Grid item key={player.player_id} xs={12} sm={6} md={4} lg={3}>
+            <Grid item xs={12} sm={6} md={4} lg={3} key={player.player_id}>
               <Card 
-                className="player-card" 
+                sx={{ 
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                  '&:hover': {
+                    transform: 'translateY(-5px)',
+                    boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
+                  },
+                }}
                 onClick={() => handlePlayerClick(player.player_id)}
-                sx={{ cursor: 'pointer' }}
+                className="player-card"
               >
                 <CardMedia
                   component="img"
@@ -237,30 +258,34 @@ const Players = () => {
                   image={player.image_url || getPlayerImageUrl(player.player_id)}
                   alt={player.name}
                   onError={(e) => {
-                    e.target.src = `https://via.placeholder.com/200x200?text=${player.name.charAt(0)}`;
+                    e.target.src = `https://via.placeholder.com/200x200?text=${player.name ? player.name.charAt(0) : 'N/A'}`;
                   }}
                 />
                 <CardContent>
-                  <Typography gutterBottom variant="h6" component="div" noWrap>
-                    {player.name}
+                  <Typography variant="h6" component="div" gutterBottom noWrap>
+                    {player.name || 'Unknown Player'}
                   </Typography>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                    <Typography variant="body2" color="text.secondary">
-                      {player.position || 'N/A'}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {player.team || 'Free Agent'}
-                    </Typography>
+                    <Chip 
+                      label={player.position || 'N/A'} 
+                      size="small" 
+                      sx={{ backgroundColor: 'rgba(25, 118, 210, 0.1)', color: 'primary.main' }}
+                    />
+                    <Chip 
+                      label={player.team || 'Free Agent'} 
+                      size="small"
+                      sx={{ backgroundColor: 'rgba(46, 125, 50, 0.1)', color: 'success.main' }}
+                    />
                   </Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant="body2">
-                      {player.ppg || '0'} PPG
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      PPG: <strong>{player.ppg || '0.0'}</strong>
                     </Typography>
-                    <Typography variant="body2">
-                      {player.rpg || '0'} RPG
+                    <Typography variant="body2" color="text.secondary">
+                      RPG: <strong>{player.rpg || '0.0'}</strong>
                     </Typography>
-                    <Typography variant="body2">
-                      {player.apg || '0'} APG
+                    <Typography variant="body2" color="text.secondary">
+                      APG: <strong>{player.apg || '0.0'}</strong>
                     </Typography>
                   </Box>
                 </CardContent>
@@ -269,15 +294,16 @@ const Players = () => {
           ))
         ) : (
           <Grid item xs={12}>
-            <Box sx={{ textAlign: 'center', py: 4 }}>
-              <Typography variant="h6">No players found matching your filters</Typography>
+            <Box sx={{ textAlign: 'center', py: 5 }}>
+              <Typography variant="h6" color="text.secondary">
+                No players found matching your criteria
+              </Typography>
               <Button 
                 variant="contained" 
-                color="primary" 
                 onClick={clearFilters}
                 sx={{ mt: 2 }}
               >
-                Clear All Filters
+                Clear Filters
               </Button>
             </Box>
           </Grid>
@@ -285,7 +311,7 @@ const Players = () => {
       </Grid>
       
       {/* Pagination */}
-      {filteredPlayers.length > 0 && (
+      {totalPages > 1 && (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
           <Pagination 
             count={totalPages} 
@@ -296,6 +322,13 @@ const Players = () => {
           />
         </Box>
       )}
+      
+      {/* Error Snackbar */}
+      <Snackbar open={!!error} autoHideDuration={6000} onClose={handleCloseError}>
+        <Alert onClose={handleCloseError} severity="error" sx={{ width: '100%' }}>
+          {error}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };

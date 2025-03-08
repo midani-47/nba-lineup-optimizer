@@ -225,87 +225,275 @@ const Home = () => {
           <Box 
             sx={{ 
               position: 'relative',
-              height: { xs: 200, md: 300 },
-              maxWidth: 800,
+              height: { xs: 300, md: 400 },
+              maxWidth: 1000,
               mx: 'auto',
               mb: 10,
-              mt: 5
+              mt: 5,
+              perspective: '1000px'
             }}
           >
+            {/* Half Court - Facing the Net */}
             <Box 
               sx={{ 
                 position: 'absolute',
                 top: 0,
                 left: '50%',
-                transform: 'translateX(-50%)',
-                width: '100%',
+                width: '90%',
                 height: '100%',
-                borderRadius: '50% 50% 0 0',
+                transform: 'translateX(-50%) rotateX(30deg)',
+                borderRadius: '10px',
                 border: '4px solid rgba(255,255,255,0.3)',
-                borderBottom: 'none',
-                '&::after': {
-                  content: '""',
+                background: 'linear-gradient(to bottom, rgba(30,60,114,0.4), rgba(21,101,192,0.3))',
+                boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+                overflow: 'hidden',
+                transformStyle: 'preserve-3d'
+              }}
+            >
+              {/* Free throw line */}
+              <Box 
+                sx={{ 
                   position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  width: '30%',
+                  top: '70%',
+                  left: '0',
+                  width: '100%',
+                  height: '2px',
+                  backgroundColor: 'rgba(255,255,255,0.7)'
+                }}
+              />
+              
+              {/* Free throw semicircle */}
+              <Box 
+                sx={{ 
+                  position: 'absolute',
+                  top: '70%',
+                  left: '25%',
+                  width: '50%',
+                  height: '20%',
+                  borderTopLeftRadius: '100px',
+                  borderTopRightRadius: '100px',
+                  border: '2px solid rgba(255,255,255,0.5)',
+                  borderBottom: 'none'
+                }}
+              />
+              
+              {/* Three-point line */}
+              <Box 
+                sx={{ 
+                  position: 'absolute',
+                  top: '40%',
+                  left: '10%',
+                  width: '80%',
+                  height: '60%',
+                  border: '2px dashed rgba(255,255,255,0.4)',
+                  borderTopLeftRadius: '200px',
+                  borderTopRightRadius: '200px',
+                  borderBottom: 'none'
+                }}
+              />
+              
+              {/* Paint area */}
+              <Box 
+                sx={{ 
+                  position: 'absolute',
+                  top: '70%',
+                  left: '30%',
+                  width: '40%',
                   height: '30%',
-                  borderRadius: '50%',
-                  border: '4px solid rgba(255,255,255,0.3)'
-                }
-              }}
-            />
-            <Box 
-              sx={{ 
+                  backgroundColor: 'rgba(30,60,114,0.3)',
+                  borderTop: '2px solid rgba(255,255,255,0.5)'
+                }}
+              />
+              
+              {/* Center court line */}
+              <Box 
+                sx={{ 
+                  position: 'absolute',
+                  top: '0%',
+                  left: '0',
+                  width: '100%',
+                  height: '3px',
+                  backgroundColor: 'rgba(255,255,255,0.7)'
+                }}
+              />
+              
+              {/* Center circle (half) */}
+              <Box 
+                sx={{ 
+                  position: 'absolute',
+                  top: '-15%',
+                  left: '25%',
+                  width: '50%',
+                  height: '30%',
+                  borderBottomLeftRadius: '100px',
+                  borderBottomRightRadius: '100px',
+                  border: '2px solid rgba(255,255,255,0.5)',
+                  borderTop: 'none'
+                }}
+              />
+              
+              {/* Lane markers on free throw line */}
+              {[...Array(5)].map((_, i) => (
+                <Box
+                  key={`lane-marker-${i}`}
+                  sx={{
+                    position: 'absolute',
+                    top: `${70 + i * 3}%`,
+                    left: i % 2 === 0 ? '30%' : '68%',
+                    width: '2%',
+                    height: '1px',
+                    backgroundColor: 'rgba(255,255,255,0.5)'
+                  }}
+                />
+              ))}
+            </Box>
+            
+            {/* Basketball Hoop and Net */}
+            <Box
+              sx={{
                 position: 'absolute',
-                bottom: 0,
-                left: 0,
-                width: '100%',
-                height: '2px',
-                backgroundColor: 'rgba(255,255,255,0.3)'
+                bottom: '5%',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '120px',
+                height: '100px',
+                zIndex: 2
               }}
-            />
-            <Box 
-              sx={{ 
-                position: 'absolute',
-                bottom: '10%',
-                left: '10%',
-                width: '80%',
-                height: '2px',
-                backgroundColor: 'rgba(255,255,255,0.2)'
-              }}
-            />
-            <Box 
-              sx={{ 
-                position: 'absolute',
-                bottom: 0,
-                left: '15%',
-                width: '70%',
-                height: '40%',
-                border: '4px solid rgba(255,255,255,0.2)',
-                borderBottom: 'none',
-                borderTopLeftRadius: 100,
-                borderTopRightRadius: 100
-              }}
-            />
+            >
+              {/* Backboard */}
+              <Box
+                sx={{
+                  position: 'absolute',
+                  bottom: '60px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: '80px',
+                  height: '50px',
+                  backgroundColor: 'rgba(255,255,255,0.9)',
+                  borderRadius: '3px',
+                  boxShadow: '0 5px 15px rgba(0,0,0,0.2)'
+                }}
+              >
+                {/* Backboard square */}
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    bottom: '5px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    width: '30px',
+                    height: '25px',
+                    border: '2px solid rgba(255,109,0,0.7)',
+                    borderRadius: '1px'
+                  }}
+                />
+              </Box>
+              
+              {/* Rim */}
+              <Box
+                sx={{
+                  position: 'absolute',
+                  bottom: '40px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: '40px',
+                  height: '20px',
+                  border: '3px solid #ff6d00',
+                  borderRadius: '0 0 20px 20px',
+                  borderTop: 'none',
+                  boxShadow: '0 3px 10px rgba(0,0,0,0.3)'
+                }}
+              />
+              
+              {/* Net - using SVG for more realistic look */}
+              <Box
+                component="svg"
+                viewBox="0 0 40 40"
+                sx={{
+                  position: 'absolute',
+                  bottom: '0',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: '40px',
+                  height: '40px'
+                }}
+              >
+                {/* Vertical net lines */}
+                {[...Array(9)].map((_, i) => (
+                  <path
+                    key={`net-v-${i}`}
+                    d={`M${5 + i * 4},0 Q${5 + i * 4},20 ${3 + i * 4.5},40`}
+                    fill="none"
+                    stroke="rgba(255,255,255,0.8)"
+                    strokeWidth="0.5"
+                  />
+                ))}
+                
+                {/* Horizontal net lines */}
+                {[...Array(6)].map((_, i) => (
+                  <path
+                    key={`net-h-${i}`}
+                    d={`M0,${5 + i * 7} Q20,${8 + i * 7} 40,${5 + i * 7}`}
+                    fill="none"
+                    stroke="rgba(255,255,255,0.6)"
+                    strokeWidth="0.5"
+                  />
+                ))}
+              </Box>
+            </Box>
+            
+            {/* Bouncing Basketball with improved animation */}
             <Box 
               component="img"
               src="/basketball-icon.svg"
               alt="Basketball"
               sx={{ 
                 position: 'absolute',
-                width: 80,
-                height: 80,
-                bottom: '20%',
+                width: 50,
+                height: 50,
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.4))',
+                animation: 'bounce-and-rotate 2.5s infinite ease-in-out',
+                zIndex: 3,
+                '@keyframes bounce-and-rotate': {
+                  '0%': { 
+                    transform: 'translate(-50%, -30%) rotate(0deg) scale(1)', 
+                    animationTimingFunction: 'cubic-bezier(0.17, 0.67, 0.83, 0.67)' 
+                  },
+                  '25%': { 
+                    transform: 'translate(-50%, 30%) rotate(90deg) scale(0.95)', 
+                    animationTimingFunction: 'cubic-bezier(0.17, 0.67, 0.83, 0.67)' 
+                  },
+                  '50%': { 
+                    transform: 'translate(-50%, -15%) rotate(180deg) scale(1)', 
+                    animationTimingFunction: 'cubic-bezier(0.17, 0.67, 0.83, 0.67)' 
+                  },
+                  '75%': { 
+                    transform: 'translate(-50%, 15%) rotate(270deg) scale(0.98)', 
+                    animationTimingFunction: 'cubic-bezier(0.17, 0.67, 0.83, 0.67)' 
+                  },
+                  '100%': { 
+                    transform: 'translate(-50%, -30%) rotate(360deg) scale(1)', 
+                    animationTimingFunction: 'cubic-bezier(0.17, 0.67, 0.83, 0.67)' 
+                  }
+                }
+              }}
+            />
+            
+            {/* Court shadow */}
+            <Box 
+              sx={{ 
+                position: 'absolute',
+                bottom: '-20px',
                 left: '50%',
                 transform: 'translateX(-50%)',
-                filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))',
-                animation: 'bounce 2s infinite ease-in-out',
-                '@keyframes bounce': {
-                  '0%, 100%': { transform: 'translateX(-50%) translateY(0)' },
-                  '50%': { transform: 'translateX(-50%) translateY(-20px)' }
-                }
+                width: '80%',
+                height: '20px',
+                borderRadius: '50%',
+                background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 70%)',
+                zIndex: 1
               }}
             />
           </Box>
@@ -547,6 +735,57 @@ const Home = () => {
             © {new Date().getFullYear()} NBA Lineup Optimizer | All NBA statistics and player data are property of their respective owners
           </Typography>
         </Box>
+
+        {/* Quick Access Links */}
+        <Fade in={loaded} timeout={1800}>
+          <Box sx={{ mb: 12 }}>
+            <Typography 
+              variant="h4" 
+              component="h2" 
+              align="center" 
+              gutterBottom
+              sx={{ 
+                color: 'white',
+                mb: 4,
+                fontWeight: 700,
+                textShadow: '0 2px 4px rgba(0,0,0,0.3)'
+              }}
+            >
+              Quick Access
+            </Typography>
+            
+            <Grid container spacing={2} justifyContent="center">
+              {[
+                { text: 'Performances Dashboard', path: '/performances', color: '#1976d2', icon: '📊' },
+                { text: 'Player Stats', path: '/players', color: '#2e7d32', icon: '👤' },
+                { text: 'Build Lineup', path: '/lineup-builder', color: '#ed6c02', icon: '🏀' },
+                { text: 'Compare Lineups', path: '/lineup-comparison', color: '#9c27b0', icon: '⚖️' },
+                { text: 'Optimize Lineup', path: '/lineup-optimizer', color: '#d32f2f', icon: '✨' }
+              ].map((link, index) => (
+                <Grid item key={index}>
+                  <Button
+                    variant="contained"
+                    onClick={() => navigate(link.path)}
+                    sx={{
+                      backgroundColor: link.color,
+                      '&:hover': {
+                        backgroundColor: `${link.color}dd`,
+                      },
+                      px: 3,
+                      py: 1.5,
+                      borderRadius: '30px',
+                      fontWeight: 600,
+                      boxShadow: '0 4px 10px rgba(0,0,0,0.2)'
+                    }}
+                    startIcon={<Box component="span" sx={{ fontSize: '1.2rem' }}>{link.icon}</Box>}
+                  >
+                    {link.text}
+                  </Button>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+        </Fade>
       </Container>
     </Box>
   );

@@ -48,12 +48,38 @@ const LineupBuilder = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const playersData = await getPlayers();
-        setPlayers(playersData);
-        setFilteredPlayers(playersData);
+        const [playersData, lineupsData] = await Promise.all([
+          getPlayers(),
+          getLineups()
+        ]);
         
-        const lineupsData = await getLineups();
-        setSavedLineups(lineupsData);
+        // Validate players data
+        if (Array.isArray(playersData)) {
+          setPlayers(playersData);
+          setFilteredPlayers(playersData);
+        } else {
+          console.error('Expected players data to be an array but got:', playersData);
+          setPlayers([]);
+          setFilteredPlayers([]);
+          setSnackbar({
+            open: true,
+            message: 'Failed to load players data. Please try refreshing the page.',
+            severity: 'error',
+          });
+        }
+        
+        // Validate lineups data
+        if (Array.isArray(lineupsData)) {
+          setSavedLineups(lineupsData);
+        } else {
+          console.error('Expected lineups data to be an array but got:', lineupsData);
+          setSavedLineups([]);
+          setSnackbar({
+            open: true,
+            message: 'Failed to load saved lineups. Please try refreshing the page.',
+            severity: 'warning',
+          });
+        }
         
         // Check if a player was passed from another page
         if (location.state?.selectedPlayer) {
@@ -64,9 +90,12 @@ const LineupBuilder = () => {
         }
       } catch (error) {
         console.error('Error fetching data:', error);
+        setPlayers([]);
+        setFilteredPlayers([]);
+        setSavedLineups([]);
         setSnackbar({
           open: true,
-          message: 'Failed to load data. Please try again.',
+          message: 'Error loading data. Please try refreshing the page.',
           severity: 'error',
         });
       } finally {
@@ -112,77 +141,68 @@ const LineupBuilder = () => {
   };
 
   const handleSaveLineup = async () => {
-    if (lineup.length !== 5) {
+    // Validate lineup
+    if (!Array.isArray(lineup) || lineup.length === 0) {
       setSnackbar({
         open: true,
-        message: 'A lineup must contain exactly 5 players.',
+        message: 'Please add players to your lineup before saving.',
         severity: 'warning',
       });
       return;
     }
-
+    
+    // Validate lineup name
     if (!lineupName.trim()) {
       setSnackbar({
         open: true,
-        message: 'Please enter a lineup name.',
-        severity: 'warning',
-      });
-      return;
-    }
-
-    // Check if lineup name already exists
-    const lineupNameExists = savedLineups.some(
-      savedLineup => savedLineup.name.toLowerCase() === lineupName.toLowerCase()
-    );
-    
-    if (lineupNameExists) {
-      setSnackbar({
-        open: true,
-        message: 'A lineup with this name already exists. Please choose a different name.',
-        severity: 'warning',
-      });
-      return;
-    }
-
-    // Check if exact same players already exist in a saved lineup
-    const lineupPlayerIds = lineup.map(player => player.player_id).sort().join(',');
-    const duplicateLineup = savedLineups.find(savedLineup => {
-      const savedPlayerIds = savedLineup.players.map(player => player.player_id).sort().join(',');
-      return savedPlayerIds === lineupPlayerIds;
-    });
-    
-    if (duplicateLineup) {
-      setSnackbar({
-        open: true,
-        message: `This exact lineup already exists as "${duplicateLineup.name}".`,
+        message: 'Please enter a name for your lineup.',
         severity: 'warning',
       });
       return;
     }
 
     try {
+      // Create lineup data object
       const lineupData = {
         name: lineupName,
-        players: lineup.map(player => player.player_id),
+        players: lineup.map(player => player.player_id)
       };
+
+      // Save lineup
+      const response = await createLineup(lineupData);
       
-      await createLineup(lineupData);
-      await fetchSavedLineups();
-      
-      setSnackbar({
-        open: true,
-        message: 'Lineup saved successfully!',
-        severity: 'success',
-      });
-      
-      // Reset form
-      setLineupName('');
-      setLineup([]);
+      // Validate response
+      if (response && response.id) {
+        // Add the new lineup to the saved lineups
+        setSavedLineups(prevLineups => {
+          if (Array.isArray(prevLineups)) {
+            return [...prevLineups, response];
+          }
+          return [response];
+        });
+        
+        // Reset lineup and name
+        setLineup([]);
+        setLineupName('');
+        
+        setSnackbar({
+          open: true,
+          message: 'Lineup saved successfully!',
+          severity: 'success',
+        });
+      } else {
+        console.error('Invalid response from createLineup:', response);
+        setSnackbar({
+          open: true,
+          message: 'Failed to save lineup. Please try again.',
+          severity: 'error',
+        });
+      }
     } catch (error) {
       console.error('Error saving lineup:', error);
       setSnackbar({
         open: true,
-        message: 'Failed to save lineup. Please try again.',
+        message: 'Error saving lineup. Please try again.',
         severity: 'error',
       });
     }
@@ -246,11 +266,41 @@ const LineupBuilder = () => {
   };
 
   const handleRemovePlayer = (playerId) => {
-    setLineup(lineup.filter(player => player.player_id !== playerId));
+    if (!playerId) {
+      console.error('Invalid player ID for removal');
+      return;
+    }
+    
+    if (!Array.isArray(lineup)) {
+      setLineup([]);
+      return;
+    }
+    
+    setLineup(prevLineup => prevLineup.filter(player => player.player_id !== playerId));
   };
 
   const handleAddPlayer = (player) => {
-    if (lineup.length >= 5) {
+    if (!player || typeof player !== 'object') {
+      setSnackbar({
+        open: true,
+        message: 'Invalid player data. Please try again.',
+        severity: 'error',
+      });
+      return;
+    }
+    
+    // Check if player is already in lineup
+    if (Array.isArray(lineup) && lineup.some(p => p.player_id === player.player_id)) {
+      setSnackbar({
+        open: true,
+        message: `${player.name || 'This player'} is already in your lineup.`,
+        severity: 'warning',
+      });
+      return;
+    }
+    
+    // Check if lineup already has 5 players
+    if (Array.isArray(lineup) && lineup.length >= 5) {
       setSnackbar({
         open: true,
         message: 'A lineup can have a maximum of 5 players.',
@@ -259,16 +309,44 @@ const LineupBuilder = () => {
       return;
     }
     
-    if (lineup.some(p => p.player_id === player.player_id)) {
-      setSnackbar({
-        open: true,
-        message: 'This player is already in your lineup.',
-        severity: 'warning',
-      });
+    // Add player to lineup
+    setLineup(prevLineup => {
+      if (Array.isArray(prevLineup)) {
+        return [...prevLineup, player];
+      }
+      return [player];
+    });
+  };
+
+  const handleFilterPlayers = (e) => {
+    const term = e.target.value;
+    setSearchTerm(term);
+    
+    if (!Array.isArray(players)) {
+      setFilteredPlayers([]);
       return;
     }
     
-    setLineup([...lineup, player]);
+    if (!term.trim()) {
+      setFilteredPlayers(players);
+      return;
+    }
+    
+    const filtered = players.filter(player => {
+      if (!player || typeof player !== 'object') return false;
+      
+      const name = player.name || '';
+      const team = player.team || '';
+      const position = player.position || '';
+      
+      return (
+        name.toLowerCase().includes(term.toLowerCase()) ||
+        team.toLowerCase().includes(term.toLowerCase()) ||
+        position.toLowerCase().includes(term.toLowerCase())
+      );
+    });
+    
+    setFilteredPlayers(filtered);
   };
 
   const lineupStats = calculateLineupStats();
@@ -310,10 +388,7 @@ const LineupBuilder = () => {
                 label="Search Players"
                 variant="outlined"
                 value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  handleSearchPlayers(e.target.value);
-                }}
+                onChange={handleFilterPlayers}
                 sx={{ mr: 1 }}
               />
               <Button

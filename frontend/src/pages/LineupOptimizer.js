@@ -46,9 +46,26 @@ const LineupOptimizer = () => {
       try {
         setLoading(true);
         const data = await getLineups();
-        setLineups(data);
+        // Ensure lineups is always an array
+        if (Array.isArray(data)) {
+          setLineups(data);
+        } else {
+          console.error('Expected lineups to be an array but got:', data);
+          setLineups([]);
+          setSnackbar({
+            open: true,
+            message: 'Error loading lineups. Please try again.',
+            severity: 'error',
+          });
+        }
       } catch (error) {
         console.error('Error fetching lineups:', error);
+        setLineups([]);
+        setSnackbar({
+          open: true,
+          message: 'Failed to load lineups. Please try again.',
+          severity: 'error',
+        });
       } finally {
         setLoading(false);
       }
@@ -65,14 +82,25 @@ const LineupOptimizer = () => {
     if (lineupId) {
       try {
         const data = await getLineupById(lineupId);
-        setSelectedLineup(data);
-        setOptimizedLineupName(`${data.name} (Optimized - ${optimizationStrategy.charAt(0).toUpperCase() + optimizationStrategy.slice(1)})`);
+        if (data && data.players && Array.isArray(data.players)) {
+          setSelectedLineup(data);
+          setOptimizedLineupName(`${data.name} (Optimized - ${optimizationStrategy.charAt(0).toUpperCase() + optimizationStrategy.slice(1)})`);
+        } else {
+          console.error('Invalid lineup data:', data);
+          setSnackbar({
+            open: true,
+            message: 'Error loading lineup details. Please try another lineup.',
+            severity: 'error',
+          });
+        }
       } catch (error) {
         console.error(`Error fetching lineup ${lineupId}:`, error);
+        setSnackbar({
+          open: true,
+          message: 'Failed to load lineup details. Please try again.',
+          severity: 'error',
+        });
       }
-    } else {
-      setSelectedLineup(null);
-      setOptimizedLineupName('');
     }
   };
 
@@ -86,12 +114,34 @@ const LineupOptimizer = () => {
   };
 
   const handleOptimize = async () => {
-    if (!selectedLineupId) return;
-
+    if (!selectedLineupId) {
+      setSnackbar({
+        open: true,
+        message: 'Please select a lineup to optimize',
+        severity: 'warning',
+      });
+      return;
+    }
+    
     try {
       setOptimizing(true);
       const data = await optimizeLineup(selectedLineupId, optimizationStrategy);
-      setOptimizedLineup(data);
+      
+      if (data && data.players && Array.isArray(data.players)) {
+        setOptimizedLineup(data);
+        setSnackbar({
+          open: true,
+          message: 'Lineup optimized successfully!',
+          severity: 'success',
+        });
+      } else {
+        console.error('Invalid optimized lineup data:', data);
+        setSnackbar({
+          open: true,
+          message: 'Error optimizing lineup. Please try again.',
+          severity: 'error',
+        });
+      }
     } catch (error) {
       console.error(`Error optimizing lineup ${selectedLineupId}:`, error);
       setSnackbar({
@@ -105,15 +155,24 @@ const LineupOptimizer = () => {
   };
 
   const handleSaveOptimizedLineup = async () => {
-    if (!optimizedLineup || !optimizedLineupName.trim()) {
+    if (!optimizedLineup || !Array.isArray(optimizedLineup.players) || optimizedLineup.players.length === 0) {
       setSnackbar({
         open: true,
-        message: 'Please enter a name for the optimized lineup.',
+        message: 'No optimized lineup to save',
         severity: 'warning',
       });
       return;
     }
-
+    
+    if (!optimizedLineupName.trim()) {
+      setSnackbar({
+        open: true,
+        message: 'Please enter a name for the optimized lineup',
+        severity: 'warning',
+      });
+      return;
+    }
+    
     try {
       const lineupData = {
         name: optimizedLineupName,
@@ -128,9 +187,11 @@ const LineupOptimizer = () => {
         severity: 'success',
       });
       
-      // Refresh lineups
-      const data = await getLineups();
-      setLineups(data);
+      // Refresh lineups list
+      const updatedLineups = await getLineups();
+      if (Array.isArray(updatedLineups)) {
+        setLineups(updatedLineups);
+      }
     } catch (error) {
       console.error('Error saving optimized lineup:', error);
       setSnackbar({
@@ -193,11 +254,15 @@ const LineupOptimizer = () => {
                 <MenuItem value="">
                   <em>Select a lineup</em>
                 </MenuItem>
-                {lineups.map((lineup) => (
-                  <MenuItem key={lineup.id} value={lineup.id}>
-                    {lineup.name}
-                  </MenuItem>
-                ))}
+                {Array.isArray(lineups) && lineups.length > 0 ? (
+                  lineups.map((lineup) => (
+                    <MenuItem key={lineup.id} value={lineup.id}>
+                      {lineup.name}
+                    </MenuItem>
+                  ))
+                ) : (
+                  <MenuItem disabled>No lineups available</MenuItem>
+                )}
               </Select>
             </FormControl>
           </Grid>
@@ -246,246 +311,108 @@ const LineupOptimizer = () => {
             <Grid item xs={12} md={6}>
               <Paper sx={{ p: 3, height: '100%' }} elevation={3}>
                 <Typography variant="h6" gutterBottom>
-                  Original Lineup: {selectedLineup.name}
+                  Original Lineup: {selectedLineup?.name || 'N/A'}
                 </Typography>
                 <Divider sx={{ mb: 2 }} />
                 
-                {selectedLineup.players.map((player) => (
-                  <Card key={player.player_id} sx={{ mb: 2, display: 'flex' }}>
-                    <CardMedia
-                      component="img"
-                      sx={{ width: 70, objectFit: 'cover' }}
-                      image={player.image_url || getPlayerImageUrl(player.player_id)}
-                      alt={player.name}
-                      onError={(e) => {
-                        e.target.src = `https://via.placeholder.com/70x70?text=${player.name.charAt(0)}`;
-                      }}
-                    />
-                    <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-                      <CardContent sx={{ flex: '1 0 auto', py: 1 }}>
-                        <Typography component="div" variant="subtitle1">
-                          {player.name}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" component="div">
-                          {player.position || 'N/A'} | {player.team || 'Free Agent'}
-                        </Typography>
-                        <Typography variant="body2" component="div">
-                          {player.ppg || '0'} PPG, {player.rpg || '0'} RPG, {player.apg || '0'} APG
-                        </Typography>
-                      </CardContent>
-                    </Box>
-                  </Card>
-                ))}
-                
-                <Box sx={{ mt: 2 }}>
-                  <Typography variant="subtitle1" gutterBottom>
-                    Team Statistics
+                {selectedLineup && Array.isArray(selectedLineup.players) ? (
+                  selectedLineup.players.map((player) => (
+                    <Card key={player.player_id} sx={{ mb: 2, display: 'flex' }}>
+                      <CardMedia
+                        component="img"
+                        sx={{ width: 70, objectFit: 'cover' }}
+                        image={player.image_url || getPlayerImageUrl(player.player_id)}
+                        alt={player.name}
+                        onError={(e) => {
+                          e.target.src = `https://via.placeholder.com/70x70?text=${player.name.charAt(0)}`;
+                        }}
+                      />
+                      <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+                        <CardContent sx={{ flex: '1 0 auto', py: 1 }}>
+                          <Typography component="div" variant="subtitle1">
+                            {player.name}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary" component="div">
+                            {player.position || 'N/A'} | {player.team || 'Free Agent'}
+                          </Typography>
+                        </CardContent>
+                      </Box>
+                    </Card>
+                  ))
+                ) : (
+                  <Typography variant="body1" color="text.secondary">
+                    No players in this lineup
                   </Typography>
-                  <Grid container spacing={1}>
-                    <Grid item xs={4}>
-                      <Typography variant="body2" color="text.secondary">
-                        PPG
-                      </Typography>
-                      <Typography variant="body1" fontWeight="bold">
-                        {selectedLineup.total_ppg?.toFixed(1) || '0.0'}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={4}>
-                      <Typography variant="body2" color="text.secondary">
-                        RPG
-                      </Typography>
-                      <Typography variant="body1" fontWeight="bold">
-                        {selectedLineup.total_rpg?.toFixed(1) || '0.0'}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={4}>
-                      <Typography variant="body2" color="text.secondary">
-                        APG
-                      </Typography>
-                      <Typography variant="body1" fontWeight="bold">
-                        {selectedLineup.total_apg?.toFixed(1) || '0.0'}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={4}>
-                      <Typography variant="body2" color="text.secondary">
-                        SPG
-                      </Typography>
-                      <Typography variant="body1" fontWeight="bold">
-                        {selectedLineup.total_spg?.toFixed(1) || '0.0'}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={4}>
-                      <Typography variant="body2" color="text.secondary">
-                        BPG
-                      </Typography>
-                      <Typography variant="body1" fontWeight="bold">
-                        {selectedLineup.total_bpg?.toFixed(1) || '0.0'}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={4}>
-                      <Typography variant="body2" color="text.secondary">
-                        FG%
-                      </Typography>
-                      <Typography variant="body1" fontWeight="bold">
-                        {(selectedLineup.total_fg_pct * 100)?.toFixed(1) || '0.0'}%
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                </Box>
+                )}
               </Paper>
             </Grid>
             
             {/* Optimized Lineup */}
             <Grid item xs={12} md={6}>
               <Paper sx={{ p: 3, height: '100%' }} elevation={3}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                  <Typography variant="h6">
-                    Optimized Lineup ({optimizationStrategy.charAt(0).toUpperCase() + optimizationStrategy.slice(1)})
-                  </Typography>
-                  <AutoFixHighIcon color="primary" />
-                </Box>
+                <Typography variant="h6" gutterBottom>
+                  Optimized Lineup: {optimizedLineupName}
+                </Typography>
                 <Divider sx={{ mb: 2 }} />
                 
-                {optimizedLineup.players.map((player) => (
-                  <Card key={player.player_id} sx={{ mb: 2, display: 'flex' }}>
-                    <CardMedia
-                      component="img"
-                      sx={{ width: 70, objectFit: 'cover' }}
-                      image={player.image_url || getPlayerImageUrl(player.player_id)}
-                      alt={player.name}
-                      onError={(e) => {
-                        e.target.src = `https://via.placeholder.com/70x70?text=${player.name.charAt(0)}`;
-                      }}
-                    />
-                    <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-                      <CardContent sx={{ flex: '1 0 auto', py: 1 }}>
-                        <Typography component="div" variant="subtitle1">
-                          {player.name}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" component="div">
-                          {player.position || 'N/A'} | {player.team || 'Free Agent'}
-                        </Typography>
-                        <Typography variant="body2" component="div">
-                          {player.ppg || '0'} PPG, {player.rpg || '0'} RPG, {player.apg || '0'} APG
-                        </Typography>
-                      </CardContent>
-                    </Box>
-                  </Card>
-                ))}
-                
-                <Box sx={{ mt: 2 }}>
-                  <Typography variant="subtitle1" gutterBottom>
-                    Team Statistics
+                {optimizedLineup && Array.isArray(optimizedLineup.players) ? (
+                  optimizedLineup.players.map((player) => (
+                    <Card key={player.player_id} sx={{ mb: 2, display: 'flex' }}>
+                      <CardMedia
+                        component="img"
+                        sx={{ width: 70, objectFit: 'cover' }}
+                        image={player.image_url || getPlayerImageUrl(player.player_id)}
+                        alt={player.name}
+                        onError={(e) => {
+                          e.target.src = `https://via.placeholder.com/70x70?text=${player.name.charAt(0)}`;
+                        }}
+                      />
+                      <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+                        <CardContent sx={{ flex: '1 0 auto', py: 1 }}>
+                          <Typography component="div" variant="subtitle1">
+                            {player.name}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary" component="div">
+                            {player.position || 'N/A'} | {player.team || 'Free Agent'}
+                          </Typography>
+                        </CardContent>
+                      </Box>
+                    </Card>
+                  ))
+                ) : (
+                  <Typography variant="body1" color="text.secondary">
+                    No players in optimized lineup
                   </Typography>
-                  <Grid container spacing={1}>
-                    <Grid item xs={4}>
-                      <Typography variant="body2" color="text.secondary">
-                        PPG
-                      </Typography>
-                      <Typography variant="body1" fontWeight="bold">
-                        {optimizedLineup.total_ppg?.toFixed(1) || '0.0'}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={4}>
-                      <Typography variant="body2" color="text.secondary">
-                        RPG
-                      </Typography>
-                      <Typography variant="body1" fontWeight="bold">
-                        {optimizedLineup.total_rpg?.toFixed(1) || '0.0'}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={4}>
-                      <Typography variant="body2" color="text.secondary">
-                        APG
-                      </Typography>
-                      <Typography variant="body1" fontWeight="bold">
-                        {optimizedLineup.total_apg?.toFixed(1) || '0.0'}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={4}>
-                      <Typography variant="body2" color="text.secondary">
-                        SPG
-                      </Typography>
-                      <Typography variant="body1" fontWeight="bold">
-                        {optimizedLineup.total_spg?.toFixed(1) || '0.0'}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={4}>
-                      <Typography variant="body2" color="text.secondary">
-                        BPG
-                      </Typography>
-                      <Typography variant="body1" fontWeight="bold">
-                        {optimizedLineup.total_bpg?.toFixed(1) || '0.0'}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={4}>
-                      <Typography variant="body2" color="text.secondary">
-                        FG%
-                      </Typography>
-                      <Typography variant="body1" fontWeight="bold">
-                        {(optimizedLineup.total_fg_pct * 100)?.toFixed(1) || '0.0'}%
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                </Box>
+                )}
               </Paper>
             </Grid>
           </Grid>
           
-          {/* Save Optimized Lineup */}
-          <Paper sx={{ p: 3, mt: 3 }} elevation={3}>
-            <Typography variant="h6" gutterBottom>
+          <Box sx={{ mt: 3, textAlign: 'center' }}>
+            <Button
+              variant="contained"
+              color="secondary"
+              startIcon={<SaveIcon />}
+              onClick={handleSaveOptimizedLineup}
+              disabled={!optimizedLineup || !Array.isArray(optimizedLineup.players) || optimizedLineup.players.length === 0}
+              size="large"
+            >
               Save Optimized Lineup
-            </Typography>
-            <Grid container spacing={2} alignItems="center">
-              <Grid item xs={12} sm={8}>
-                <FormControl fullWidth variant="outlined">
-                  <InputLabel>Lineup Name</InputLabel>
-                  <Select
-                    value={optimizedLineupName}
-                    onChange={(e) => setOptimizedLineupName(e.target.value)}
-                    label="Lineup Name"
-                    inputProps={{ maxLength: 50 }}
-                  >
-                    <MenuItem value={`${selectedLineup.name} (Optimized - ${optimizationStrategy.charAt(0).toUpperCase() + optimizationStrategy.slice(1)})`}>
-                      {`${selectedLineup.name} (Optimized - ${optimizationStrategy.charAt(0).toUpperCase() + optimizationStrategy.slice(1)})`}
-                    </MenuItem>
-                    <MenuItem value={`${selectedLineup.name} (${optimizationStrategy.charAt(0).toUpperCase() + optimizationStrategy.slice(1)})`}>
-                      {`${selectedLineup.name} (${optimizationStrategy.charAt(0).toUpperCase() + optimizationStrategy.slice(1)})`}
-                    </MenuItem>
-                    <MenuItem value={`Optimized ${selectedLineup.name}`}>
-                      {`Optimized ${selectedLineup.name}`}
-                    </MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  startIcon={<SaveIcon />}
-                  onClick={handleSaveOptimizedLineup}
-                  disabled={!optimizedLineupName.trim()}
-                  fullWidth
-                >
-                  Save Optimized Lineup
-                </Button>
-              </Grid>
-            </Grid>
-          </Paper>
+            </Button>
+          </Box>
         </>
       ) : selectedLineup ? (
-        <Box sx={{ textAlign: 'center', py: 8 }}>
-          <Typography variant="h6" color="text.secondary">
+        <Paper sx={{ p: 3, textAlign: 'center' }} elevation={3}>
+          <Typography variant="h6" gutterBottom>
             Click "Optimize Lineup" to generate an optimized version
           </Typography>
-        </Box>
+        </Paper>
       ) : (
-        <Box sx={{ textAlign: 'center', py: 8 }}>
-          <Typography variant="h6" color="text.secondary">
+        <Paper sx={{ p: 3, textAlign: 'center' }} elevation={3}>
+          <Typography variant="h6" gutterBottom>
             Select a lineup to optimize
           </Typography>
-        </Box>
+        </Paper>
       )}
       
       <Snackbar

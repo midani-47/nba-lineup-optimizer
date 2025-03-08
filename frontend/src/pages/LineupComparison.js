@@ -21,6 +21,8 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Alert,
+  Snackbar
 } from '@mui/material';
 import { ResponsiveLine } from '@nivo/line';
 import { getLineups, compareLineups } from '../services/api';
@@ -32,15 +34,26 @@ const LineupComparison = () => {
   const [lineup2, setLineup2] = useState('');
   const [comparisonData, setComparisonData] = useState(null);
   const [comparisonLoading, setComparisonLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchLineups = async () => {
       try {
         setLoading(true);
         const data = await getLineups();
-        setLineups(data);
+        
+        // Validate that data is an array
+        if (Array.isArray(data)) {
+          setLineups(data);
+        } else {
+          console.error('Expected lineups data to be an array but got:', data);
+          setLineups([]);
+          setError('Failed to load lineups data. Please try again.');
+        }
       } catch (error) {
         console.error('Error fetching lineups:', error);
+        setLineups([]);
+        setError('Error loading lineups. Please try refreshing the page.');
       } finally {
         setLoading(false);
       }
@@ -51,18 +64,38 @@ const LineupComparison = () => {
 
   const handleCompare = async () => {
     if (!lineup1 || !lineup2) {
+      setError('Please select two lineups to compare');
+      return;
+    }
+
+    if (lineup1 === lineup2) {
+      setError('Please select different lineups to compare');
       return;
     }
 
     try {
       setComparisonLoading(true);
       const data = await compareLineups(lineup1, lineup2);
-      setComparisonData(data);
+      
+      // Validate comparison data
+      if (data && data.lineup1 && data.lineup2) {
+        setComparisonData(data);
+      } else {
+        console.error('Invalid comparison data received:', data);
+        setError('Failed to compare lineups. Please try again with different lineups.');
+        setComparisonData(null);
+      }
     } catch (error) {
       console.error('Error comparing lineups:', error);
+      setError('Error comparing lineups. Please try again.');
+      setComparisonData(null);
     } finally {
       setComparisonLoading(false);
     }
+  };
+
+  const handleCloseError = () => {
+    setError(null);
   };
 
   const getPlayerImageUrl = (playerId) => {
@@ -81,7 +114,7 @@ const LineupComparison = () => {
   };
 
   const getChartData = () => {
-    if (!comparisonData) return [];
+    if (!comparisonData || !comparisonData.lineup1 || !comparisonData.lineup2) return [];
 
     const stats = ['ppg', 'rpg', 'apg', 'spg', 'bpg', 'fg_pct', 'fg3_pct', 'ft_pct'];
     const statLabels = {
@@ -97,10 +130,10 @@ const LineupComparison = () => {
 
     return [
       {
-        id: comparisonData.lineup1.name,
+        id: comparisonData.lineup1.name || 'Lineup 1',
         color: '#1976d2',
         data: stats.map(stat => {
-          let value = comparisonData.lineup1[`total_${stat}`];
+          let value = comparisonData.lineup1[`total_${stat}`] || 0;
           if (stat.includes('pct')) {
             value = value * 100;
           }
@@ -111,10 +144,10 @@ const LineupComparison = () => {
         }),
       },
       {
-        id: comparisonData.lineup2.name,
+        id: comparisonData.lineup2.name || 'Lineup 2',
         color: '#f50057',
         data: stats.map(stat => {
-          let value = comparisonData.lineup2[`total_${stat}`];
+          let value = comparisonData.lineup2[`total_${stat}`] || 0;
           if (stat.includes('pct')) {
             value = value * 100;
           }
@@ -156,11 +189,15 @@ const LineupComparison = () => {
                 <MenuItem value="">
                   <em>Select a lineup</em>
                 </MenuItem>
-                {lineups.map((lineup) => (
-                  <MenuItem key={`lineup1-${lineup.id}`} value={lineup.id}>
-                    {lineup.name}
-                  </MenuItem>
-                ))}
+                {Array.isArray(lineups) && lineups.length > 0 ? (
+                  lineups.map((lineup) => (
+                    <MenuItem key={`lineup1-${lineup.id}`} value={lineup.id}>
+                      {lineup.name || `Lineup ${lineup.id}`}
+                    </MenuItem>
+                  ))
+                ) : (
+                  <MenuItem disabled>No lineups available</MenuItem>
+                )}
               </Select>
             </FormControl>
           </Grid>
@@ -180,11 +217,15 @@ const LineupComparison = () => {
                 <MenuItem value="">
                   <em>Select a lineup</em>
                 </MenuItem>
-                {lineups.map((lineup) => (
-                  <MenuItem key={`lineup2-${lineup.id}`} value={lineup.id}>
-                    {lineup.name}
-                  </MenuItem>
-                ))}
+                {Array.isArray(lineups) && lineups.length > 0 ? (
+                  lineups.map((lineup) => (
+                    <MenuItem key={`lineup2-${lineup.id}`} value={lineup.id}>
+                      {lineup.name || `Lineup ${lineup.id}`}
+                    </MenuItem>
+                  ))
+                ) : (
+                  <MenuItem disabled>No lineups available</MenuItem>
+                )}
               </Select>
             </FormControl>
           </Grid>
@@ -194,7 +235,7 @@ const LineupComparison = () => {
               variant="contained"
               color="primary"
               onClick={handleCompare}
-              disabled={!lineup1 || !lineup2 || lineup1 === lineup2}
+              disabled={!lineup1 || !lineup2 || lineup1 === lineup2 || !Array.isArray(lineups) || lineups.length < 2}
               size="large"
             >
               Compare Lineups
@@ -277,195 +318,211 @@ const LineupComparison = () => {
                     ],
                   },
                 ]}
-                tooltip={({ point }) => {
-                  return (
-                    <div
-                      style={{
-                        background: 'rgba(0, 0, 0, 0.8)',
-                        color: '#fff',
-                        padding: '9px 12px',
-                        border: '1px solid #ccc',
-                        borderRadius: '4px',
-                      }}
-                    >
-                      <div>{point.serieId}: {point.data.y.toFixed(1)}</div>
-                      <div>{point.data.x}</div>
-                    </div>
-                  );
-                }}
               />
             </Box>
           </Paper>
           
-          {/* Detailed Stats Comparison */}
-          <Paper sx={{ p: 3, mb: 4 }} elevation={3}>
-            <Typography variant="h6" gutterBottom>
-              Team Statistics Comparison
-            </Typography>
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Stat</TableCell>
-                    <TableCell align="right" sx={{ color: '#1976d2' }}>
-                      {comparisonData.lineup1.name}
-                    </TableCell>
-                    <TableCell align="right" sx={{ color: '#f50057' }}>
-                      {comparisonData.lineup2.name}
-                    </TableCell>
-                    <TableCell align="right">Difference</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  <TableRow>
-                    <TableCell component="th" scope="row">Points Per Game</TableCell>
-                    <TableCell align="right">{comparisonData.lineup1.total_ppg.toFixed(1)}</TableCell>
-                    <TableCell align="right">{comparisonData.lineup2.total_ppg.toFixed(1)}</TableCell>
-                    <TableCell align="right" sx={{ color: getStatDiffColor(comparisonData.stat_diff.ppg) }}>
-                      {formatStatDiff(comparisonData.stat_diff.ppg)}
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell component="th" scope="row">Rebounds Per Game</TableCell>
-                    <TableCell align="right">{comparisonData.lineup1.total_rpg.toFixed(1)}</TableCell>
-                    <TableCell align="right">{comparisonData.lineup2.total_rpg.toFixed(1)}</TableCell>
-                    <TableCell align="right" sx={{ color: getStatDiffColor(comparisonData.stat_diff.rpg) }}>
-                      {formatStatDiff(comparisonData.stat_diff.rpg)}
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell component="th" scope="row">Assists Per Game</TableCell>
-                    <TableCell align="right">{comparisonData.lineup1.total_apg.toFixed(1)}</TableCell>
-                    <TableCell align="right">{comparisonData.lineup2.total_apg.toFixed(1)}</TableCell>
-                    <TableCell align="right" sx={{ color: getStatDiffColor(comparisonData.stat_diff.apg) }}>
-                      {formatStatDiff(comparisonData.stat_diff.apg)}
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell component="th" scope="row">Steals Per Game</TableCell>
-                    <TableCell align="right">{comparisonData.lineup1.total_spg.toFixed(1)}</TableCell>
-                    <TableCell align="right">{comparisonData.lineup2.total_spg.toFixed(1)}</TableCell>
-                    <TableCell align="right" sx={{ color: getStatDiffColor(comparisonData.stat_diff.spg) }}>
-                      {formatStatDiff(comparisonData.stat_diff.spg)}
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell component="th" scope="row">Blocks Per Game</TableCell>
-                    <TableCell align="right">{comparisonData.lineup1.total_bpg.toFixed(1)}</TableCell>
-                    <TableCell align="right">{comparisonData.lineup2.total_bpg.toFixed(1)}</TableCell>
-                    <TableCell align="right" sx={{ color: getStatDiffColor(comparisonData.stat_diff.bpg) }}>
-                      {formatStatDiff(comparisonData.stat_diff.bpg)}
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell component="th" scope="row">Field Goal %</TableCell>
-                    <TableCell align="right">{(comparisonData.lineup1.total_fg_pct * 100).toFixed(1)}%</TableCell>
-                    <TableCell align="right">{(comparisonData.lineup2.total_fg_pct * 100).toFixed(1)}%</TableCell>
-                    <TableCell align="right" sx={{ color: getStatDiffColor(comparisonData.stat_diff.fg_pct * 100) }}>
-                      {formatStatDiff(comparisonData.stat_diff.fg_pct * 100)}%
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell component="th" scope="row">Three Point %</TableCell>
-                    <TableCell align="right">{(comparisonData.lineup1.total_fg3_pct * 100).toFixed(1)}%</TableCell>
-                    <TableCell align="right">{(comparisonData.lineup2.total_fg3_pct * 100).toFixed(1)}%</TableCell>
-                    <TableCell align="right" sx={{ color: getStatDiffColor(comparisonData.stat_diff.fg3_pct * 100) }}>
-                      {formatStatDiff(comparisonData.stat_diff.fg3_pct * 100)}%
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell component="th" scope="row">Free Throw %</TableCell>
-                    <TableCell align="right">{(comparisonData.lineup1.total_ft_pct * 100).toFixed(1)}%</TableCell>
-                    <TableCell align="right">{(comparisonData.lineup2.total_ft_pct * 100).toFixed(1)}%</TableCell>
-                    <TableCell align="right" sx={{ color: getStatDiffColor(comparisonData.stat_diff.ft_pct * 100) }}>
-                      {formatStatDiff(comparisonData.stat_diff.ft_pct * 100)}%
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Paper>
-          
-          {/* Lineup Details */}
+          {/* Lineups Comparison */}
           <Grid container spacing={3}>
+            {/* Lineup 1 */}
             <Grid item xs={12} md={6}>
-              <Paper sx={{ p: 3, height: '100%' }} elevation={3}>
-                <Typography variant="h6" gutterBottom sx={{ color: '#1976d2' }}>
-                  {comparisonData.lineup1.name}
+              <Paper sx={{ p: 2 }} elevation={3}>
+                <Typography variant="h6" gutterBottom>
+                  {comparisonData.lineup1?.name || 'Lineup 1'}
                 </Typography>
-                <Divider sx={{ mb: 2, borderColor: '#1976d2' }} />
-                {comparisonData.lineup1.players.map((player) => (
-                  <Card key={player.player_id} sx={{ mb: 2, display: 'flex' }}>
-                    <CardMedia
-                      component="img"
-                      sx={{ width: 70, objectFit: 'cover' }}
-                      image={player.image_url || getPlayerImageUrl(player.player_id)}
-                      alt={player.name}
-                      onError={(e) => {
-                        e.target.src = `https://via.placeholder.com/70x70?text=${player.name.charAt(0)}`;
-                      }}
-                    />
-                    <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-                      <CardContent sx={{ flex: '1 0 auto', py: 1 }}>
-                        <Typography component="div" variant="subtitle1">
-                          {player.name}
+                <Divider sx={{ mb: 2 }} />
+                
+                {Array.isArray(comparisonData.lineup1?.players) && comparisonData.lineup1.players.length > 0 ? (
+                  comparisonData.lineup1.players.map((player) => (
+                    <Card key={player.player_id} sx={{ mb: 2, display: 'flex' }}>
+                      <CardMedia
+                        component="img"
+                        sx={{ width: 80, height: 80, objectFit: 'cover' }}
+                        image={player.image_url || getPlayerImageUrl(player.player_id)}
+                        alt={player.name}
+                        onError={(e) => {
+                          e.target.src = `https://via.placeholder.com/80x80?text=${player.name ? player.name.charAt(0) : 'N/A'}`;
+                        }}
+                      />
+                      <CardContent sx={{ flex: '1 1 auto' }}>
+                        <Typography variant="subtitle1">{player.name || 'Unknown Player'}</Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {player.position || 'N/A'} | {player.team || 'N/A'}
                         </Typography>
-                        <Typography variant="body2" color="text.secondary" component="div">
-                          {player.position || 'N/A'} | {player.team || 'Free Agent'}
-                        </Typography>
-                        <Typography variant="body2" component="div">
-                          {player.ppg || '0'} PPG, {player.rpg || '0'} RPG, {player.apg || '0'} APG
-                        </Typography>
+                        <Box sx={{ display: 'flex', mt: 1 }}>
+                          <Typography variant="body2" sx={{ mr: 2 }}>
+                            {player.ppg || '0'} PPG
+                          </Typography>
+                          <Typography variant="body2" sx={{ mr: 2 }}>
+                            {player.rpg || '0'} RPG
+                          </Typography>
+                          <Typography variant="body2">
+                            {player.apg || '0'} APG
+                          </Typography>
+                        </Box>
                       </CardContent>
-                    </Box>
-                  </Card>
-                ))}
+                    </Card>
+                  ))
+                ) : (
+                  <Alert severity="info">No player data available for this lineup</Alert>
+                )}
               </Paper>
             </Grid>
             
+            {/* Lineup 2 */}
             <Grid item xs={12} md={6}>
-              <Paper sx={{ p: 3, height: '100%' }} elevation={3}>
-                <Typography variant="h6" gutterBottom sx={{ color: '#f50057' }}>
-                  {comparisonData.lineup2.name}
+              <Paper sx={{ p: 2 }} elevation={3}>
+                <Typography variant="h6" gutterBottom>
+                  {comparisonData.lineup2?.name || 'Lineup 2'}
                 </Typography>
-                <Divider sx={{ mb: 2, borderColor: '#f50057' }} />
-                {comparisonData.lineup2.players.map((player) => (
-                  <Card key={player.player_id} sx={{ mb: 2, display: 'flex' }}>
-                    <CardMedia
-                      component="img"
-                      sx={{ width: 70, objectFit: 'cover' }}
-                      image={player.image_url || getPlayerImageUrl(player.player_id)}
-                      alt={player.name}
-                      onError={(e) => {
-                        e.target.src = `https://via.placeholder.com/70x70?text=${player.name.charAt(0)}`;
-                      }}
-                    />
-                    <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-                      <CardContent sx={{ flex: '1 0 auto', py: 1 }}>
-                        <Typography component="div" variant="subtitle1">
-                          {player.name}
+                <Divider sx={{ mb: 2 }} />
+                
+                {Array.isArray(comparisonData.lineup2?.players) && comparisonData.lineup2.players.length > 0 ? (
+                  comparisonData.lineup2.players.map((player) => (
+                    <Card key={player.player_id} sx={{ mb: 2, display: 'flex' }}>
+                      <CardMedia
+                        component="img"
+                        sx={{ width: 80, height: 80, objectFit: 'cover' }}
+                        image={player.image_url || getPlayerImageUrl(player.player_id)}
+                        alt={player.name}
+                        onError={(e) => {
+                          e.target.src = `https://via.placeholder.com/80x80?text=${player.name ? player.name.charAt(0) : 'N/A'}`;
+                        }}
+                      />
+                      <CardContent sx={{ flex: '1 1 auto' }}>
+                        <Typography variant="subtitle1">{player.name || 'Unknown Player'}</Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {player.position || 'N/A'} | {player.team || 'N/A'}
                         </Typography>
-                        <Typography variant="body2" color="text.secondary" component="div">
-                          {player.position || 'N/A'} | {player.team || 'Free Agent'}
-                        </Typography>
-                        <Typography variant="body2" component="div">
-                          {player.ppg || '0'} PPG, {player.rpg || '0'} RPG, {player.apg || '0'} APG
-                        </Typography>
+                        <Box sx={{ display: 'flex', mt: 1 }}>
+                          <Typography variant="body2" sx={{ mr: 2 }}>
+                            {player.ppg || '0'} PPG
+                          </Typography>
+                          <Typography variant="body2" sx={{ mr: 2 }}>
+                            {player.rpg || '0'} RPG
+                          </Typography>
+                          <Typography variant="body2">
+                            {player.apg || '0'} APG
+                          </Typography>
+                        </Box>
                       </CardContent>
-                    </Box>
-                  </Card>
-                ))}
+                    </Card>
+                  ))
+                ) : (
+                  <Alert severity="info">No player data available for this lineup</Alert>
+                )}
+              </Paper>
+            </Grid>
+            
+            {/* Stats Comparison Table */}
+            <Grid item xs={12}>
+              <Paper sx={{ p: 2 }} elevation={3}>
+                <Typography variant="h6" gutterBottom>
+                  Statistical Breakdown
+                </Typography>
+                <TableContainer>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Stat</TableCell>
+                        <TableCell align="right">{comparisonData.lineup1?.name || 'Lineup 1'}</TableCell>
+                        <TableCell align="right">{comparisonData.lineup2?.name || 'Lineup 2'}</TableCell>
+                        <TableCell align="right">Difference</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {comparisonData && (
+                        <>
+                          <TableRow>
+                            <TableCell component="th" scope="row">Points Per Game</TableCell>
+                            <TableCell align="right">{comparisonData.lineup1?.total_ppg?.toFixed(1) || '0.0'}</TableCell>
+                            <TableCell align="right">{comparisonData.lineup2?.total_ppg?.toFixed(1) || '0.0'}</TableCell>
+                            <TableCell align="right" sx={{ color: getStatDiffColor((comparisonData.lineup1?.total_ppg || 0) - (comparisonData.lineup2?.total_ppg || 0)) }}>
+                              {formatStatDiff((comparisonData.lineup1?.total_ppg || 0) - (comparisonData.lineup2?.total_ppg || 0))}
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell component="th" scope="row">Rebounds Per Game</TableCell>
+                            <TableCell align="right">{comparisonData.lineup1?.total_rpg?.toFixed(1) || '0.0'}</TableCell>
+                            <TableCell align="right">{comparisonData.lineup2?.total_rpg?.toFixed(1) || '0.0'}</TableCell>
+                            <TableCell align="right" sx={{ color: getStatDiffColor((comparisonData.lineup1?.total_rpg || 0) - (comparisonData.lineup2?.total_rpg || 0)) }}>
+                              {formatStatDiff((comparisonData.lineup1?.total_rpg || 0) - (comparisonData.lineup2?.total_rpg || 0))}
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell component="th" scope="row">Assists Per Game</TableCell>
+                            <TableCell align="right">{comparisonData.lineup1?.total_apg?.toFixed(1) || '0.0'}</TableCell>
+                            <TableCell align="right">{comparisonData.lineup2?.total_apg?.toFixed(1) || '0.0'}</TableCell>
+                            <TableCell align="right" sx={{ color: getStatDiffColor((comparisonData.lineup1?.total_apg || 0) - (comparisonData.lineup2?.total_apg || 0)) }}>
+                              {formatStatDiff((comparisonData.lineup1?.total_apg || 0) - (comparisonData.lineup2?.total_apg || 0))}
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell component="th" scope="row">Steals Per Game</TableCell>
+                            <TableCell align="right">{comparisonData.lineup1?.total_spg?.toFixed(1) || '0.0'}</TableCell>
+                            <TableCell align="right">{comparisonData.lineup2?.total_spg?.toFixed(1) || '0.0'}</TableCell>
+                            <TableCell align="right" sx={{ color: getStatDiffColor((comparisonData.lineup1?.total_spg || 0) - (comparisonData.lineup2?.total_spg || 0)) }}>
+                              {formatStatDiff((comparisonData.lineup1?.total_spg || 0) - (comparisonData.lineup2?.total_spg || 0))}
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell component="th" scope="row">Blocks Per Game</TableCell>
+                            <TableCell align="right">{comparisonData.lineup1?.total_bpg?.toFixed(1) || '0.0'}</TableCell>
+                            <TableCell align="right">{comparisonData.lineup2?.total_bpg?.toFixed(1) || '0.0'}</TableCell>
+                            <TableCell align="right" sx={{ color: getStatDiffColor((comparisonData.lineup1?.total_bpg || 0) - (comparisonData.lineup2?.total_bpg || 0)) }}>
+                              {formatStatDiff((comparisonData.lineup1?.total_bpg || 0) - (comparisonData.lineup2?.total_bpg || 0))}
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell component="th" scope="row">Field Goal %</TableCell>
+                            <TableCell align="right">{((comparisonData.lineup1?.total_fg_pct || 0) * 100).toFixed(1)}%</TableCell>
+                            <TableCell align="right">{((comparisonData.lineup2?.total_fg_pct || 0) * 100).toFixed(1)}%</TableCell>
+                            <TableCell align="right" sx={{ color: getStatDiffColor((comparisonData.lineup1?.total_fg_pct || 0) - (comparisonData.lineup2?.total_fg_pct || 0)) }}>
+                              {formatStatDiff(((comparisonData.lineup1?.total_fg_pct || 0) - (comparisonData.lineup2?.total_fg_pct || 0)) * 100)}%
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell component="th" scope="row">Three Point %</TableCell>
+                            <TableCell align="right">{((comparisonData.lineup1?.total_fg3_pct || 0) * 100).toFixed(1)}%</TableCell>
+                            <TableCell align="right">{((comparisonData.lineup2?.total_fg3_pct || 0) * 100).toFixed(1)}%</TableCell>
+                            <TableCell align="right" sx={{ color: getStatDiffColor((comparisonData.lineup1?.total_fg3_pct || 0) - (comparisonData.lineup2?.total_fg3_pct || 0)) }}>
+                              {formatStatDiff(((comparisonData.lineup1?.total_fg3_pct || 0) - (comparisonData.lineup2?.total_fg3_pct || 0)) * 100)}%
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell component="th" scope="row">Free Throw %</TableCell>
+                            <TableCell align="right">{((comparisonData.lineup1?.total_ft_pct || 0) * 100).toFixed(1)}%</TableCell>
+                            <TableCell align="right">{((comparisonData.lineup2?.total_ft_pct || 0) * 100).toFixed(1)}%</TableCell>
+                            <TableCell align="right" sx={{ color: getStatDiffColor((comparisonData.lineup1?.total_ft_pct || 0) - (comparisonData.lineup2?.total_ft_pct || 0)) }}>
+                              {formatStatDiff(((comparisonData.lineup1?.total_ft_pct || 0) - (comparisonData.lineup2?.total_ft_pct || 0)) * 100)}%
+                            </TableCell>
+                          </TableRow>
+                        </>
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               </Paper>
             </Grid>
           </Grid>
         </>
       ) : (
-        <Box sx={{ textAlign: 'center', py: 8 }}>
-          <Typography variant="h6" color="text.secondary">
-            Select two lineups to compare
+        <Box sx={{ textAlign: 'center', py: 5 }}>
+          <Typography variant="h6" color="text.secondary" gutterBottom>
+            Select two lineups to compare their statistics
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            The comparison will show detailed stats and player information for both lineups
           </Typography>
         </Box>
       )}
+      
+      {/* Error Snackbar */}
+      <Snackbar open={!!error} autoHideDuration={6000} onClose={handleCloseError}>
+        <Alert onClose={handleCloseError} severity="error" sx={{ width: '100%' }}>
+          {error}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };

@@ -87,7 +87,7 @@ const Sidebar = ({ open, toggleDrawer }) => {
 
   const menuItems = [
     { text: 'Home', icon: <HomeIcon />, path: '/' },
-    { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
+    { text: 'Performances', icon: <DashboardIcon />, path: '/performances' },
     { text: 'Players', icon: <PeopleIcon />, path: '/players' },
     { text: 'Lineup Builder', icon: <SportsSoccerIcon />, path: '/lineup-builder' },
     { text: 'Lineup Comparison', icon: <CompareIcon />, path: '/lineup-comparison' },

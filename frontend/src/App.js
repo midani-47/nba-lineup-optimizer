@@ -11,7 +11,7 @@ import Sidebar from './components/Sidebar';
 
 // Lazy load pages for better performance
 const Home = lazy(() => import('./pages/Home'));
-const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Performances = lazy(() => import('./pages/Dashboard')); // Using the Dashboard file but with Performances component
 const Players = lazy(() => import('./pages/Players'));
 const PlayerDetail = lazy(() => import('./pages/PlayerDetail'));
 const LineupBuilder = lazy(() => import('./pages/LineupBuilder'));
@@ -64,6 +64,26 @@ function App() {
     setOpen(!open);
   };
 
+  // Layout component to avoid repetition
+  const AppLayout = ({ children }) => (
+    <Box sx={{ display: 'flex' }}>
+      <Navbar open={open} toggleDrawer={toggleDrawer} />
+      <Sidebar open={open} toggleDrawer={toggleDrawer} />
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          height: '100vh',
+          overflow: 'auto',
+          pt: 8, // Add padding top to account for the navbar
+          px: 2,
+        }}
+      >
+        {children}
+      </Box>
+    </Box>
+  );
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -72,123 +92,48 @@ function App() {
           {/* Make Home the default landing page */}
           <Route path="/" element={<Home />} />
           
-          {/* Dashboard and other app pages with navigation */}
-          <Route path="/dashboard" element={
-            <Box sx={{ display: 'flex' }}>
-              <Navbar open={open} toggleDrawer={toggleDrawer} />
-              <Sidebar open={open} toggleDrawer={toggleDrawer} />
-              <Box
-                component="main"
-                sx={{
-                  flexGrow: 1,
-                  height: '100vh',
-                  overflow: 'auto',
-                  pt: 8, // Add padding top to account for the navbar
-                  px: 2,
-                }}
-              >
-                <Dashboard />
-              </Box>
-            </Box>
+          {/* Performances page (formerly Dashboard) */}
+          <Route path="/performances" element={
+            <AppLayout>
+              <Performances />
+            </AppLayout>
           } />
           
           <Route path="/players" element={
-            <Box sx={{ display: 'flex' }}>
-              <Navbar open={open} toggleDrawer={toggleDrawer} />
-              <Sidebar open={open} toggleDrawer={toggleDrawer} />
-              <Box
-                component="main"
-                sx={{
-                  flexGrow: 1,
-                  height: '100vh',
-                  overflow: 'auto',
-                  pt: 8,
-                  px: 2,
-                }}
-              >
-                <Players />
-              </Box>
-            </Box>
+            <AppLayout>
+              <Players />
+            </AppLayout>
           } />
           
           <Route path="/players/:playerId" element={
-            <Box sx={{ display: 'flex' }}>
-              <Navbar open={open} toggleDrawer={toggleDrawer} />
-              <Sidebar open={open} toggleDrawer={toggleDrawer} />
-              <Box
-                component="main"
-                sx={{
-                  flexGrow: 1,
-                  height: '100vh',
-                  overflow: 'auto',
-                  pt: 8,
-                  px: 2,
-                }}
-              >
-                <PlayerDetail />
-              </Box>
-            </Box>
+            <AppLayout>
+              <PlayerDetail />
+            </AppLayout>
           } />
           
           <Route path="/lineup-builder" element={
-            <Box sx={{ display: 'flex' }}>
-              <Navbar open={open} toggleDrawer={toggleDrawer} />
-              <Sidebar open={open} toggleDrawer={toggleDrawer} />
-              <Box
-                component="main"
-                sx={{
-                  flexGrow: 1,
-                  height: '100vh',
-                  overflow: 'auto',
-                  pt: 8,
-                  px: 2,
-                }}
-              >
-                <LineupBuilder />
-              </Box>
-            </Box>
+            <AppLayout>
+              <LineupBuilder />
+            </AppLayout>
           } />
           
           <Route path="/lineup-comparison" element={
-            <Box sx={{ display: 'flex' }}>
-              <Navbar open={open} toggleDrawer={toggleDrawer} />
-              <Sidebar open={open} toggleDrawer={toggleDrawer} />
-              <Box
-                component="main"
-                sx={{
-                  flexGrow: 1,
-                  height: '100vh',
-                  overflow: 'auto',
-                  pt: 8,
-                  px: 2,
-                }}
-              >
-                <LineupComparison />
-              </Box>
-            </Box>
+            <AppLayout>
+              <LineupComparison />
+            </AppLayout>
           } />
           
           <Route path="/lineup-optimizer" element={
-            <Box sx={{ display: 'flex' }}>
-              <Navbar open={open} toggleDrawer={toggleDrawer} />
-              <Sidebar open={open} toggleDrawer={toggleDrawer} />
-              <Box
-                component="main"
-                sx={{
-                  flexGrow: 1,
-                  height: '100vh',
-                  overflow: 'auto',
-                  pt: 8,
-                  px: 2,
-                }}
-              >
-                <LineupOptimizer />
-              </Box>
-            </Box>
+            <AppLayout>
+              <LineupOptimizer />
+            </AppLayout>
           } />
           
           {/* Redirect /home to / */}
           <Route path="/home" element={<Navigate to="/" replace />} />
+          
+          {/* Redirect old dashboard path to performances */}
+          <Route path="/dashboard" element={<Navigate to="/performances" replace />} />
           
           {/* Catch all other routes and redirect to home */}
           <Route path="*" element={<Navigate to="/" replace />} />

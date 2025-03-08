@@ -31,13 +31,28 @@ const PlayerDetail = () => {
 
   useEffect(() => {
     const fetchPlayerData = async () => {
+      if (!playerId) {
+        setError('Invalid player ID. Please go back and try again.');
+        setLoading(false);
+        return;
+      }
+      
       try {
         setLoading(true);
         const data = await getPlayerById(playerId);
-        setPlayer(data);
+        
+        // Validate player data
+        if (data && typeof data === 'object' && data.player_id) {
+          setPlayer(data);
+        } else {
+          console.error(`Invalid player data received for ID ${playerId}:`, data);
+          setError('Failed to load player data. The player may not exist or there was an error retrieving their information.');
+          setPlayer(null);
+        }
       } catch (error) {
         console.error(`Error fetching player ${playerId}:`, error);
         setError('Failed to load player data. Please try again later.');
+        setPlayer(null);
       } finally {
         setLoading(false);
       }
@@ -67,24 +82,23 @@ const PlayerDetail = () => {
   if (error) {
     return (
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-        <Button
-          startIcon={<ArrowBackIcon />}
+        <Button 
+          startIcon={<ArrowBackIcon />} 
           onClick={handleGoBack}
           sx={{ mb: 2 }}
         >
           Back to Players
         </Button>
-        <Paper sx={{ p: 3, textAlign: 'center' }}>
-          <Typography variant="h6" color="error">
+        <Paper sx={{ p: 3, textAlign: 'center' }} elevation={3}>
+          <Typography variant="h6" color="error" gutterBottom>
             {error}
           </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => window.location.reload()}
+          <Button 
+            variant="contained" 
+            onClick={handleGoBack}
             sx={{ mt: 2 }}
           >
-            Retry
+            Return to Players List
           </Button>
         </Paper>
       </Container>
@@ -94,17 +108,24 @@ const PlayerDetail = () => {
   if (!player) {
     return (
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-        <Button
-          startIcon={<ArrowBackIcon />}
+        <Button 
+          startIcon={<ArrowBackIcon />} 
           onClick={handleGoBack}
           sx={{ mb: 2 }}
         >
           Back to Players
         </Button>
-        <Paper sx={{ p: 3, textAlign: 'center' }}>
-          <Typography variant="h6">
+        <Paper sx={{ p: 3, textAlign: 'center' }} elevation={3}>
+          <Typography variant="h6" gutterBottom>
             Player not found
           </Typography>
+          <Button 
+            variant="contained" 
+            onClick={handleGoBack}
+            sx={{ mt: 2 }}
+          >
+            Return to Players List
+          </Button>
         </Paper>
       </Container>
     );
