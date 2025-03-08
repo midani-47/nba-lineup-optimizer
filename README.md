@@ -26,8 +26,8 @@ cd nba-lineup-optimizer
 ### 2. Backend Setup
 ```bash
 # Create and activate virtual environment
-python3 -m venv venv
-source venv/bin/activate  # On Windows: .\venv\Scripts\activate
+python -m venv venv # On macOS: python3 -m venv venv
+.\venv\Scripts\activate # On macOS: source venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
@@ -36,21 +36,21 @@ pip install -r requirements.txt
 cd backend
 
 # Apply database migrations
-python3 manage.py migrate
+python manage.py migrate # On macOS: python3 manage.py migrate
 
 # Load initial data and fix player stats
-python3 manage.py load_nba_data
-python3 fix_data.py
+python manage.py load_nba_data # On macOS: python3 manage.py load_nba_data
+python fix_data.py # On macOS: python3 fix_data.py
 
 # Start the backend server
-python3 manage.py runserver 8001
+python manage.py runserver 8001 # On macOS: python3 manage.py runserver 
 ```
 
 ### 3. Frontend Setup
 Open a new terminal window and run:
 ```bash
 # Navigate to frontend directory from the project root
-cd nba-lineup-optimizer/frontend  # Make sure you're in the correct directory
+cd frontend  # Make sure you're in the correct directory
 
 # Install dependencies
 npm install --legacy-peer-deps
