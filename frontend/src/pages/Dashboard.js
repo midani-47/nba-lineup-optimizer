@@ -199,60 +199,60 @@ const Performances = () => {
   }, []);
 
   const setDefaultMockData = () => {
-    setStats({
-      topScorers: [
-        { player_id: 1, name: 'Luka Doncic', team: 'DAL', ppg: 33.9, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/1629029.png' },
-        { player_id: 2, name: 'Joel Embiid', team: 'PHI', ppg: 33.1, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/203954.png' },
-        { player_id: 3, name: 'Kevin Durant', team: 'PHX', ppg: 29.1, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/201142.png' },
-        { player_id: 4, name: 'LeBron James', team: 'LAL', ppg: 28.9, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/2544.png' },
-        { player_id: 5, name: 'Trae Young', team: 'ATL', ppg: 28.4, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/1629027.png' },
-      ],
-      topRebounders: [
-        { player_id: 6, name: 'Domantas Sabonis', team: 'SAC', rpg: 13.7, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/1627734.png' },
-        { player_id: 7, name: 'Rudy Gobert', team: 'MIN', rpg: 12.9, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/203497.png' },
-        { player_id: 8, name: 'Nikola Jokic', team: 'DEN', rpg: 12.4, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/203999.png' },
-        { player_id: 9, name: 'Giannis Antetokounmpo', team: 'MIL', rpg: 11.5, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/203507.png' },
-        { player_id: 10, name: 'Anthony Davis', team: 'LAL', rpg: 11.3, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/203076.png' },
-      ],
-      topAssists: [
-        { player_id: 11, name: 'Tyrese Haliburton', team: 'IND', apg: 10.9, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/1630169.png' },
-        { player_id: 12, name: 'Trae Young', team: 'ATL', apg: 10.8, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/1629027.png' },
-        { player_id: 13, name: 'Nikola Jokic', team: 'DEN', apg: 9.0, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/203999.png' },
-        { player_id: 14, name: 'James Harden', team: 'LAC', apg: 8.5, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/201935.png' },
-        { player_id: 15, name: 'Luka Doncic', team: 'DAL', apg: 8.4, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/1629029.png' },
-      ],
-      recentGames: [
-        {
-          id: 'Points',
-          data: [
-            { x: 'Game 1', y: 105 },
-            { x: 'Game 2', y: 118 },
-            { x: 'Game 3', y: 98 },
-            { x: 'Game 4', y: 112 },
-            { x: 'Game 5', y: 124 },
+        setStats({
+          topScorers: [
+            { player_id: 1, name: 'Luka Doncic', team: 'DAL', ppg: 33.9, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/1629029.png' },
+            { player_id: 2, name: 'Joel Embiid', team: 'PHI', ppg: 33.1, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/203954.png' },
+            { player_id: 3, name: 'Kevin Durant', team: 'PHX', ppg: 29.1, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/201142.png' },
+            { player_id: 4, name: 'LeBron James', team: 'LAL', ppg: 28.9, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/2544.png' },
+            { player_id: 5, name: 'Trae Young', team: 'ATL', ppg: 28.4, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/1629027.png' },
           ],
-        },
-        {
-          id: 'Assists',
-          data: [
-            { x: 'Game 1', y: 24 },
-            { x: 'Game 2', y: 28 },
-            { x: 'Game 3', y: 19 },
-            { x: 'Game 4', y: 26 },
-            { x: 'Game 5', y: 30 },
+          topRebounders: [
+            { player_id: 6, name: 'Domantas Sabonis', team: 'SAC', rpg: 13.7, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/1627734.png' },
+            { player_id: 7, name: 'Rudy Gobert', team: 'MIN', rpg: 12.9, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/203497.png' },
+            { player_id: 8, name: 'Nikola Jokic', team: 'DEN', rpg: 12.4, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/203999.png' },
+            { player_id: 9, name: 'Giannis Antetokounmpo', team: 'MIL', rpg: 11.5, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/203507.png' },
+            { player_id: 10, name: 'Anthony Davis', team: 'LAL', rpg: 11.3, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/203076.png' },
           ],
-        },
-        {
-          id: 'Rebounds',
-          data: [
-            { x: 'Game 1', y: 42 },
-            { x: 'Game 2', y: 45 },
-            { x: 'Game 3', y: 38 },
-            { x: 'Game 4', y: 44 },
-            { x: 'Game 5', y: 47 },
+          topAssists: [
+            { player_id: 11, name: 'Tyrese Haliburton', team: 'IND', apg: 10.9, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/1630169.png' },
+            { player_id: 12, name: 'Trae Young', team: 'ATL', apg: 10.8, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/1629027.png' },
+            { player_id: 13, name: 'Nikola Jokic', team: 'DEN', apg: 9.0, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/203999.png' },
+            { player_id: 14, name: 'James Harden', team: 'LAC', apg: 8.5, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/201935.png' },
+            { player_id: 15, name: 'Luka Doncic', team: 'DAL', apg: 8.4, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/1629029.png' },
           ],
-        },
-      ],
+          recentGames: [
+            {
+              id: 'Points',
+              data: [
+                { x: 'Game 1', y: 105 },
+                { x: 'Game 2', y: 118 },
+                { x: 'Game 3', y: 98 },
+                { x: 'Game 4', y: 112 },
+                { x: 'Game 5', y: 124 },
+              ],
+            },
+            {
+              id: 'Assists',
+              data: [
+                { x: 'Game 1', y: 24 },
+                { x: 'Game 2', y: 28 },
+                { x: 'Game 3', y: 19 },
+                { x: 'Game 4', y: 26 },
+                { x: 'Game 5', y: 30 },
+              ],
+            },
+            {
+              id: 'Rebounds',
+              data: [
+                { x: 'Game 1', y: 42 },
+                { x: 'Game 2', y: 45 },
+                { x: 'Game 3', y: 38 },
+                { x: 'Game 4', y: 44 },
+                { x: 'Game 5', y: 47 },
+              ],
+            },
+          ],
       topPerformances: [
         { player_id: 1, name: 'Luka Doncic', team: 'DAL', points: 45, rebounds: 12, assists: 8, date: '2023-11-15', opponent: 'LAC' },
         { player_id: 2, name: 'Joel Embiid', team: 'PHI', points: 42, rebounds: 15, assists: 5, date: '2023-11-14', opponent: 'DET' },
@@ -395,9 +395,9 @@ const Performances = () => {
             
             {chartTab === 1 && (
               <>
-                <Typography variant="h6" gutterBottom>
+            <Typography variant="h6" gutterBottom>
                   Top Individual Performances
-                </Typography>
+            </Typography>
                 <Box sx={{ height: 350, mt: 2 }}>
                   <Suspense fallback={<Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}><CircularProgress /></Box>}>
                     {Array.isArray(stats.topPerformances) && stats.topPerformances.length > 0 ? (
@@ -500,7 +500,7 @@ const Performances = () => {
             ) : (
               <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 4 }}>
                 <Alert severity="info">No top performance data available</Alert>
-              </Box>
+            </Box>
             )}
           </Paper>
         </Grid>

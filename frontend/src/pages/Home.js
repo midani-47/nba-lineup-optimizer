@@ -74,26 +74,34 @@ const Home = () => {
       path: '/lineup-optimizer',
       color: '#d32f2f',
       delay: 500
+    },
+    {
+      title: 'Performances',
+      description: 'Analyze team and player performances with detailed stats',
+      icon: <DashboardIcon fontSize="large" />,
+      path: '/performances',
+      color: '#1976d2',
+      delay: 600
     }
   ];
 
   const testimonials = [
     {
-      name: "Michael J.",
+      name: "Abed M.",
       role: "Fantasy Basketball Manager",
-      avatar: "M",
+      avatar: "A",
       content: "This tool has completely transformed how I build my fantasy lineups. The optimization feature is a game-changer!"
     },
     {
-      name: "Sarah L.",
+      name: "Olivia S.",
       role: "Basketball Analyst",
-      avatar: "S",
+      avatar: "O",
       content: "The statistical comparisons and visualizations make my analysis so much more effective. Highly recommended for any serious NBA fan."
     },
     {
-      name: "David K.",
+      name: "Nevron J.",
       role: "Basketball Coach",
-      avatar: "D",
+      avatar: "N",
       content: "I use this to explore different lineup combinations for my team. The interface is intuitive and the insights are valuable."
     }
   ];
