@@ -400,7 +400,7 @@ const Performances = () => {
         <Typography variant="body2" color="text.secondary" sx={{ mt: 2, textAlign: 'center' }}>
           This chart shows the team's performance metrics over the last 5 games. 
           Points represent scoring efficiency, Assists show team playmaking, and Rebounds indicate defensive presence.
-        </Typography>
+          </Typography>
       </Paper>
     );
   };
@@ -447,9 +447,9 @@ const Performances = () => {
           statLabel="APG"
           onPlayerClick={handlePlayerClick}
         />
-      </Grid>
-      
-      {/* Recent Games Chart */}
+        </Grid>
+        
+        {/* Recent Games Chart */}
       <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
         Recent Team Performance
       </Typography>
@@ -464,7 +464,7 @@ const Performances = () => {
           stats.topPerformances.map((performance, index) => (
             <Grid item xs={12} sm={6} md={4} key={index}>
               <Card 
-                sx={{ 
+            sx={{
                   height: '100%',
                   cursor: 'pointer',
                   transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
@@ -514,7 +514,7 @@ const Performances = () => {
                       </Typography>
                       <Typography variant="body2">AST</Typography>
                     </Box>
-                  </Box>
+            </Box>
                 </CardContent>
               </Card>
             </Grid>
@@ -523,8 +523,8 @@ const Performances = () => {
           <Grid item xs={12}>
             <Paper sx={{ p: 3, textAlign: 'center' }}>
               <Typography variant="body1">No top performances available</Typography>
-            </Paper>
-          </Grid>
+          </Paper>
+        </Grid>
         )}
       </Grid>
       

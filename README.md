@@ -34,7 +34,7 @@ cd nba-lineup-optimizer
 #### Windows
 ```bash
 # Simply run the start script
-start.bat
+.\start.bat
 ```
 
 #### macOS/Linux
