@@ -125,17 +125,18 @@ const LineupOptimizer = () => {
     
     try {
       setOptimizing(true);
-      const data = await optimizeLineup(selectedLineupId, optimizationStrategy);
+      const optimizedData = await optimizeLineup(selectedLineupId, optimizationStrategy);
       
-      if (data && data.players && Array.isArray(data.players)) {
-        setOptimizedLineup(data);
+      if (optimizedData && optimizedData.players && Array.isArray(optimizedData.players)) {
+        setOptimizedLineup(optimizedData);
+        setOptimizedLineupName(optimizedData.name || `${selectedLineup.name} (Optimized - ${optimizationStrategy.charAt(0).toUpperCase() + optimizationStrategy.slice(1)})`);
         setSnackbar({
           open: true,
           message: 'Lineup optimized successfully!',
           severity: 'success',
         });
       } else {
-        console.error('Invalid optimized lineup data:', data);
+        console.error('Invalid optimized lineup data:', optimizedData);
         setSnackbar({
           open: true,
           message: 'Error optimizing lineup. Please try again.',

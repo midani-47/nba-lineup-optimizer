@@ -59,27 +59,23 @@ export const getPlayers = async (params = {}) => {
       // For development, always use mock data to ensure data is available
       console.log('Using mock player data');
       
-      // Generate additional players if mockPlayers has fewer than 500 players
-      if (mockPlayers.length < 500) {
-        console.log(`Extending mock data from ${mockPlayers.length} to 500+ players`);
+      // Generate additional players if mockPlayers has fewer than 100 players (reduced from 500)
+      if (mockPlayers.length < 100) {
+        console.log(`Extending mock data from ${mockPlayers.length} to 100 players`);
         const teams = ['ATL', 'BOS', 'BKN', 'CHA', 'CHI', 'CLE', 'DAL', 'DEN', 'DET', 'GSW', 
                       'HOU', 'IND', 'LAC', 'LAL', 'MEM', 'MIA', 'MIL', 'MIN', 'NOP', 'NYK', 
                       'OKC', 'ORL', 'PHI', 'PHX', 'POR', 'SAC', 'SAS', 'TOR', 'UTA', 'WAS'];
         const positions = ['PG', 'SG', 'SF', 'PF', 'C'];
         const firstNames = ['James', 'John', 'Robert', 'Michael', 'William', 'David', 'Richard', 'Joseph', 'Thomas', 'Charles',
-                           'Anthony', 'Kevin', 'Mark', 'Jason', 'Matthew', 'Christopher', 'Brandon', 'Tyler', 'Aaron', 'Jose',
-                           'Adam', 'Henry', 'Nathan', 'Zachary', 'Samuel', 'Patrick', 'Kyle', 'George', 'Devin', 'Kenneth',
-                           'Malik', 'Marcus', 'Jamal', 'Terry', 'Jalen', 'Darius', 'Cameron', 'Isaiah', 'Evan', 'Jared'];
+                           'Anthony', 'Kevin', 'Mark', 'Jason', 'Matthew', 'Christopher', 'Brandon', 'Tyler', 'Aaron', 'Jose'];
         const lastNames = ['Smith', 'Johnson', 'Williams', 'Jones', 'Brown', 'Davis', 'Miller', 'Wilson', 'Moore', 'Taylor',
-                          'Anderson', 'Thomas', 'Jackson', 'White', 'Harris', 'Martin', 'Thompson', 'Garcia', 'Martinez', 'Robinson',
-                          'Clark', 'Rodriguez', 'Lewis', 'Lee', 'Walker', 'Hall', 'Allen', 'Young', 'King', 'Wright',
-                          'Scott', 'Green', 'Baker', 'Adams', 'Nelson', 'Hill', 'Ramirez', 'Campbell', 'Mitchell', 'Roberts'];
+                          'Anderson', 'Thomas', 'Jackson', 'White', 'Harris', 'Martin', 'Thompson', 'Garcia', 'Martinez', 'Robinson'];
         
         // Create additional players
         const additionalPlayers = [];
         const existingIds = new Set(mockPlayers.map(p => p.player_id));
         
-        for (let i = 0; i < 500 - mockPlayers.length; i++) {
+        for (let i = 0; i < 100 - mockPlayers.length; i++) {
           let playerId = Math.floor(Math.random() * 1000000) + 100;
           // Ensure unique ID
           while (existingIds.has(playerId)) {
@@ -92,8 +88,8 @@ export const getPlayers = async (params = {}) => {
           const team = teams[Math.floor(Math.random() * teams.length)];
           const position = positions[Math.floor(Math.random() * positions.length)];
           
-          // Use consistent image URLs that will work
-          const imageUrl = `https://robohash.org/${firstName}${lastName}${playerId}?set=set4&bgset=bg1&size=200x200`;
+          // Use smaller image size (100x100 instead of 200x200)
+          const imageUrl = `https://robohash.org/${firstName}${lastName}${playerId}?set=set4&bgset=bg1&size=100x100`;
           
           additionalPlayers.push({
             player_id: playerId,
@@ -150,18 +146,17 @@ export const getPlayerById = async (playerId) => {
         const player = allPlayers.find(p => p.player_id === Number(playerId));
         
         if (player) {
-          // Create player detail for dynamically generated player
+          // Create simplified player detail for dynamically generated player
           playerDetail = {
             ...player,
             games_played: Math.floor(Math.random() * 30) + 50, // Random games played between 50-80
             minutes: (Math.random() * 10 + 25).toFixed(1), // Random minutes between 25-35
             efficiency: ((player.ppg + player.rpg + player.apg) / 3).toFixed(1),
+            // Simplified recent games data with fewer entries
             recent_games: [
               { date: '2023-11-15', opponent: 'LAC', points: Math.floor(player.ppg * (0.8 + Math.random() * 0.4)), rebounds: Math.floor(player.rpg * (0.8 + Math.random() * 0.4)), assists: Math.floor(player.apg * (0.8 + Math.random() * 0.4)), minutes: Math.floor(Math.random() * 10 + 30) },
               { date: '2023-11-13', opponent: 'DET', points: Math.floor(player.ppg * (0.8 + Math.random() * 0.4)), rebounds: Math.floor(player.rpg * (0.8 + Math.random() * 0.4)), assists: Math.floor(player.apg * (0.8 + Math.random() * 0.4)), minutes: Math.floor(Math.random() * 10 + 30) },
-              { date: '2023-11-11', opponent: 'NOP', points: Math.floor(player.ppg * (0.8 + Math.random() * 0.4)), rebounds: Math.floor(player.rpg * (0.8 + Math.random() * 0.4)), assists: Math.floor(player.apg * (0.8 + Math.random() * 0.4)), minutes: Math.floor(Math.random() * 10 + 30) },
-              { date: '2023-11-09', opponent: 'PHX', points: Math.floor(player.ppg * (0.8 + Math.random() * 0.4)), rebounds: Math.floor(player.rpg * (0.8 + Math.random() * 0.4)), assists: Math.floor(player.apg * (0.8 + Math.random() * 0.4)), minutes: Math.floor(Math.random() * 10 + 30) },
-              { date: '2023-11-07', opponent: 'BKN', points: Math.floor(player.ppg * (0.8 + Math.random() * 0.4)), rebounds: Math.floor(player.rpg * (0.8 + Math.random() * 0.4)), assists: Math.floor(player.apg * (0.8 + Math.random() * 0.4)), minutes: Math.floor(Math.random() * 10 + 30) },
+              { date: '2023-11-11', opponent: 'NOP', points: Math.floor(player.ppg * (0.8 + Math.random() * 0.4)), rebounds: Math.floor(player.rpg * (0.8 + Math.random() * 0.4)), assists: Math.floor(player.apg * (0.8 + Math.random() * 0.4)), minutes: Math.floor(Math.random() * 10 + 30) }
             ],
             season_highs: {
               points: Math.floor(player.ppg * 1.5),
@@ -191,9 +186,28 @@ export const getPlayerById = async (playerId) => {
 // Lineups
 export const getLineups = async () => {
   try {
-    // For development, always use mock data
-    console.log('Using mock lineup data');
-    return mockLineups;
+    // For development, use mock data and localStorage
+    console.log('Using mock lineup data and localStorage');
+    
+    // Try to get lineups from localStorage
+    let storedLineups = [];
+    try {
+      storedLineups = JSON.parse(localStorage.getItem('nba_lineups') || '[]');
+    } catch (storageError) {
+      console.error('Error retrieving lineups from localStorage:', storageError);
+    }
+    
+    // Combine mock lineups with stored lineups, avoiding duplicates
+    const combinedLineups = [...mockLineups];
+    
+    // Add stored lineups that aren't already in mockLineups
+    storedLineups.forEach(storedLineup => {
+      if (!combinedLineups.some(l => l.id === storedLineup.id)) {
+        combinedLineups.push(storedLineup);
+      }
+    });
+    
+    return combinedLineups;
     
     // Uncomment for production:
     // const response = await api.get('/lineups/');
@@ -201,7 +215,15 @@ export const getLineups = async () => {
   } catch (error) {
     console.error('Error fetching lineups:', error);
     console.log('Using mock lineup data as fallback');
-    return mockLineups;
+    
+    // Try to get lineups from localStorage as a last resort
+    try {
+      const storedLineups = JSON.parse(localStorage.getItem('nba_lineups') || '[]');
+      return [...mockLineups, ...storedLineups];
+    } catch (storageError) {
+      console.error('Error retrieving lineups from localStorage:', storageError);
+      return mockLineups;
+    }
   }
 };
 
@@ -232,12 +254,22 @@ export const createLineup = async (lineupData) => {
   } catch (error) {
     console.error('Error creating lineup:', error);
     console.log('Using mock lineup creation as fallback');
+    
+    // Get all players to ensure we have the complete data
+    const allPlayers = await getPlayers();
+    
     // Create a mock lineup with a new ID
-    const newId = Math.max(...mockLineups.map(l => l.id)) + 1;
+    const newId = Math.max(...mockLineups.map(l => l.id), 0) + 1;
+    
+    // Find full player objects for each player ID
+    const playerObjects = lineupData.players.map(id => 
+      allPlayers.find(p => p.player_id === id)
+    ).filter(Boolean);
+    
     const newLineup = {
       id: newId,
       name: lineupData.name,
-      players: lineupData.players.map(id => mockPlayers.find(p => p.player_id === id)).filter(Boolean),
+      players: playerObjects,
       total_ppg: 0,
       total_rpg: 0,
       total_apg: 0,
@@ -263,6 +295,15 @@ export const createLineup = async (lineupData) => {
     // Add to mock lineups (in memory only)
     mockLineups.push(newLineup);
     
+    // Store in localStorage for persistence
+    try {
+      const storedLineups = JSON.parse(localStorage.getItem('nba_lineups') || '[]');
+      storedLineups.push(newLineup);
+      localStorage.setItem('nba_lineups', JSON.stringify(storedLineups));
+    } catch (storageError) {
+      console.error('Error storing lineup in localStorage:', storageError);
+    }
+    
     return newLineup;
   }
 };
@@ -275,13 +316,21 @@ export const updateLineup = async (lineupId, lineupData) => {
     console.error(`Error updating lineup ${lineupId}:`, error);
     console.log('Using mock lineup update as fallback');
     
+    // Get all players to ensure we have the complete data
+    const allPlayers = await getPlayers();
+    
     const lineupIndex = mockLineups.findIndex(l => l.id === Number(lineupId));
     if (lineupIndex === -1) return null;
+    
+    // Find full player objects for each player ID
+    const playerObjects = lineupData.players.map(id => 
+      allPlayers.find(p => p.player_id === id)
+    ).filter(Boolean);
     
     const updatedLineup = {
       ...mockLineups[lineupIndex],
       name: lineupData.name,
-      players: lineupData.players.map(id => mockPlayers.find(p => p.player_id === id)).filter(Boolean)
+      players: playerObjects
     };
     
     // Recalculate totals
@@ -298,6 +347,22 @@ export const updateLineup = async (lineupId, lineupData) => {
     
     // Update in mock lineups (in memory only)
     mockLineups[lineupIndex] = updatedLineup;
+    
+    // Update in localStorage
+    try {
+      let storedLineups = JSON.parse(localStorage.getItem('nba_lineups') || '[]');
+      const storedIndex = storedLineups.findIndex(l => l.id === Number(lineupId));
+      
+      if (storedIndex !== -1) {
+        storedLineups[storedIndex] = updatedLineup;
+      } else {
+        storedLineups.push(updatedLineup);
+      }
+      
+      localStorage.setItem('nba_lineups', JSON.stringify(storedLineups));
+    } catch (storageError) {
+      console.error('Error updating lineup in localStorage:', storageError);
+    }
     
     return updatedLineup;
   }
@@ -317,6 +382,15 @@ export const deleteLineup = async (lineupId) => {
     // Remove from mock lineups (in memory only)
     mockLineups.splice(lineupIndex, 1);
     
+    // Remove from localStorage
+    try {
+      let storedLineups = JSON.parse(localStorage.getItem('nba_lineups') || '[]');
+      storedLineups = storedLineups.filter(l => l.id !== Number(lineupId));
+      localStorage.setItem('nba_lineups', JSON.stringify(storedLineups));
+    } catch (storageError) {
+      console.error('Error removing lineup from localStorage:', storageError);
+    }
+    
     return { success: true };
   }
 };
@@ -335,7 +409,7 @@ export const optimizeLineup = async (lineupId, strategy) => {
     
     if (!lineup) {
       console.error(`Lineup with ID ${lineupId} not found`);
-      return null;
+      throw new Error(`Lineup with ID ${lineupId} not found`);
     }
     
     // Get all players for optimization
@@ -369,11 +443,47 @@ export const optimizeLineup = async (lineupId, strategy) => {
     const total_fg3_pct = optimizedPlayers.reduce((sum, p) => sum + p.fg3_pct, 0) / 5;
     const total_ft_pct = optimizedPlayers.reduce((sum, p) => sum + p.ft_pct, 0) / 5;
     
-    return {
-      original_lineup: lineup,
-      optimized_lineup: {
-        name: `${lineup.name} (Optimized - ${strategy})`,
-        players: optimizedPlayers,
+    // Create optimized lineup object
+    const optimizedLineup = {
+      name: `${lineup.name} (Optimized - ${strategy})`,
+      players: optimizedPlayers,
+      total_ppg,
+      total_rpg,
+      total_apg,
+      total_spg,
+      total_bpg,
+      total_fg_pct,
+      total_fg3_pct,
+      total_ft_pct
+    };
+    
+    return optimizedLineup;
+    
+    // Uncomment for production:
+    // const response = await api.post(`/lineups/${lineupId}/optimize/`, { strategy });
+    // return response.data;
+  } catch (error) {
+    console.error(`Error optimizing lineup ${lineupId}:`, error);
+    console.log('Using mock lineup optimization as fallback');
+    
+    // Create a safer fallback that won't cause errors
+    try {
+      // Get mock players for fallback
+      const topPlayers = mockPlayers.slice(0, 5);
+      
+      // Calculate totals
+      const total_ppg = topPlayers.reduce((sum, p) => sum + p.ppg, 0);
+      const total_rpg = topPlayers.reduce((sum, p) => sum + p.rpg, 0);
+      const total_apg = topPlayers.reduce((sum, p) => sum + p.apg, 0);
+      const total_spg = topPlayers.reduce((sum, p) => sum + p.spg, 0);
+      const total_bpg = topPlayers.reduce((sum, p) => sum + p.bpg, 0);
+      const total_fg_pct = topPlayers.reduce((sum, p) => sum + p.fg_pct, 0) / 5;
+      const total_fg3_pct = topPlayers.reduce((sum, p) => sum + p.fg3_pct, 0) / 5;
+      const total_ft_pct = topPlayers.reduce((sum, p) => sum + p.ft_pct, 0) / 5;
+      
+      return {
+        name: `Optimized Lineup (${strategy})`,
+        players: topPlayers,
         total_ppg,
         total_rpg,
         total_apg,
@@ -382,21 +492,11 @@ export const optimizeLineup = async (lineupId, strategy) => {
         total_fg_pct,
         total_fg3_pct,
         total_ft_pct
-      },
-      improvement: {
-        ppg: total_ppg - lineup.total_ppg,
-        rpg: total_rpg - lineup.total_rpg,
-        apg: total_apg - lineup.total_apg,
-      }
-    };
-    
-    // Uncomment for production:
-    // const response = await api.post(`/lineups/${lineupId}/optimize/`, { strategy });
-    // return response.data;
-  } catch (error) {
-    console.error(`Error optimizing lineup ${lineupId}:`, error);
-    console.log('Using mock lineup optimization as fallback');
-    return mockOptimizeLineup(lineupId, strategy);
+      };
+    } catch (fallbackError) {
+      console.error('Error in optimization fallback:', fallbackError);
+      throw new Error('Failed to optimize lineup');
+    }
   }
 };
 
