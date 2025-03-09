@@ -67,9 +67,9 @@ export const getPlayers = async (params = {}) => {
                       'OKC', 'ORL', 'PHI', 'PHX', 'POR', 'SAC', 'SAS', 'TOR', 'UTA', 'WAS'];
         const positions = ['PG', 'SG', 'SF', 'PF', 'C'];
         const firstNames = ['James', 'John', 'Robert', 'Michael', 'William', 'David', 'Richard', 'Joseph', 'Thomas', 'Charles',
-                           'Anthony', 'Kevin', 'Mark', 'Jason', 'Matthew', 'Christopher', 'Brandon', 'Tyler', 'Aaron', 'Jose'];
+                           'Anthony', 'Kevin', 'Mark', 'Jason', 'Matthew'];
         const lastNames = ['Smith', 'Johnson', 'Williams', 'Jones', 'Brown', 'Davis', 'Miller', 'Wilson', 'Moore', 'Taylor',
-                          'Anderson', 'Thomas', 'Jackson', 'White', 'Harris', 'Martin', 'Thompson', 'Garcia', 'Martinez', 'Robinson'];
+                          'Anderson', 'Thomas', 'Jackson', 'White', 'Harris'];
         
         // Create additional players
         const additionalPlayers = [];
@@ -88,8 +88,8 @@ export const getPlayers = async (params = {}) => {
           const team = teams[Math.floor(Math.random() * teams.length)];
           const position = positions[Math.floor(Math.random() * positions.length)];
           
-          // Use smaller image size (100x100 instead of 200x200)
-          const imageUrl = `https://robohash.org/${firstName}${lastName}${playerId}?set=set4&bgset=bg1&size=100x100`;
+          // Use NBA slogan instead of robohash cat images
+          const imageUrl = `https://via.placeholder.com/50x50/1a428a/ffffff?text=NBA`;
           
           additionalPlayers.push({
             player_id: playerId,
@@ -193,6 +193,7 @@ export const getLineups = async () => {
     let storedLineups = [];
     try {
       storedLineups = JSON.parse(localStorage.getItem('nba_lineups') || '[]');
+      console.log('Retrieved lineups from localStorage:', storedLineups.length);
     } catch (storageError) {
       console.error('Error retrieving lineups from localStorage:', storageError);
     }
@@ -207,6 +208,7 @@ export const getLineups = async () => {
       }
     });
     
+    console.log('Total lineups available:', combinedLineups.length);
     return combinedLineups;
     
     // Uncomment for production:
@@ -229,12 +231,26 @@ export const getLineups = async () => {
 
 export const getLineupById = async (lineupId) => {
   try {
-    // For development, always use mock data
-    console.log(`Using mock data for lineup ${lineupId}`);
-    const lineup = mockLineups.find(l => l.id === Number(lineupId));
+    console.log(`Fetching lineup with ID ${lineupId}`);
+    
+    // First check mock lineups
+    let lineup = mockLineups.find(l => l.id === Number(lineupId));
+    
+    // If not found in mock lineups, check localStorage
+    if (!lineup) {
+      try {
+        const storedLineups = JSON.parse(localStorage.getItem('nba_lineups') || '[]');
+        lineup = storedLineups.find(l => l.id === Number(lineupId));
+        console.log(`Lineup ${lineupId} found in localStorage:`, !!lineup);
+      } catch (storageError) {
+        console.error('Error retrieving lineups from localStorage:', storageError);
+      }
+    }
+    
     if (!lineup) {
       throw new Error(`Lineup with ID ${lineupId} not found`);
     }
+    
     return lineup;
     
     // Uncomment for production:
@@ -242,7 +258,17 @@ export const getLineupById = async (lineupId) => {
     // return response.data;
   } catch (error) {
     console.error(`Error fetching lineup ${lineupId}:`, error);
-    console.log('Using mock lineup data as fallback');
+    
+    // Last attempt to find the lineup in localStorage
+    try {
+      const storedLineups = JSON.parse(localStorage.getItem('nba_lineups') || '[]');
+      const lineup = storedLineups.find(l => l.id === Number(lineupId));
+      if (lineup) return lineup;
+    } catch (storageError) {
+      console.error('Error in last attempt to retrieve from localStorage:', storageError);
+    }
+    
+    // If all else fails, check mock lineups again
     return mockLineups.find(l => l.id === Number(lineupId)) || null;
   }
 };
@@ -259,47 +285,67 @@ export const createLineup = async (lineupData) => {
     const allPlayers = await getPlayers();
     
     // Create a mock lineup with a new ID
-    const newId = Math.max(...mockLineups.map(l => l.id), 0) + 1;
+    let storedLineups = [];
+    try {
+      storedLineups = JSON.parse(localStorage.getItem('nba_lineups') || '[]');
+    } catch (storageError) {
+      console.error('Error retrieving lineups from localStorage:', storageError);
+    }
+    
+    const mockIds = mockLineups.map(l => l.id);
+    const storedIds = storedLineups.map(l => l.id);
+    const allIds = [...mockIds, ...storedIds];
+    const newId = allIds.length > 0 ? Math.max(...allIds) + 1 : 1;
     
     // Find full player objects for each player ID
     const playerObjects = lineupData.players.map(id => 
-      allPlayers.find(p => p.player_id === id)
+      allPlayers.find(p => p.player_id === Number(id))
     ).filter(Boolean);
+    
+    // Calculate totals first to ensure they're set correctly
+    let total_ppg = 0;
+    let total_rpg = 0;
+    let total_apg = 0;
+    let total_spg = 0;
+    let total_bpg = 0;
+    let total_fg_pct = 0;
+    let total_fg3_pct = 0;
+    let total_ft_pct = 0;
+    
+    if (playerObjects.length > 0) {
+      total_ppg = playerObjects.reduce((sum, p) => sum + (p.ppg || 0), 0);
+      total_rpg = playerObjects.reduce((sum, p) => sum + (p.rpg || 0), 0);
+      total_apg = playerObjects.reduce((sum, p) => sum + (p.apg || 0), 0);
+      total_spg = playerObjects.reduce((sum, p) => sum + (p.spg || 0), 0);
+      total_bpg = playerObjects.reduce((sum, p) => sum + (p.bpg || 0), 0);
+      total_fg_pct = playerObjects.reduce((sum, p) => sum + (p.fg_pct || 0), 0) / playerObjects.length;
+      total_fg3_pct = playerObjects.reduce((sum, p) => sum + (p.fg3_pct || 0), 0) / playerObjects.length;
+      total_ft_pct = playerObjects.reduce((sum, p) => sum + (p.ft_pct || 0), 0) / playerObjects.length;
+    }
     
     const newLineup = {
       id: newId,
       name: lineupData.name,
       players: playerObjects,
-      total_ppg: 0,
-      total_rpg: 0,
-      total_apg: 0,
-      total_spg: 0,
-      total_bpg: 0,
-      total_fg_pct: 0,
-      total_fg3_pct: 0,
-      total_ft_pct: 0
+      total_ppg,
+      total_rpg,
+      total_apg,
+      total_spg,
+      total_bpg,
+      total_fg_pct,
+      total_fg3_pct,
+      total_ft_pct,
+      created_at: new Date().toISOString() // Add timestamp
     };
-    
-    // Calculate totals
-    if (newLineup.players.length > 0) {
-      newLineup.total_ppg = newLineup.players.reduce((sum, p) => sum + p.ppg, 0);
-      newLineup.total_rpg = newLineup.players.reduce((sum, p) => sum + p.rpg, 0);
-      newLineup.total_apg = newLineup.players.reduce((sum, p) => sum + p.apg, 0);
-      newLineup.total_spg = newLineup.players.reduce((sum, p) => sum + p.spg, 0);
-      newLineup.total_bpg = newLineup.players.reduce((sum, p) => sum + p.bpg, 0);
-      newLineup.total_fg_pct = newLineup.players.reduce((sum, p) => sum + p.fg_pct, 0) / newLineup.players.length;
-      newLineup.total_fg3_pct = newLineup.players.reduce((sum, p) => sum + p.fg3_pct, 0) / newLineup.players.length;
-      newLineup.total_ft_pct = newLineup.players.reduce((sum, p) => sum + p.ft_pct, 0) / newLineup.players.length;
-    }
     
     // Add to mock lineups (in memory only)
     mockLineups.push(newLineup);
     
     // Store in localStorage for persistence
     try {
-      const storedLineups = JSON.parse(localStorage.getItem('nba_lineups') || '[]');
       storedLineups.push(newLineup);
       localStorage.setItem('nba_lineups', JSON.stringify(storedLineups));
+      console.log('Lineup saved to localStorage:', newLineup);
     } catch (storageError) {
       console.error('Error storing lineup in localStorage:', storageError);
     }
@@ -319,47 +365,84 @@ export const updateLineup = async (lineupId, lineupData) => {
     // Get all players to ensure we have the complete data
     const allPlayers = await getPlayers();
     
+    // Check mock lineups first
     const lineupIndex = mockLineups.findIndex(l => l.id === Number(lineupId));
-    if (lineupIndex === -1) return null;
+    let updatedLineup = null;
+    let inMockLineups = false;
     
-    // Find full player objects for each player ID
-    const playerObjects = lineupData.players.map(id => 
-      allPlayers.find(p => p.player_id === id)
-    ).filter(Boolean);
-    
-    const updatedLineup = {
-      ...mockLineups[lineupIndex],
-      name: lineupData.name,
-      players: playerObjects
-    };
-    
-    // Recalculate totals
-    if (updatedLineup.players.length > 0) {
-      updatedLineup.total_ppg = updatedLineup.players.reduce((sum, p) => sum + p.ppg, 0);
-      updatedLineup.total_rpg = updatedLineup.players.reduce((sum, p) => sum + p.rpg, 0);
-      updatedLineup.total_apg = updatedLineup.players.reduce((sum, p) => sum + p.apg, 0);
-      updatedLineup.total_spg = updatedLineup.players.reduce((sum, p) => sum + p.spg, 0);
-      updatedLineup.total_bpg = updatedLineup.players.reduce((sum, p) => sum + p.bpg, 0);
-      updatedLineup.total_fg_pct = updatedLineup.players.reduce((sum, p) => sum + p.fg_pct, 0) / updatedLineup.players.length;
-      updatedLineup.total_fg3_pct = updatedLineup.players.reduce((sum, p) => sum + p.fg3_pct, 0) / updatedLineup.players.length;
-      updatedLineup.total_ft_pct = updatedLineup.players.reduce((sum, p) => sum + p.ft_pct, 0) / updatedLineup.players.length;
+    if (lineupIndex !== -1) {
+      inMockLineups = true;
+      
+      // Find full player objects for each player ID
+      const playerObjects = lineupData.players.map(id => 
+        allPlayers.find(p => p.player_id === Number(id))
+      ).filter(Boolean);
+      
+      updatedLineup = {
+        ...mockLineups[lineupIndex],
+        name: lineupData.name,
+        players: playerObjects
+      };
+      
+      // Recalculate totals
+      if (updatedLineup.players.length > 0) {
+        updatedLineup.total_ppg = updatedLineup.players.reduce((sum, p) => sum + (p.ppg || 0), 0);
+        updatedLineup.total_rpg = updatedLineup.players.reduce((sum, p) => sum + (p.rpg || 0), 0);
+        updatedLineup.total_apg = updatedLineup.players.reduce((sum, p) => sum + (p.apg || 0), 0);
+        updatedLineup.total_spg = updatedLineup.players.reduce((sum, p) => sum + (p.spg || 0), 0);
+        updatedLineup.total_bpg = updatedLineup.players.reduce((sum, p) => sum + (p.bpg || 0), 0);
+        updatedLineup.total_fg_pct = updatedLineup.players.reduce((sum, p) => sum + (p.fg_pct || 0), 0) / updatedLineup.players.length;
+        updatedLineup.total_fg3_pct = updatedLineup.players.reduce((sum, p) => sum + (p.fg3_pct || 0), 0) / updatedLineup.players.length;
+        updatedLineup.total_ft_pct = updatedLineup.players.reduce((sum, p) => sum + (p.ft_pct || 0), 0) / updatedLineup.players.length;
+      }
+      
+      // Update in mock lineups (in memory only)
+      mockLineups[lineupIndex] = updatedLineup;
     }
     
-    // Update in mock lineups (in memory only)
-    mockLineups[lineupIndex] = updatedLineup;
-    
-    // Update in localStorage
+    // Now check localStorage
     try {
       let storedLineups = JSON.parse(localStorage.getItem('nba_lineups') || '[]');
       const storedIndex = storedLineups.findIndex(l => l.id === Number(lineupId));
       
       if (storedIndex !== -1) {
-        storedLineups[storedIndex] = updatedLineup;
-      } else {
+        // If we already updated in mock lineups, use that updated lineup
+        if (inMockLineups && updatedLineup) {
+          storedLineups[storedIndex] = updatedLineup;
+        } else {
+          // Otherwise create a new updated lineup
+          const playerObjects = lineupData.players.map(id => 
+            allPlayers.find(p => p.player_id === Number(id))
+          ).filter(Boolean);
+          
+          updatedLineup = {
+            ...storedLineups[storedIndex],
+            name: lineupData.name,
+            players: playerObjects
+          };
+          
+          // Recalculate totals
+          if (updatedLineup.players.length > 0) {
+            updatedLineup.total_ppg = updatedLineup.players.reduce((sum, p) => sum + (p.ppg || 0), 0);
+            updatedLineup.total_rpg = updatedLineup.players.reduce((sum, p) => sum + (p.rpg || 0), 0);
+            updatedLineup.total_apg = updatedLineup.players.reduce((sum, p) => sum + (p.apg || 0), 0);
+            updatedLineup.total_spg = updatedLineup.players.reduce((sum, p) => sum + (p.spg || 0), 0);
+            updatedLineup.total_bpg = updatedLineup.players.reduce((sum, p) => sum + (p.bpg || 0), 0);
+            updatedLineup.total_fg_pct = updatedLineup.players.reduce((sum, p) => sum + (p.fg_pct || 0), 0) / updatedLineup.players.length;
+            updatedLineup.total_fg3_pct = updatedLineup.players.reduce((sum, p) => sum + (p.fg3_pct || 0), 0) / updatedLineup.players.length;
+            updatedLineup.total_ft_pct = updatedLineup.players.reduce((sum, p) => sum + (p.ft_pct || 0), 0) / updatedLineup.players.length;
+          }
+          
+          storedLineups[storedIndex] = updatedLineup;
+        }
+      } else if (updatedLineup) {
+        // If not found in localStorage but we have an updated lineup from mock lineups, add it
         storedLineups.push(updatedLineup);
       }
       
+      // Save back to localStorage
       localStorage.setItem('nba_lineups', JSON.stringify(storedLineups));
+      console.log('Updated lineup saved to localStorage:', updatedLineup);
     } catch (storageError) {
       console.error('Error updating lineup in localStorage:', storageError);
     }
@@ -376,22 +459,32 @@ export const deleteLineup = async (lineupId) => {
     console.error(`Error deleting lineup ${lineupId}:`, error);
     console.log('Using mock lineup deletion as fallback');
     
-    const lineupIndex = mockLineups.findIndex(l => l.id === Number(lineupId));
-    if (lineupIndex === -1) return { success: false };
+    let success = false;
     
-    // Remove from mock lineups (in memory only)
-    mockLineups.splice(lineupIndex, 1);
+    // Remove from mock lineups (in memory)
+    const lineupIndex = mockLineups.findIndex(l => l.id === Number(lineupId));
+    if (lineupIndex !== -1) {
+      mockLineups.splice(lineupIndex, 1);
+      success = true;
+    }
     
     // Remove from localStorage
     try {
       let storedLineups = JSON.parse(localStorage.getItem('nba_lineups') || '[]');
+      const initialLength = storedLineups.length;
       storedLineups = storedLineups.filter(l => l.id !== Number(lineupId));
+      
+      if (storedLineups.length !== initialLength) {
+        success = true;
+      }
+      
       localStorage.setItem('nba_lineups', JSON.stringify(storedLineups));
+      console.log(`Lineup ${lineupId} removed from localStorage`);
     } catch (storageError) {
       console.error('Error removing lineup from localStorage:', storageError);
     }
     
-    return { success: true };
+    return { success };
   }
 };
 

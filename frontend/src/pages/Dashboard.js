@@ -170,7 +170,7 @@ const Performances = () => {
             recentGames: Array.isArray(data.recentGames) ? data.recentGames : [],
             // Add new top performances data
             topPerformances: Array.isArray(data.topPerformances) ? data.topPerformances : [
-              { player_id: 1, name: 'Luka Doncic', team: 'DAL', points: 45, rebounds: 12, assists: 8, date: '2023-11-15', opponent: 'LAC' },
+              { player_id: 1, name: 'Luka Doncic', team: 'LAL', points: 45, rebounds: 12, assists: 8, date: '2023-11-15', opponent: 'LAC' },
               { player_id: 2, name: 'Joel Embiid', team: 'PHI', points: 42, rebounds: 15, assists: 5, date: '2023-11-14', opponent: 'DET' },
               { player_id: 3, name: 'Nikola Jokic', team: 'DEN', points: 35, rebounds: 14, assists: 12, date: '2023-11-13', opponent: 'NOP' },
               { player_id: 4, name: 'LeBron James', team: 'LAL', points: 38, rebounds: 9, assists: 12, date: '2023-11-12', opponent: 'PHX' },
@@ -201,7 +201,7 @@ const Performances = () => {
   const setDefaultMockData = () => {
         setStats({
           topScorers: [
-            { player_id: 1, name: 'Luka Doncic', team: 'DAL', ppg: 33.9, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/1629029.png' },
+            { player_id: 1, name: 'Luka Doncic', team: 'LAL', ppg: 33.9, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/1629029.png' },
             { player_id: 2, name: 'Joel Embiid', team: 'PHI', ppg: 33.1, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/203954.png' },
             { player_id: 3, name: 'Kevin Durant', team: 'PHX', ppg: 29.1, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/201142.png' },
             { player_id: 4, name: 'LeBron James', team: 'LAL', ppg: 28.9, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/2544.png' },
@@ -219,7 +219,7 @@ const Performances = () => {
             { player_id: 12, name: 'Trae Young', team: 'ATL', apg: 10.8, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/1629027.png' },
             { player_id: 13, name: 'Nikola Jokic', team: 'DEN', apg: 9.0, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/203999.png' },
             { player_id: 14, name: 'James Harden', team: 'LAC', apg: 8.5, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/201935.png' },
-            { player_id: 15, name: 'Luka Doncic', team: 'DAL', apg: 8.4, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/1629029.png' },
+            { player_id: 15, name: 'Luka Doncic', team: 'LAL', apg: 8.4, image_url: 'https://cdn.nba.com/headshots/nba/latest/1040x760/1629029.png' },
           ],
           recentGames: [
             {
@@ -254,7 +254,7 @@ const Performances = () => {
             },
           ],
       topPerformances: [
-        { player_id: 1, name: 'Luka Doncic', team: 'DAL', points: 45, rebounds: 12, assists: 8, date: '2023-11-15', opponent: 'LAC' },
+        { player_id: 1, name: 'Luka Doncic', team: 'LAL', points: 45, rebounds: 12, assists: 8, date: '2023-11-15', opponent: 'LAC' },
         { player_id: 2, name: 'Joel Embiid', team: 'PHI', points: 42, rebounds: 15, assists: 5, date: '2023-11-14', opponent: 'DET' },
         { player_id: 3, name: 'Nikola Jokic', team: 'DEN', points: 35, rebounds: 14, assists: 12, date: '2023-11-13', opponent: 'NOP' },
         { player_id: 4, name: 'LeBron James', team: 'LAL', points: 38, rebounds: 9, assists: 12, date: '2023-11-12', opponent: 'PHX' },
@@ -327,43 +327,26 @@ const Performances = () => {
     }
 
     return (
-      <Paper
-        sx={{
-          p: 3,
-          display: 'flex',
-          flexDirection: 'column',
-          height: 400
-        }}
-        elevation={3}
-      >
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h6">
-            Team Performance - Last 5 Games
-          </Typography>
-          <Tabs
-            value={chartTab}
-            onChange={(e, newValue) => setChartTab(newValue)}
-            textColor="primary"
-            indicatorColor="primary"
-            aria-label="chart tabs"
-          >
-            <Tab label="Line Chart" />
-            <Tab label="Bar Chart" />
-          </Tabs>
-        </Box>
-        
-        <Box sx={{ height: 300, mt: 2 }}>
-          <Suspense fallback={<Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}><CircularProgress /></Box>}>
-            {chartTab === 0 ? (
-              <LazyLineChart 
-                data={stats.recentGames}
-                xLegend="Game"
-                yLegend="Value"
-                title="Team Stats by Game"
-                tooltipTitle="Game Performance"
-                tooltipFormat={(value) => `${value}`}
-              />
-            ) : (
+      <Box>
+        {/* Bar Chart */}
+        <Paper
+          sx={{
+            p: 3,
+            display: 'flex',
+            flexDirection: 'column',
+            height: 400,
+            mb: 4
+          }}
+          elevation={3}
+        >
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Typography variant="h6">
+              Team Performance - Bar Chart
+            </Typography>
+          </Box>
+          
+          <Box sx={{ height: 300, mt: 2 }}>
+            <Suspense fallback={<Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}><CircularProgress /></Box>}>
               <LazyBarChart 
                 data={stats.recentGames.map(series => ({
                   ...series,
@@ -378,30 +361,76 @@ const Performances = () => {
                 title="Team Stats by Game"
                 tooltipFormat={(value) => `${value}`}
               />
-            )}
-          </Suspense>
-        </Box>
+            </Suspense>
+          </Box>
+          
+          {/* Chart Legend and Explanation */}
+          <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 2 }}>
+            {stats.recentGames.map((series, index) => (
+              <Chip 
+                key={index}
+                label={series.id}
+                sx={{ 
+                  backgroundColor: index === 0 ? '#ff6d00' : index === 1 ? '#2196f3' : '#4caf50',
+                  color: 'white',
+                  fontWeight: 'bold'
+                }}
+              />
+            ))}
+          </Box>
+        </Paper>
         
-        {/* Chart Legend and Explanation */}
-        <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 2 }}>
-          {stats.recentGames.map((series, index) => (
-            <Chip 
-              key={index}
-              label={series.id}
-              sx={{ 
-                backgroundColor: index === 0 ? '#ff6d00' : index === 1 ? '#2196f3' : '#4caf50',
-                color: 'white',
-                fontWeight: 'bold'
-              }}
-            />
-          ))}
-        </Box>
+        {/* Line Chart */}
+        <Paper
+          sx={{
+            p: 3,
+            display: 'flex',
+            flexDirection: 'column',
+            height: 400,
+            mb: 4
+          }}
+          elevation={3}
+        >
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Typography variant="h6">
+              Team Performance - Line Chart
+            </Typography>
+          </Box>
+          
+          <Box sx={{ height: 300, mt: 2 }}>
+            <Suspense fallback={<Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}><CircularProgress /></Box>}>
+              <LazyLineChart 
+                data={stats.recentGames}
+                xLegend="Game"
+                yLegend="Value"
+                title="Team Stats by Game"
+                tooltipTitle="Game Performance"
+                tooltipFormat={(value) => `${value}`}
+              />
+            </Suspense>
+          </Box>
+          
+          {/* Chart Legend and Explanation */}
+          <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 2 }}>
+            {stats.recentGames.map((series, index) => (
+              <Chip 
+                key={index}
+                label={series.id}
+                sx={{ 
+                  backgroundColor: index === 0 ? '#ff6d00' : index === 1 ? '#2196f3' : '#4caf50',
+                  color: 'white',
+                  fontWeight: 'bold'
+                }}
+              />
+            ))}
+          </Box>
+        </Paper>
         
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 2, textAlign: 'center' }}>
-          This chart shows the team's performance metrics over the last 5 games. 
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 4, textAlign: 'center' }}>
+          These charts show the team's performance metrics over the last 5 games. 
           Points represent scoring efficiency, Assists show team playmaking, and Rebounds indicate defensive presence.
-          </Typography>
-      </Paper>
+        </Typography>
+      </Box>
     );
   };
 
@@ -447,16 +476,16 @@ const Performances = () => {
           statLabel="APG"
           onPlayerClick={handlePlayerClick}
         />
-        </Grid>
+      </Grid>
         
-        {/* Recent Games Chart */}
-      <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
+      {/* Recent Games Chart */}
+      <Typography variant="h5" gutterBottom sx={{ mt: 4, mb: 2 }}>
         Recent Team Performance
       </Typography>
       {renderChartSection()}
       
       {/* Top Individual Performances */}
-      <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
+      <Typography variant="h5" gutterBottom sx={{ mt: 6 }}>
         Top Individual Performances
       </Typography>
       <Grid container spacing={3}>
@@ -464,7 +493,7 @@ const Performances = () => {
           stats.topPerformances.map((performance, index) => (
             <Grid item xs={12} sm={6} md={4} key={index}>
               <Card 
-            sx={{
+                sx={{
                   height: '100%',
                   cursor: 'pointer',
                   transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
@@ -480,10 +509,10 @@ const Performances = () => {
                     <CardMedia
                       component="img"
                       sx={{ width: 60, height: 60, borderRadius: '50%', mr: 2, objectFit: 'cover' }}
-                      image={performance.image_url || `https://cdn.nba.com/headshots/nba/latest/1040x760/${performance.player_id}.png`}
+                      image={performance.image_url || `https://cdn.nba.com/headshots/nba/latest/260x190/${performance.player_id}.png`}
                       alt={performance.name}
                       onError={(e) => {
-                        e.target.src = `https://via.placeholder.com/60x60?text=${performance.name ? performance.name.charAt(0) : 'N/A'}`;
+                        e.target.src = `https://via.placeholder.com/60x60/1a428a/ffffff?text=NBA`;
                       }}
                     />
                     <Box>
@@ -514,7 +543,7 @@ const Performances = () => {
                       </Typography>
                       <Typography variant="body2">AST</Typography>
                     </Box>
-            </Box>
+                  </Box>
                 </CardContent>
               </Card>
             </Grid>
@@ -523,8 +552,8 @@ const Performances = () => {
           <Grid item xs={12}>
             <Paper sx={{ p: 3, textAlign: 'center' }}>
               <Typography variant="body1">No top performances available</Typography>
-          </Paper>
-        </Grid>
+            </Paper>
+          </Grid>
         )}
       </Grid>
       

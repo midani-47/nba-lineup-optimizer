@@ -115,16 +115,6 @@ const LineupBuilder = () => {
     }
   };
 
-  const handleLoadLineup = (savedLineup) => {
-    setLineup(savedLineup.players);
-    setLineupName(savedLineup.name + ' (Copy)');
-    setSnackbar({
-      open: true,
-      message: `Loaded lineup: ${savedLineup.name}`,
-      severity: 'success',
-    });
-  };
-
   const handleSearchPlayers = (searchTerm) => {
     if (!searchTerm.trim()) {
       setFilteredPlayers(players);
@@ -138,6 +128,32 @@ const LineupBuilder = () => {
     );
     
     setFilteredPlayers(filtered);
+  };
+
+  const handleAddPlayer = (player) => {
+    if (lineup.length >= 5) {
+      setSnackbar({
+        open: true,
+        message: 'Maximum 5 players allowed in a lineup.',
+        severity: 'warning',
+      });
+      return;
+    }
+    
+    if (lineup.some(p => p.player_id === player.player_id)) {
+      setSnackbar({
+        open: true,
+        message: 'This player is already in your lineup.',
+        severity: 'warning',
+      });
+      return;
+    }
+    
+    setLineup(prev => [...prev, player]);
+  };
+
+  const handleRemovePlayer = (playerId) => {
+    setLineup(prev => prev.filter(player => player.player_id !== playerId));
   };
 
   const handleSaveLineup = async () => {
@@ -257,104 +273,20 @@ const LineupBuilder = () => {
     
     // Calculate averages for percentages
     if (lineup.length > 0) {
-      stats.fg_pct = stats.fg_pct / lineup.length;
-      stats.fg3_pct = stats.fg3_pct / lineup.length;
-      stats.ft_pct = stats.ft_pct / lineup.length;
+      stats.fg_pct /= lineup.length;
+      stats.fg3_pct /= lineup.length;
+      stats.ft_pct /= lineup.length;
     }
     
     return stats;
   };
-
-  const handleRemovePlayer = (playerId) => {
-    if (!playerId) {
-      console.error('Invalid player ID for removal');
-      return;
-    }
-    
-    if (!Array.isArray(lineup)) {
-      setLineup([]);
-      return;
-    }
-    
-    setLineup(prevLineup => prevLineup.filter(player => player.player_id !== playerId));
-  };
-
-  const handleAddPlayer = (player) => {
-    if (!player || typeof player !== 'object') {
-      setSnackbar({
-        open: true,
-        message: 'Invalid player data. Please try again.',
-        severity: 'error',
-      });
-      return;
-    }
-    
-    // Check if player is already in lineup
-    if (Array.isArray(lineup) && lineup.some(p => p.player_id === player.player_id)) {
-      setSnackbar({
-        open: true,
-        message: `${player.name || 'This player'} is already in your lineup.`,
-        severity: 'warning',
-      });
-      return;
-    }
-    
-    // Check if lineup already has 5 players
-    if (Array.isArray(lineup) && lineup.length >= 5) {
-      setSnackbar({
-        open: true,
-        message: 'A lineup can have a maximum of 5 players.',
-        severity: 'warning',
-      });
-      return;
-    }
-    
-    // Add player to lineup
-    setLineup(prevLineup => {
-      if (Array.isArray(prevLineup)) {
-        return [...prevLineup, player];
-      }
-      return [player];
-    });
-  };
-
-  const handleFilterPlayers = (e) => {
-    const term = e.target.value;
-    setSearchTerm(term);
-    
-    if (!Array.isArray(players)) {
-      setFilteredPlayers([]);
-      return;
-    }
-    
-    if (!term.trim()) {
-      setFilteredPlayers(players);
-      return;
-    }
-    
-    const filtered = players.filter(player => {
-      if (!player || typeof player !== 'object') return false;
-      
-      const name = player.name || '';
-      const team = player.team || '';
-      const position = player.position || '';
-      
-      return (
-        name.toLowerCase().includes(term.toLowerCase()) ||
-        team.toLowerCase().includes(term.toLowerCase()) ||
-        position.toLowerCase().includes(term.toLowerCase())
-      );
-    });
-    
-    setFilteredPlayers(filtered);
-  };
-
+  
   const lineupStats = calculateLineupStats();
 
   if (loading) {
     return (
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+      <Container sx={{ mt: 4, mb: 4 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
           <CircularProgress />
         </Box>
       </Container>
@@ -362,9 +294,12 @@ const LineupBuilder = () => {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Typography variant="h4" component="h1" gutterBottom className="page-title">
+    <Container sx={{ mt: 4, mb: 4 }}>
+      <Typography variant="h4" gutterBottom>
         Lineup Builder
+      </Typography>
+      <Typography variant="subtitle1" gutterBottom>
+        Create your dream NBA lineup by selecting players from the available list.
       </Typography>
       
       <Grid container spacing={3}>
@@ -375,27 +310,26 @@ const LineupBuilder = () => {
               p: 2,
               display: 'flex',
               flexDirection: 'column',
-              minHeight: 500,
             }}
             elevation={3}
           >
             <Typography variant="h6" gutterBottom>
               Available Players
             </Typography>
-            <Box sx={{ mb: 2, display: 'flex' }}>
+            <Box sx={{ display: 'flex', mb: 2 }}>
               <TextField
                 fullWidth
                 label="Search Players"
                 variant="outlined"
                 value={searchTerm}
-                onChange={handleFilterPlayers}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 sx={{ mr: 1 }}
               />
               <Button
                 variant="contained"
                 color="primary"
-                startIcon={<SearchIcon />}
                 onClick={() => handleSearchPlayers(searchTerm)}
+                startIcon={<SearchIcon />}
               >
                 Search
               </Button>
@@ -585,7 +519,7 @@ const LineupBuilder = () => {
           </Paper>
         </Grid>
         
-        {/* Saved Lineups */}
+        {/* Saved Lineups Section - Display Only */}
         <Grid item xs={12}>
           <Paper
             sx={{
@@ -630,15 +564,6 @@ const LineupBuilder = () => {
                             APG: {savedLineup.total_apg?.toFixed(1) || '0.0'}
                           </Typography>
                         </Box>
-                        <Button
-                          variant="outlined"
-                          color="primary"
-                          size="small"
-                          onClick={() => handleLoadLineup(savedLineup)}
-                          sx={{ mt: 2, width: '100%' }}
-                        >
-                          Load Lineup
-                        </Button>
                       </CardContent>
                     </Card>
                   </Grid>

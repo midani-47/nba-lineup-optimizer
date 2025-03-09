@@ -73,10 +73,11 @@ if %ERRORLEVEL% NEQ 0 (
     echo [WARNING] Data fix encountered issues
 )
 
-REM Start backend server in a new window
+REM Start backend server in the background
 echo.
 echo Starting backend server...
-start "NBA Lineup Optimizer - Backend" cmd /k "cd %CD% && python manage.py runserver 8001"
+start /b cmd /c "cd %CD% && python manage.py runserver 8001 > backend_log.txt 2>&1"
+echo Backend server started in the background (logs in backend_log.txt)
 
 REM Go back to root directory
 cd ..
@@ -97,10 +98,11 @@ if not exist node_modules (
     echo Frontend dependencies already installed
 )
 
-REM Start frontend server
+REM Start frontend server in the background
 echo.
 echo Starting frontend server...
-start "NBA Lineup Optimizer - Frontend" cmd /k "npm start"
+start /b cmd /c "npm start > frontend_log.txt 2>&1"
+echo Frontend server started in the background (logs in frontend_log.txt)
 
 REM Go back to root directory
 cd ..
@@ -111,9 +113,16 @@ echo    NBA Lineup Optimizer started successfully!
 echo.
 echo    Backend: http://localhost:8001/api
 echo    Frontend: http://localhost:3000
+echo    
+echo    Log files:
+echo    - backend/backend_log.txt
+echo    - frontend/frontend_log.txt
 echo ===================================================
 echo.
-echo Press any key to exit this window...
+echo The application is now running in the background.
+echo You can close this window and the servers will continue running.
+echo To stop the servers, press Ctrl+C in each terminal or use Task Manager.
+echo.
 
 :end
 pause 

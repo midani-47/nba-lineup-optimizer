@@ -5,20 +5,35 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 
-// Components
+// Components - Only import what's needed for initial render
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 
-// Lazy load pages for better performance
+// Lazy load pages with prefetch priority
+// Home is loaded immediately as it's the landing page
 const Home = lazy(() => import('./pages/Home'));
-const Performances = lazy(() => import('./pages/Dashboard')); // Using the Dashboard file but with Performances component
-const Players = lazy(() => import('./pages/Players'));
-const PlayerDetail = lazy(() => import('./pages/PlayerDetail'));
-const LineupBuilder = lazy(() => import('./pages/LineupBuilder'));
-const LineupComparison = lazy(() => import('./pages/LineupComparison'));
-const LineupOptimizer = lazy(() => import('./pages/LineupOptimizer'));
 
-// Loading component for suspense fallback
+// Other pages are loaded with lower priority
+const Performances = lazy(() => 
+  import(/* webpackChunkName: "performances" */ './pages/Dashboard')
+);
+const Players = lazy(() => 
+  import(/* webpackChunkName: "players" */ './pages/Players')
+);
+const PlayerDetail = lazy(() => 
+  import(/* webpackChunkName: "player-detail" */ './pages/PlayerDetail')
+);
+const LineupBuilder = lazy(() => 
+  import(/* webpackChunkName: "lineup-builder" */ './pages/LineupBuilder')
+);
+const LineupComparison = lazy(() => 
+  import(/* webpackChunkName: "lineup-comparison" */ './pages/LineupComparison')
+);
+const LineupOptimizer = lazy(() => 
+  import(/* webpackChunkName: "lineup-optimizer" */ './pages/LineupOptimizer')
+);
+
+// Simpler loading component for faster initial render
 const LoadingFallback = () => (
   <Box 
     sx={{ 
@@ -26,13 +41,14 @@ const LoadingFallback = () => (
       justifyContent: 'center', 
       alignItems: 'center', 
       height: '100vh',
-      background: 'linear-gradient(135deg, #0d253f 0%, #1e3c72 100%)'
+      background: '#f5f5f5'
     }}
   >
-    <CircularProgress size={60} sx={{ color: '#ff6d00' }} />
+    <CircularProgress size={40} />
   </Box>
 );
 
+// Simplified theme with fewer customizations
 const theme = createTheme({
   palette: {
     primary: {
@@ -40,26 +56,12 @@ const theme = createTheme({
     },
     secondary: {
       main: '#f50057',
-    },
-    background: {
-      default: '#f5f5f5',
-    },
-  },
-  typography: {
-    fontFamily: [
-      '-apple-system',
-      'BlinkMacSystemFont',
-      '"Segoe UI"',
-      'Roboto',
-      '"Helvetica Neue"',
-      'Arial',
-      'sans-serif',
-    ].join(','),
-  },
+    }
+  }
 });
 
 function App() {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false); // Start with sidebar closed for faster initial render
   const toggleDrawer = () => {
     setOpen(!open);
   };
@@ -75,7 +77,7 @@ function App() {
           flexGrow: 1,
           height: '100vh',
           overflow: 'auto',
-          pt: 8, // Add padding top to account for the navbar
+          pt: 8,
           px: 2,
         }}
       >
@@ -95,37 +97,49 @@ function App() {
           {/* Performances page (formerly Dashboard) */}
           <Route path="/performances" element={
             <AppLayout>
-              <Performances />
+              <Suspense fallback={<LoadingFallback />}>
+                <Performances />
+              </Suspense>
             </AppLayout>
           } />
           
           <Route path="/players" element={
             <AppLayout>
-              <Players />
+              <Suspense fallback={<LoadingFallback />}>
+                <Players />
+              </Suspense>
             </AppLayout>
           } />
           
           <Route path="/players/:playerId" element={
             <AppLayout>
-              <PlayerDetail />
+              <Suspense fallback={<LoadingFallback />}>
+                <PlayerDetail />
+              </Suspense>
             </AppLayout>
           } />
           
           <Route path="/lineup-builder" element={
             <AppLayout>
-              <LineupBuilder />
+              <Suspense fallback={<LoadingFallback />}>
+                <LineupBuilder />
+              </Suspense>
             </AppLayout>
           } />
           
           <Route path="/lineup-comparison" element={
             <AppLayout>
-              <LineupComparison />
+              <Suspense fallback={<LoadingFallback />}>
+                <LineupComparison />
+              </Suspense>
             </AppLayout>
           } />
           
           <Route path="/lineup-optimizer" element={
             <AppLayout>
-              <LineupOptimizer />
+              <Suspense fallback={<LoadingFallback />}>
+                <LineupOptimizer />
+              </Suspense>
             </AppLayout>
           } />
           

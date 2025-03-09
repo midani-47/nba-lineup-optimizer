@@ -131,7 +131,8 @@ const Players = () => {
   };
   
   const getPlayerImageUrl = (playerId) => {
-    return `https://cdn.nba.com/headshots/nba/latest/1040x760/${playerId}.png`;
+    // Reduce image size by requesting a smaller version
+    return `https://cdn.nba.com/headshots/nba/latest/260x190/${playerId}.png`;
   };
   
   const handleCloseError = () => {
@@ -254,12 +255,13 @@ const Players = () => {
               >
                 <CardMedia
                   component="img"
-                  height="200"
+                  height="120"
                   image={player.image_url || getPlayerImageUrl(player.player_id)}
                   alt={player.name}
                   onError={(e) => {
-                    e.target.src = `https://via.placeholder.com/200x200?text=${player.name ? player.name.charAt(0) : 'N/A'}`;
+                    e.target.src = `https://via.placeholder.com/120x120/1a428a/ffffff?text=NBA`;
                   }}
+                  sx={{ objectFit: 'contain', backgroundColor: '#f5f5f5' }}
                 />
                 <CardContent>
                   <Typography variant="h6" component="div" gutterBottom noWrap>

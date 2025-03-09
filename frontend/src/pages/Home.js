@@ -400,7 +400,7 @@ const Home = () => {
             <Box
               sx={{
                 position: 'absolute',
-                top: '10%',
+                top: '0%',
                 left: '50%',
                 transform: 'translateX(-50%)',
                 width: '140px',
