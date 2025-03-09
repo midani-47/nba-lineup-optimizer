@@ -1,0 +1,3 @@
+Watching for file changes with StatReloader
+Not Found: /logo192.png
+[09/Mar/2025 19:53:51] "GET /logo192.png HTTP/1.1" 404 2592

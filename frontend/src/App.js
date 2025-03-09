@@ -1,4 +1,4 @@
-import React, { useState, lazy, Suspense } from 'react';
+import React, { useState, lazy, Suspense, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -62,6 +62,30 @@ const theme = createTheme({
 
 function App() {
   const [open, setOpen] = useState(false); // Start with sidebar closed for faster initial render
+  
+  // Initialize localStorage if needed
+  useEffect(() => {
+    // Check if localStorage is available
+    try {
+      // Initialize lineups storage if it doesn't exist
+      if (!localStorage.getItem('nba_lineups')) {
+        console.log('Initializing localStorage for lineups');
+        localStorage.setItem('nba_lineups', JSON.stringify([]));
+      } else {
+        // Validate that the stored data is valid JSON
+        try {
+          const storedLineups = JSON.parse(localStorage.getItem('nba_lineups'));
+          console.log('Found existing lineups in localStorage:', storedLineups.length);
+        } catch (parseError) {
+          console.error('Invalid data in localStorage, resetting:', parseError);
+          localStorage.setItem('nba_lineups', JSON.stringify([]));
+        }
+      }
+    } catch (error) {
+      console.error('Error accessing localStorage:', error);
+    }
+  }, []);
+  
   const toggleDrawer = () => {
     setOpen(!open);
   };

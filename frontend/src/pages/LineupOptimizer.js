@@ -45,9 +45,11 @@ const LineupOptimizer = () => {
     const fetchLineups = async () => {
       try {
         setLoading(true);
+        console.log('LineupOptimizer: Fetching lineups...');
         const data = await getLineups();
         // Ensure lineups is always an array
         if (Array.isArray(data)) {
+          console.log('LineupOptimizer: Lineups fetched successfully:', data.length);
           setLineups(data);
         } else {
           console.error('Expected lineups to be an array but got:', data);
@@ -74,6 +76,20 @@ const LineupOptimizer = () => {
     fetchLineups();
   }, []);
 
+  // Add a function to refresh lineups
+  const refreshLineups = async () => {
+    try {
+      console.log('LineupOptimizer: Refreshing lineups...');
+      const data = await getLineups();
+      if (Array.isArray(data)) {
+        console.log('LineupOptimizer: Lineups refreshed successfully:', data.length);
+        setLineups(data);
+      }
+    } catch (error) {
+      console.error('Error refreshing lineups:', error);
+    }
+  };
+
   const handleLineupChange = async (event) => {
     const lineupId = event.target.value;
     setSelectedLineupId(lineupId);
@@ -81,8 +97,10 @@ const LineupOptimizer = () => {
     
     if (lineupId) {
       try {
+        console.log(`LineupOptimizer: Fetching lineup details for ID ${lineupId}`);
         const data = await getLineupById(lineupId);
         if (data && data.players && Array.isArray(data.players)) {
+          console.log('LineupOptimizer: Lineup details fetched successfully:', data);
           setSelectedLineup(data);
           setOptimizedLineupName(`${data.name} (Optimized - ${optimizationStrategy.charAt(0).toUpperCase() + optimizationStrategy.slice(1)})`);
         } else {
@@ -180,18 +198,27 @@ const LineupOptimizer = () => {
         players: optimizedLineup.players.map(player => player.player_id),
       };
       
-      await createLineup(lineupData);
+      console.log('LineupOptimizer: Saving optimized lineup:', lineupData);
+      const savedLineup = await createLineup(lineupData);
       
-      setSnackbar({
-        open: true,
-        message: 'Optimized lineup saved successfully!',
-        severity: 'success',
-      });
-      
-      // Refresh lineups list
-      const updatedLineups = await getLineups();
-      if (Array.isArray(updatedLineups)) {
-        setLineups(updatedLineups);
+      if (savedLineup && savedLineup.id) {
+        console.log('LineupOptimizer: Optimized lineup saved successfully:', savedLineup);
+        
+        // Refresh the lineups list
+        await refreshLineups();
+        
+        setSnackbar({
+          open: true,
+          message: 'Optimized lineup saved successfully!',
+          severity: 'success',
+        });
+      } else {
+        console.error('Invalid response from createLineup:', savedLineup);
+        setSnackbar({
+          open: true,
+          message: 'Failed to save optimized lineup. Please try again.',
+          severity: 'error',
+        });
       }
     } catch (error) {
       console.error('Error saving optimized lineup:', error);

@@ -51,6 +51,21 @@ const getCachedOrFetch = async (key, fetchFunction) => {
   return data;
 };
 
+// Add this helper function at the top of the file, after the imports
+// This will help us debug localStorage issues
+const debugLocalStorage = (message) => {
+  try {
+    const storedLineups = JSON.parse(localStorage.getItem('nba_lineups') || '[]');
+    console.log(`[DEBUG] ${message}:`, {
+      count: storedLineups.length,
+      ids: storedLineups.map(l => l.id),
+      lineups: storedLineups
+    });
+  } catch (error) {
+    console.error('[DEBUG] Error accessing localStorage:', error);
+  }
+};
+
 // Players
 export const getPlayers = async (params = {}) => {
   try {
@@ -185,6 +200,8 @@ export const getPlayerById = async (playerId) => {
 
 // Lineups
 export const getLineups = async () => {
+  debugLocalStorage('Before getLineups');
+  
   try {
     // For development, use mock data and localStorage
     console.log('Using mock lineup data and localStorage');
@@ -192,8 +209,15 @@ export const getLineups = async () => {
     // Try to get lineups from localStorage
     let storedLineups = [];
     try {
-      storedLineups = JSON.parse(localStorage.getItem('nba_lineups') || '[]');
-      console.log('Retrieved lineups from localStorage:', storedLineups.length);
+      const storedLineupsString = localStorage.getItem('nba_lineups');
+      console.log('Raw localStorage data:', storedLineupsString);
+      
+      if (storedLineupsString) {
+        storedLineups = JSON.parse(storedLineupsString);
+        console.log('Retrieved lineups from localStorage:', storedLineups.length);
+      } else {
+        console.log('No lineups found in localStorage');
+      }
     } catch (storageError) {
       console.error('Error retrieving lineups from localStorage:', storageError);
     }
@@ -202,13 +226,16 @@ export const getLineups = async () => {
     const combinedLineups = [...mockLineups];
     
     // Add stored lineups that aren't already in mockLineups
-    storedLineups.forEach(storedLineup => {
-      if (!combinedLineups.some(l => l.id === storedLineup.id)) {
-        combinedLineups.push(storedLineup);
-      }
-    });
+    if (Array.isArray(storedLineups)) {
+      storedLineups.forEach(storedLineup => {
+        if (!combinedLineups.some(l => l.id === storedLineup.id)) {
+          combinedLineups.push(storedLineup);
+        }
+      });
+    }
     
     console.log('Total lineups available:', combinedLineups.length);
+    debugLocalStorage('After getLineups');
     return combinedLineups;
     
     // Uncomment for production:
@@ -274,6 +301,8 @@ export const getLineupById = async (lineupId) => {
 };
 
 export const createLineup = async (lineupData) => {
+  debugLocalStorage('Before createLineup');
+  
   try {
     const response = await api.post('/lineups/', lineupData);
     return response.data;
@@ -287,7 +316,10 @@ export const createLineup = async (lineupData) => {
     // Create a mock lineup with a new ID
     let storedLineups = [];
     try {
-      storedLineups = JSON.parse(localStorage.getItem('nba_lineups') || '[]');
+      const storedLineupsString = localStorage.getItem('nba_lineups');
+      if (storedLineupsString) {
+        storedLineups = JSON.parse(storedLineupsString);
+      }
     } catch (storageError) {
       console.error('Error retrieving lineups from localStorage:', storageError);
     }
@@ -344,12 +376,16 @@ export const createLineup = async (lineupData) => {
     // Store in localStorage for persistence
     try {
       storedLineups.push(newLineup);
-      localStorage.setItem('nba_lineups', JSON.stringify(storedLineups));
+      const serializedLineups = JSON.stringify(storedLineups);
+      localStorage.setItem('nba_lineups', serializedLineups);
       console.log('Lineup saved to localStorage:', newLineup);
+      console.log('Total lineups in localStorage:', storedLineups.length);
+      console.log('localStorage size:', serializedLineups.length, 'bytes');
     } catch (storageError) {
       console.error('Error storing lineup in localStorage:', storageError);
     }
     
+    debugLocalStorage('After createLineup');
     return newLineup;
   }
 };

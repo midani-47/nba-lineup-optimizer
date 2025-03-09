@@ -40,10 +40,12 @@ const LineupComparison = () => {
     const fetchLineups = async () => {
       try {
         setLoading(true);
+        console.log('LineupComparison: Fetching lineups...');
         const data = await getLineups();
         
         // Validate that data is an array
         if (Array.isArray(data)) {
+          console.log('LineupComparison: Lineups fetched successfully:', data.length);
           setLineups(data);
         } else {
           console.error('Expected lineups data to be an array but got:', data);
@@ -62,6 +64,20 @@ const LineupComparison = () => {
     fetchLineups();
   }, []);
 
+  // Add a function to refresh lineups
+  const refreshLineups = async () => {
+    try {
+      console.log('LineupComparison: Refreshing lineups...');
+      const data = await getLineups();
+      if (Array.isArray(data)) {
+        console.log('LineupComparison: Lineups refreshed successfully:', data.length);
+        setLineups(data);
+      }
+    } catch (error) {
+      console.error('Error refreshing lineups:', error);
+    }
+  };
+
   const handleCompare = async () => {
     if (!lineup1 || !lineup2) {
       setError('Please select two lineups to compare');
@@ -75,10 +91,12 @@ const LineupComparison = () => {
 
     try {
       setComparisonLoading(true);
+      console.log(`LineupComparison: Comparing lineups ${lineup1} and ${lineup2}`);
       const data = await compareLineups(lineup1, lineup2);
       
       // Validate comparison data
       if (data && data.lineup1 && data.lineup2) {
+        console.log('LineupComparison: Comparison successful:', data);
         setComparisonData(data);
       } else {
         console.error('Invalid comparison data received:', data);

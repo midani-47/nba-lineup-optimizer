@@ -184,18 +184,18 @@ const LineupBuilder = () => {
         players: lineup.map(player => player.player_id)
       };
 
+      console.log('Saving lineup with data:', lineupData);
+
       // Save lineup
       const response = await createLineup(lineupData);
       
       // Validate response
       if (response && response.id) {
-        // Add the new lineup to the saved lineups
-        setSavedLineups(prevLineups => {
-          if (Array.isArray(prevLineups)) {
-            return [...prevLineups, response];
-          }
-          return [response];
-        });
+        console.log('Lineup saved successfully:', response);
+        
+        // Fetch all lineups again to ensure we have the latest data
+        const updatedLineups = await getLineups();
+        setSavedLineups(updatedLineups);
         
         // Reset lineup and name
         setLineup([]);
@@ -547,7 +547,7 @@ const LineupBuilder = () => {
                           {savedLineup.created_at ? new Date(savedLineup.created_at).toLocaleDateString() : 'N/A'}
                         </Typography>
                         <Box sx={{ mt: 1 }}>
-                          {savedLineup.players.map((player) => (
+                          {Array.isArray(savedLineup.players) && savedLineup.players.map((player) => (
                             <Typography key={player.player_id} variant="body2" component="div">
                               • {player.name} ({player.position || 'N/A'})
                             </Typography>
