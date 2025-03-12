@@ -365,7 +365,7 @@ const Performances = () => {
           </Box>
           
           {/* Chart Legend and Explanation */}
-          <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 2 }}>
+          {/*<Box sx={{ mt: 2, display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 2 }}>
             {stats.recentGames.map((series, index) => (
               <Chip 
                 key={index}
@@ -377,7 +377,7 @@ const Performances = () => {
                 }}
               />
             ))}
-          </Box>
+          </Box>*/}
         </Paper>
         
         {/* Line Chart */}
@@ -411,7 +411,7 @@ const Performances = () => {
           </Box>
           
           {/* Chart Legend and Explanation */}
-          <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 2 }}>
+{/*          <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 2 }}>
             {stats.recentGames.map((series, index) => (
               <Chip 
                 key={index}
@@ -423,7 +423,7 @@ const Performances = () => {
                 }}
               />
             ))}
-          </Box>
+          </Box>*/}
         </Paper>
         
         <Typography variant="body2" color="text.secondary" sx={{ mb: 4, textAlign: 'center' }}>

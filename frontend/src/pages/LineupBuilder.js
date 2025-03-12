@@ -316,23 +316,27 @@ const LineupBuilder = () => {
             <Typography variant="h6" gutterBottom>
               Available Players
             </Typography>
-            <Box sx={{ display: 'flex', mb: 2 }}>
-              <TextField
-                fullWidth
-                label="Search Players"
-                variant="outlined"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                sx={{ mr: 1 }}
-              />
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => handleSearchPlayers(searchTerm)}
-                startIcon={<SearchIcon />}
-              >
-                Search
-              </Button>
+            <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                handleSearchPlayers(searchTerm);
+              }} style={{ display: 'flex', gap: '8px', width: '100%' }}>
+                <TextField
+                  fullWidth
+                  variant="outlined"
+                  placeholder="Search players..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  startIcon={<SearchIcon />}
+                >
+                  Search
+                </Button>
+              </form>
             </Box>
             <Typography variant="body2" sx={{ mb: 2 }}>
               Search and add players to your lineup. Click the Add button to add a player.
@@ -498,24 +502,31 @@ const LineupBuilder = () => {
                 </Grid>
               </Grid>
             </Box>
-            <TextField
-              fullWidth
-              label="Lineup Name"
-              variant="outlined"
-              value={lineupName}
-              onChange={(e) => setLineupName(e.target.value)}
-              sx={{ mb: 2 }}
-            />
-            <Button
-              variant="contained"
-              color="primary"
-              startIcon={<SaveIcon />}
-              onClick={handleSaveLineup}
-              disabled={lineup.length !== 5 || !lineupName.trim()}
-              fullWidth
-            >
-              Save Lineup
-            </Button>
+            <Box>
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                handleSaveLineup();
+              }}>
+                <TextField
+                  fullWidth
+                  label="Lineup Name"
+                  variant="outlined"
+                  value={lineupName}
+                  onChange={(e) => setLineupName(e.target.value)}
+                  sx={{ mb: 2 }}
+                />
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  startIcon={<SaveIcon />}
+                  disabled={lineup.length !== 5 || !lineupName.trim()}
+                  fullWidth
+                >
+                  Save Lineup
+                </Button>
+              </form>
+            </Box>
           </Paper>
         </Grid>
         

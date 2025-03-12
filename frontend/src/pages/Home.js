@@ -87,20 +87,20 @@ const Home = () => {
 
   const testimonials = [
     {
-      name: "Abed M.",
-      role: "Fantasy Basketball Manager",
+      name: "Abed Midani",
+      role: "Fantasy Basketball Analyst",
       avatar: "A",
       content: "This tool has completely transformed how I build my fantasy lineups. The optimization feature is a game-changer!"
     },
     {
       name: "Olivia S.",
-      role: "Basketball Analyst",
+      role: "Basketball Player",
       avatar: "O",
       content: "The statistical comparisons and visualizations make my analysis so much more effective. Highly recommended for any serious NBA fan."
     },
     {
       name: "Nevron J.",
-      role: "Basketball Coach",
+      role: "Basketball Fan",
       avatar: "N",
       content: "I use this to explore different lineup combinations for my team. The interface is intuitive and the insights are valuable."
     }

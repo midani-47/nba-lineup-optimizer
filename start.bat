@@ -5,19 +5,56 @@ echo    NBA Lineup Optimizer - Startup Script (Windows)
 echo ===================================================
 echo.
 
-REM Check if Python is installed
-where python >nul 2>nul
-if %ERRORLEVEL% NEQ 0 (
-    echo [ERROR] Python is not installed or not in PATH
-    echo Please install Python 3.8 or higher and try again
+REM Check Python version
+python --version > temp.txt 2>&1
+set /p PYTHON_VERSION=<temp.txt
+del temp.txt
+echo Found Python version: %PYTHON_VERSION%
+if "%PYTHON_VERSION:~7,1%" LSS "3" (
+    echo [ERROR] Python 3.8 or higher is required
+    goto :end
+)
+if "%PYTHON_VERSION:~7,3%" LSS "3.8" (
+    echo [ERROR] Python 3.8 or higher is required
     goto :end
 )
 
-REM Check if Node.js is installed
-where node >nul 2>nul
-if %ERRORLEVEL% NEQ 0 (
-    echo [ERROR] Node.js is not installed or not in PATH
-    echo Please install Node.js 16 or higher and try again
+REM Check Node.js version
+node --version > temp.txt 2>&1
+set /p NODE_VERSION=<temp.txt
+del temp.txt
+echo Found Node.js version: %NODE_VERSION%
+if "%NODE_VERSION:~1,2%" LSS "16" (
+    echo [ERROR] Node.js 16 or higher is required
+    goto :end
+)
+
+REM Check available memory
+wmic OS get FreePhysicalMemory /Value > temp.txt
+for /f "tokens=2 delims==" %%a in ('type temp.txt ^| find "FreePhysicalMemory"') do set FREE_MEM=%%a
+del temp.txt
+set /a FREE_MEM_GB=%FREE_MEM:~0,-3%/1024
+if %FREE_MEM_GB% LSS 2 (
+    echo [WARNING] Less than 2GB of free memory available
+    echo The application may run slowly
+    timeout /t 5
+)
+
+REM Clean old log files
+if exist backend\backend_log.txt del backend\backend_log.txt
+if exist frontend\frontend_log.txt del frontend\frontend_log.txt
+
+REM Check if ports are available
+netstat -ano | find "8001" > nul
+if %ERRORLEVEL% EQU 0 (
+    echo [ERROR] Port 8001 is already in use
+    echo Please free up port 8001 and try again
+    goto :end
+)
+netstat -ano | find "3000" > nul
+if %ERRORLEVEL% EQU 0 (
+    echo [ERROR] Port 3000 is already in use
+    echo Please free up port 3000 and try again
     goto :end
 )
 

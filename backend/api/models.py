@@ -23,6 +23,7 @@ class Player(models.Model):
     height = models.CharField(max_length=10, null=True, blank=True)
     weight = models.IntegerField(null=True, blank=True)
     jersey_number = models.IntegerField(null=True, blank=True)
+    image_url = models.URLField(max_length=500, null=True, blank=True)
     
     # Basic stats
     points_per_game = models.FloatField(default=0)

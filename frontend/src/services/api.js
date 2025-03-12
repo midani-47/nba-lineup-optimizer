@@ -433,17 +433,34 @@ export const createLineup = async (lineupData) => {
   debugLocalStorage('Before createLineup');
   
   try {
+    // Check for duplicate names in localStorage first
+    const existingLineups = lineupStorage.getAll();
+    const duplicateName = existingLineups.find(l => l.name.toLowerCase() === lineupData.name.toLowerCase());
+    if (duplicateName) {
+      throw new Error('A lineup with this name already exists');
+    }
+
     const response = await api.post('/lineups/', lineupData);
     return response.data;
   } catch (error) {
+    if (error.message === 'A lineup with this name already exists') {
+      throw error;
+    }
+    
     console.error('Error creating lineup:', error);
     console.log('Using mock lineup creation as fallback');
+    
+    // Check for duplicate names in mock lineups
+    const existingLineups = lineupStorage.getAll();
+    const duplicateName = existingLineups.find(l => l.name.toLowerCase() === lineupData.name.toLowerCase());
+    if (duplicateName) {
+      throw new Error('A lineup with this name already exists');
+    }
     
     // Get all players to ensure we have the complete data
     const allPlayers = await getPlayers();
     
     // Get existing lineups to determine new ID
-    const existingLineups = lineupStorage.getAll();
     const mockIds = mockLineups.map(l => l.id);
     const storedIds = existingLineups.map(l => l.id);
     const allIds = [...mockIds, ...storedIds];

@@ -918,3 +918,1800 @@ src\services\api.js
 [39m[22m
 
 webpack compiled with [1m[33m1 warning[39m[22m
+Compiling...
+Failed to compile.
+
+[eslint] 
+src\pages\Dashboard.js
+Syntax error: Expected corresponding JSX closing tag for <Paper>. (420:6) (420:6)
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/pages/Dashboard.js[39m[22m
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: C:\Users\amida\Documents\nba-lineup-optimizer\frontend\src\pages\Dashboard.js: Expected corresponding JSX closing tag for <Paper>. (420:6)
+
+[0m [90m 418 |[39m           [33mPoints[39m represent scoring efficiency[33m,[39m [33mAssists[39m show team playmaking[33m,[39m and [33mRebounds[39m indicate defensive presence[33m.[39m
+ [90m 419 |[39m         [33m<[39m[33m/[39m[33mTypography[39m[33m>[39m
+[31m[1m>[22m[39m[90m 420 |[39m       [33m<[39m[33m/[39m[33mBox[39m[33m>[39m
+ [90m     |[39m       [31m[1m^[22m[39m
+ [90m 421 |[39m     )[33m;[39m
+ [90m 422 |[39m   }[33m;[39m
+ [90m 423 |[39m[0m
+    at constructor (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:360:19)
+    at FlowParserMixin.raise (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:3327:19)
+    at FlowParserMixin.jsxParseElementAt (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6900:16)
+    at FlowParserMixin.jsxParseElementAt (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6871:32)
+    at FlowParserMixin.jsxParseElement (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6922:17)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6932:19)
+    at FlowParserMixin.parseExprSubscripts (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10758:23)
+    at FlowParserMixin.parseUpdate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10743:21)
+    at FlowParserMixin.parseMaybeUnary (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10723:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10576:61)
+    at FlowParserMixin.parseExprOps (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10581:23)
+    at FlowParserMixin.parseMaybeConditional (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10558:23)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10521:21)
+    at C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5722:39
+    at FlowParserMixin.tryParse (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:3665:20)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5722:18)
+    at C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10491:39
+    at FlowParserMixin.allowInAnd (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12100:12)
+    at FlowParserMixin.parseMaybeAssignAllowIn (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10491:17)
+    at FlowParserMixin.parseParenAndDistinguishExpression (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:11359:28)
+    at FlowParserMixin.parseParenAndDistinguishExpression (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5815:18)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:11006:23)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6937:20)
+    at FlowParserMixin.parseExprSubscripts (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10758:23)
+    at FlowParserMixin.parseUpdate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10743:21)
+    at FlowParserMixin.parseMaybeUnary (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10723:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10576:61)
+    at FlowParserMixin.parseExprOps (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10581:23)
+    at FlowParserMixin.parseMaybeConditional (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10558:23)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10521:21)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5773:18)
+    at FlowParserMixin.parseExpressionBase (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10475:23)
+    at C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10471:39
+    at FlowParserMixin.allowInAnd (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12095:16)
+    at FlowParserMixin.parseExpression (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10471:17)
+    at FlowParserMixin.parseReturnStatement (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12786:28)
+    at FlowParserMixin.parseStatementContent (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12437:21)
+    at FlowParserMixin.parseStatementLike (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12406:17)
+    at FlowParserMixin.parseStatementLike (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5140:24)
+    at FlowParserMixin.parseStatementListItem (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12386:17)
+    at FlowParserMixin.parseBlockOrModuleBlockBody (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12960:61)
+    at FlowParserMixin.parseBlockBody (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12953:10)
+    at FlowParserMixin.parseBlock (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12941:10)
+    at FlowParserMixin.parseFunctionBody (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:11783:24)
+    at C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5114:63
+    at FlowParserMixin.forwardNoArrowParamsConversionAt (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5290:16)
+    at FlowParserMixin.parseFunctionBody (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5114:12)
+    at FlowParserMixin.parseArrowExpression (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:11758:10)
+    at FlowParserMixin.parseParenAndDistinguishExpression (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:11371:12)
+    at FlowParserMixin.parseParenAndDistinguishExpression (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5815:18)
+
+[1m[31mERROR[39m[22m in [1m[eslint] 
+src\pages\Dashboard.js
+  Line 420:6:  Parsing [1m[31merror[39m[22m[1m: Expected corresponding JSX closing tag for <Paper>. (420:6)
+
+[39m[22m
+
+webpack compiled with [1m[31m2 errors[39m[22m and [1m[33m1 warning[39m[22m
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+[39m[22m
+
+webpack compiled with [1m[33m1 warning[39m[22m
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+[39m[22m
+
+webpack compiled with [1m[33m1 warning[39m[22m
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+[39m[22m
+
+webpack compiled with [1m[33m1 warning[39m[22m
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                        no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                         no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                                     no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                      no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                           no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used                   no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used               no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used        no-unused-vars
+  Line 413:47:  Comments inside children section of tag should be placed inside braces  react/jsx-no-comment-textnodes
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                        no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                         no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                                     no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                      no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                           no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used                   no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used               no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used        no-unused-vars
+  Line 413:47:  Comments inside children section of tag should be placed inside braces  react/jsx-no-comment-textnodes
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+[39m[22m
+
+webpack compiled with [1m[33m1 warning[39m[22m
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+[39m[22m
+
+webpack compiled with [1m[33m1 warning[39m[22m
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                        no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                         no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                                     no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                      no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                           no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used                   no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used               no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used        no-unused-vars
+  Line 413:47:  Comments inside children section of tag should be placed inside braces  react/jsx-no-comment-textnodes
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                        no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                         no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                                     no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                      no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                           no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used                   no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used               no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used        no-unused-vars
+  Line 413:47:  Comments inside children section of tag should be placed inside braces  react/jsx-no-comment-textnodes
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+[39m[22m
+
+webpack compiled with [1m[33m1 warning[39m[22m
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                        no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                         no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                                     no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                      no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                           no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used                   no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used               no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used        no-unused-vars
+  Line 413:47:  Comments inside children section of tag should be placed inside braces  react/jsx-no-comment-textnodes
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                        no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                         no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                                     no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                      no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                           no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used                   no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used               no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used        no-unused-vars
+  Line 413:47:  Comments inside children section of tag should be placed inside braces  react/jsx-no-comment-textnodes
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+[39m[22m
+
+webpack compiled with [1m[33m1 warning[39m[22m
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                        no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                         no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                                     no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                      no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                           no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used                   no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used               no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used        no-unused-vars
+  Line 413:47:  Comments inside children section of tag should be placed inside braces  react/jsx-no-comment-textnodes
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                        no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                         no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                                     no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                      no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                           no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used                   no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used               no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used        no-unused-vars
+  Line 413:47:  Comments inside children section of tag should be placed inside braces  react/jsx-no-comment-textnodes
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+[39m[22m
+
+webpack compiled with [1m[33m1 warning[39m[22m
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                        no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                         no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                                     no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                      no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                           no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used                   no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used               no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used        no-unused-vars
+  Line 413:47:  Comments inside children section of tag should be placed inside braces  react/jsx-no-comment-textnodes
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                        no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                         no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                                     no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                      no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                           no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used                   no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used               no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used        no-unused-vars
+  Line 413:47:  Comments inside children section of tag should be placed inside braces  react/jsx-no-comment-textnodes
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+[39m[22m
+
+webpack compiled with [1m[33m1 warning[39m[22m
+Compiling...
+Failed to compile.
+
+[eslint] 
+src\pages\Dashboard.js
+Syntax error: Unterminated regular expression. (426:19) (426:19)
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/pages/Dashboard.js[39m[22m
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: C:\Users\amida\Documents\nba-lineup-optimizer\frontend\src\pages\Dashboard.js: Unterminated regular expression. (426:19)
+
+[0m [90m 424 |[39m [90m              />[39m
+ [90m 425 |[39m [90m            ))}[39m
+[31m[1m>[22m[39m[90m 426 |[39m [90m          </Box>*/[39m[33m/[39m
+ [90m     |[39m                    [31m[1m^[22m[39m
+ [90m 427 |[39m         [33m<[39m[33m/[39m[33mPaper[39m[33m>[39m
+ [90m 428 |[39m         
+ [90m 429 |[39m         [33m<[39m[33mTypography[39m variant[33m=[39m[32m"body2"[39m color[33m=[39m[32m"text.secondary"[39m sx[33m=[39m{{ mb[33m:[39m [35m4[39m[33m,[39m textAlign[33m:[39m [32m'center'[39m }}[33m>[39m[0m
+    at constructor (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:360:19)
+    at FlowParserMixin.raise (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:3327:19)
+    at FlowParserMixin.readRegexp (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:3056:20)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10988:16)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6937:20)
+    at FlowParserMixin.parseExprSubscripts (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10758:23)
+    at FlowParserMixin.parseUpdate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10743:21)
+    at FlowParserMixin.parseMaybeUnary (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10723:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10576:61)
+    at FlowParserMixin.parseExprOps (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10581:23)
+    at FlowParserMixin.parseMaybeConditional (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10558:23)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10521:21)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5773:18)
+    at FlowParserMixin.parseExpressionBase (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10475:23)
+    at C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10471:39
+    at FlowParserMixin.allowInAnd (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12100:12)
+    at FlowParserMixin.parseExpression (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10471:17)
+    at FlowParserMixin.jsxParseExpressionContainer (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6805:31)
+    at FlowParserMixin.jsxParseElementAt (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6884:36)
+    at FlowParserMixin.jsxParseElementAt (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6871:32)
+    at FlowParserMixin.jsxParseElement (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6922:17)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6932:19)
+    at FlowParserMixin.parseExprSubscripts (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10758:23)
+    at FlowParserMixin.parseUpdate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10743:21)
+    at FlowParserMixin.parseMaybeUnary (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10723:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10576:61)
+    at FlowParserMixin.parseExprOps (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10581:23)
+    at FlowParserMixin.parseMaybeConditional (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10558:23)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10521:21)
+    at C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5722:39
+    at FlowParserMixin.tryParse (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:3665:20)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5722:18)
+    at C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10491:39
+    at FlowParserMixin.allowInAnd (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12100:12)
+    at FlowParserMixin.parseMaybeAssignAllowIn (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10491:17)
+    at FlowParserMixin.parseParenAndDistinguishExpression (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:11359:28)
+    at FlowParserMixin.parseParenAndDistinguishExpression (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5815:18)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:11006:23)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6937:20)
+    at FlowParserMixin.parseExprSubscripts (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10758:23)
+    at FlowParserMixin.parseUpdate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10743:21)
+    at FlowParserMixin.parseMaybeUnary (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10723:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10576:61)
+    at FlowParserMixin.parseExprOps (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10581:23)
+    at FlowParserMixin.parseMaybeConditional (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10558:23)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10521:21)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5773:18)
+    at FlowParserMixin.parseExpressionBase (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10475:23)
+    at C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10471:39
+    at FlowParserMixin.allowInAnd (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12095:16)
+
+[1m[31mERROR[39m[22m in [1m[eslint] 
+src\pages\Dashboard.js
+  Line 426:19:  Parsing [1m[31merror[39m[22m[1m: Unterminated regular expression. (426:19)
+
+[39m[22m
+
+webpack compiled with [1m[31m2 errors[39m[22m and [1m[33m1 warning[39m[22m
+Compiling...
+Failed to compile.
+
+[eslint] 
+src\pages\Dashboard.js
+Syntax error: Unterminated regular expression. (426:19) (426:19)
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/pages/Dashboard.js[39m[22m
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: C:\Users\amida\Documents\nba-lineup-optimizer\frontend\src\pages\Dashboard.js: Unterminated regular expression. (426:19)
+
+[0m [90m 424 |[39m [90m              />[39m
+ [90m 425 |[39m [90m            ))}[39m
+[31m[1m>[22m[39m[90m 426 |[39m [90m          </Box>*/[39m[33m/[39m
+ [90m     |[39m                    [31m[1m^[22m[39m
+ [90m 427 |[39m         [33m<[39m[33m/[39m[33mPaper[39m[33m>[39m
+ [90m 428 |[39m         
+ [90m 429 |[39m         [33m<[39m[33mTypography[39m variant[33m=[39m[32m"body2"[39m color[33m=[39m[32m"text.secondary"[39m sx[33m=[39m{{ mb[33m:[39m [35m4[39m[33m,[39m textAlign[33m:[39m [32m'center'[39m }}[33m>[39m[0m
+    at constructor (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:360:19)
+    at FlowParserMixin.raise (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:3327:19)
+    at FlowParserMixin.readRegexp (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:3056:20)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10988:16)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6937:20)
+    at FlowParserMixin.parseExprSubscripts (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10758:23)
+    at FlowParserMixin.parseUpdate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10743:21)
+    at FlowParserMixin.parseMaybeUnary (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10723:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10576:61)
+    at FlowParserMixin.parseExprOps (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10581:23)
+    at FlowParserMixin.parseMaybeConditional (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10558:23)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10521:21)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5773:18)
+    at FlowParserMixin.parseExpressionBase (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10475:23)
+    at C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10471:39
+    at FlowParserMixin.allowInAnd (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12100:12)
+    at FlowParserMixin.parseExpression (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10471:17)
+    at FlowParserMixin.jsxParseExpressionContainer (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6805:31)
+    at FlowParserMixin.jsxParseElementAt (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6884:36)
+    at FlowParserMixin.jsxParseElementAt (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6871:32)
+    at FlowParserMixin.jsxParseElement (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6922:17)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6932:19)
+    at FlowParserMixin.parseExprSubscripts (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10758:23)
+    at FlowParserMixin.parseUpdate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10743:21)
+    at FlowParserMixin.parseMaybeUnary (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10723:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10576:61)
+    at FlowParserMixin.parseExprOps (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10581:23)
+    at FlowParserMixin.parseMaybeConditional (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10558:23)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10521:21)
+    at C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5722:39
+    at FlowParserMixin.tryParse (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:3665:20)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5722:18)
+    at C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10491:39
+    at FlowParserMixin.allowInAnd (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12100:12)
+    at FlowParserMixin.parseMaybeAssignAllowIn (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10491:17)
+    at FlowParserMixin.parseParenAndDistinguishExpression (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:11359:28)
+    at FlowParserMixin.parseParenAndDistinguishExpression (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5815:18)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:11006:23)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6937:20)
+    at FlowParserMixin.parseExprSubscripts (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10758:23)
+    at FlowParserMixin.parseUpdate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10743:21)
+    at FlowParserMixin.parseMaybeUnary (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10723:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10576:61)
+    at FlowParserMixin.parseExprOps (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10581:23)
+    at FlowParserMixin.parseMaybeConditional (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10558:23)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10521:21)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5773:18)
+    at FlowParserMixin.parseExpressionBase (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10475:23)
+    at C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10471:39
+    at FlowParserMixin.allowInAnd (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12095:16)
+
+[1m[31mERROR[39m[22m in [1m[eslint] 
+src\pages\Dashboard.js
+  Line 426:19:  Parsing [1m[31merror[39m[22m[1m: Unterminated regular expression. (426:19)
+
+[39m[22m
+
+webpack compiled with [1m[31m2 errors[39m[22m and [1m[33m1 warning[39m[22m
+Compiling...
+Failed to compile.
+
+[eslint] 
+src\pages\Dashboard.js
+Syntax error: Unterminated regular expression. (426:19) (426:19)
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/pages/Dashboard.js[39m[22m
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: C:\Users\amida\Documents\nba-lineup-optimizer\frontend\src\pages\Dashboard.js: Unterminated regular expression. (426:19)
+
+[0m [90m 424 |[39m [90m              />[39m
+ [90m 425 |[39m [90m            ))}[39m
+[31m[1m>[22m[39m[90m 426 |[39m [90m          </Box>*/[39m[33m/[39m
+ [90m     |[39m                    [31m[1m^[22m[39m
+ [90m 427 |[39m         [33m<[39m[33m/[39m[33mPaper[39m[33m>[39m
+ [90m 428 |[39m         
+ [90m 429 |[39m         [33m<[39m[33mTypography[39m variant[33m=[39m[32m"body2"[39m color[33m=[39m[32m"text.secondary"[39m sx[33m=[39m{{ mb[33m:[39m [35m4[39m[33m,[39m textAlign[33m:[39m [32m'center'[39m }}[33m>[39m[0m
+    at constructor (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:360:19)
+    at FlowParserMixin.raise (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:3327:19)
+    at FlowParserMixin.readRegexp (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:3056:20)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10988:16)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6937:20)
+    at FlowParserMixin.parseExprSubscripts (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10758:23)
+    at FlowParserMixin.parseUpdate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10743:21)
+    at FlowParserMixin.parseMaybeUnary (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10723:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10576:61)
+    at FlowParserMixin.parseExprOps (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10581:23)
+    at FlowParserMixin.parseMaybeConditional (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10558:23)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10521:21)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5773:18)
+    at FlowParserMixin.parseExpressionBase (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10475:23)
+    at C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10471:39
+    at FlowParserMixin.allowInAnd (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12100:12)
+    at FlowParserMixin.parseExpression (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10471:17)
+    at FlowParserMixin.jsxParseExpressionContainer (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6805:31)
+    at FlowParserMixin.jsxParseElementAt (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6884:36)
+    at FlowParserMixin.jsxParseElementAt (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6871:32)
+    at FlowParserMixin.jsxParseElement (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6922:17)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6932:19)
+    at FlowParserMixin.parseExprSubscripts (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10758:23)
+    at FlowParserMixin.parseUpdate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10743:21)
+    at FlowParserMixin.parseMaybeUnary (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10723:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10576:61)
+    at FlowParserMixin.parseExprOps (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10581:23)
+    at FlowParserMixin.parseMaybeConditional (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10558:23)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10521:21)
+    at C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5722:39
+    at FlowParserMixin.tryParse (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:3665:20)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5722:18)
+    at C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10491:39
+    at FlowParserMixin.allowInAnd (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12100:12)
+    at FlowParserMixin.parseMaybeAssignAllowIn (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10491:17)
+    at FlowParserMixin.parseParenAndDistinguishExpression (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:11359:28)
+    at FlowParserMixin.parseParenAndDistinguishExpression (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5815:18)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:11006:23)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6937:20)
+    at FlowParserMixin.parseExprSubscripts (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10758:23)
+    at FlowParserMixin.parseUpdate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10743:21)
+    at FlowParserMixin.parseMaybeUnary (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10723:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10576:61)
+    at FlowParserMixin.parseExprOps (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10581:23)
+    at FlowParserMixin.parseMaybeConditional (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10558:23)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10521:21)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5773:18)
+    at FlowParserMixin.parseExpressionBase (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10475:23)
+    at C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10471:39
+    at FlowParserMixin.allowInAnd (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12095:16)
+
+[1m[31mERROR[39m[22m in [1m[eslint] 
+src\pages\Dashboard.js
+  Line 426:19:  Parsing [1m[31merror[39m[22m[1m: Unterminated regular expression. (426:19)
+
+[39m[22m
+
+webpack compiled with [1m[31m2 errors[39m[22m and [1m[33m1 warning[39m[22m
+Compiling...
+Failed to compile.
+
+[eslint] 
+src\pages\Dashboard.js
+Syntax error: Unexpected token (427:9) (427:9)
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/pages/Dashboard.js[39m[22m
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: C:\Users\amida\Documents\nba-lineup-optimizer\frontend\src\pages\Dashboard.js: Unexpected token (427:9)
+
+[0m [90m 425 |[39m [90m            ))}[39m
+ [90m 426 |[39m [90m          </Box>*/[39m
+[31m[1m>[22m[39m[90m 427 |[39m         [33m<[39m[33m/[39m[33mPaper[39m[33m>[39m
+ [90m     |[39m          [31m[1m^[22m[39m
+ [90m 428 |[39m         
+ [90m 429 |[39m         [33m<[39m[33mTypography[39m variant[33m=[39m[32m"body2"[39m color[33m=[39m[32m"text.secondary"[39m sx[33m=[39m{{ mb[33m:[39m [35m4[39m[33m,[39m textAlign[33m:[39m [32m'center'[39m }}[33m>[39m
+ [90m 430 |[39m           [33mThese[39m charts show the team[32m's performance metrics over the last 5 games. [39m[0m
+    at constructor (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:360:19)
+    at FlowParserMixin.raise (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:3327:19)
+    at FlowParserMixin.unexpected (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:3347:16)
+    at FlowParserMixin.jsxParseIdentifier (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6742:12)
+    at FlowParserMixin.jsxParseNamespacedName (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6749:23)
+    at FlowParserMixin.jsxParseElementName (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6758:21)
+    at FlowParserMixin.jsxParseOpeningElementAt (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6834:22)
+    at FlowParserMixin.jsxParseElementAt (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6859:33)
+    at FlowParserMixin.jsxParseElement (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6922:17)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6932:19)
+    at FlowParserMixin.parseExprSubscripts (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10758:23)
+    at FlowParserMixin.parseUpdate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10743:21)
+    at FlowParserMixin.parseMaybeUnary (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10723:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10576:61)
+    at FlowParserMixin.parseExprOps (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10581:23)
+    at FlowParserMixin.parseMaybeConditional (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10558:23)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10521:21)
+    at C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5722:39
+    at FlowParserMixin.tryParse (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:3665:20)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5722:18)
+    at FlowParserMixin.parseExpressionBase (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10475:23)
+    at C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10471:39
+    at FlowParserMixin.allowInAnd (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12100:12)
+    at FlowParserMixin.parseExpression (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10471:17)
+    at FlowParserMixin.jsxParseExpressionContainer (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6805:31)
+    at FlowParserMixin.jsxParseElementAt (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6884:36)
+    at FlowParserMixin.jsxParseElementAt (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6871:32)
+    at FlowParserMixin.jsxParseElement (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6922:17)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6932:19)
+    at FlowParserMixin.parseExprSubscripts (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10758:23)
+    at FlowParserMixin.parseUpdate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10743:21)
+    at FlowParserMixin.parseMaybeUnary (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10723:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10576:61)
+    at FlowParserMixin.parseExprOps (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10581:23)
+    at FlowParserMixin.parseMaybeConditional (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10558:23)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10521:21)
+    at C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5722:39
+    at FlowParserMixin.tryParse (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:3665:20)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5722:18)
+    at C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10491:39
+    at FlowParserMixin.allowInAnd (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12100:12)
+    at FlowParserMixin.parseMaybeAssignAllowIn (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10491:17)
+    at FlowParserMixin.parseParenAndDistinguishExpression (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:11359:28)
+    at FlowParserMixin.parseParenAndDistinguishExpression (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5815:18)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:11006:23)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6937:20)
+    at FlowParserMixin.parseExprSubscripts (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10758:23)
+    at FlowParserMixin.parseUpdate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10743:21)
+    at FlowParserMixin.parseMaybeUnary (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10723:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10576:61)
+
+[1m[31mERROR[39m[22m in [1m[eslint] 
+src\pages\Dashboard.js
+  Line 427:9:  Parsing [1m[31merror[39m[22m[1m: [1m[31mUnexpected[39m[22m[1m token (427:9)
+
+[39m[22m
+
+webpack compiled with [1m[31m2 errors[39m[22m and [1m[33m1 warning[39m[22m
+Compiling...
+Failed to compile.
+
+[eslint] 
+src\pages\Dashboard.js
+Syntax error: Unexpected token (426:18) (426:18)
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/pages/Dashboard.js[39m[22m
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: C:\Users\amida\Documents\nba-lineup-optimizer\frontend\src\pages\Dashboard.js: Unexpected token (426:18)
+
+[0m [90m 424 |[39m [90m              />[39m
+ [90m 425 |[39m [90m            ))}[39m
+[31m[1m>[22m[39m[90m 426 |[39m [90m          </Box>*/[39m)
+ [90m     |[39m                   [31m[1m^[22m[39m
+ [90m 427 |[39m         [33m<[39m[33m/[39m[33mPaper[39m[33m>[39m
+ [90m 428 |[39m         
+ [90m 429 |[39m         [33m<[39m[33mTypography[39m variant[33m=[39m[32m"body2"[39m color[33m=[39m[32m"text.secondary"[39m sx[33m=[39m{{ mb[33m:[39m [35m4[39m[33m,[39m textAlign[33m:[39m [32m'center'[39m }}[33m>[39m[0m
+    at constructor (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:360:19)
+    at FlowParserMixin.raise (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:3327:19)
+    at FlowParserMixin.unexpected (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:3347:16)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:11126:16)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6937:20)
+    at FlowParserMixin.parseExprSubscripts (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10758:23)
+    at FlowParserMixin.parseUpdate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10743:21)
+    at FlowParserMixin.parseMaybeUnary (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10723:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10576:61)
+    at FlowParserMixin.parseExprOps (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10581:23)
+    at FlowParserMixin.parseMaybeConditional (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10558:23)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10521:21)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5773:18)
+    at FlowParserMixin.parseExpressionBase (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10475:23)
+    at C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10471:39
+    at FlowParserMixin.allowInAnd (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12100:12)
+    at FlowParserMixin.parseExpression (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10471:17)
+    at FlowParserMixin.jsxParseExpressionContainer (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6805:31)
+    at FlowParserMixin.jsxParseElementAt (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6884:36)
+    at FlowParserMixin.jsxParseElementAt (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6871:32)
+    at FlowParserMixin.jsxParseElement (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6922:17)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6932:19)
+    at FlowParserMixin.parseExprSubscripts (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10758:23)
+    at FlowParserMixin.parseUpdate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10743:21)
+    at FlowParserMixin.parseMaybeUnary (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10723:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10576:61)
+    at FlowParserMixin.parseExprOps (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10581:23)
+    at FlowParserMixin.parseMaybeConditional (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10558:23)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10521:21)
+    at C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5722:39
+    at FlowParserMixin.tryParse (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:3665:20)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5722:18)
+    at C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10491:39
+    at FlowParserMixin.allowInAnd (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12100:12)
+    at FlowParserMixin.parseMaybeAssignAllowIn (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10491:17)
+    at FlowParserMixin.parseParenAndDistinguishExpression (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:11359:28)
+    at FlowParserMixin.parseParenAndDistinguishExpression (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5815:18)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:11006:23)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6937:20)
+    at FlowParserMixin.parseExprSubscripts (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10758:23)
+    at FlowParserMixin.parseUpdate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10743:21)
+    at FlowParserMixin.parseMaybeUnary (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10723:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10576:61)
+    at FlowParserMixin.parseExprOps (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10581:23)
+    at FlowParserMixin.parseMaybeConditional (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10558:23)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10521:21)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5773:18)
+    at FlowParserMixin.parseExpressionBase (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10475:23)
+    at C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10471:39
+    at FlowParserMixin.allowInAnd (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12095:16)
+
+[1m[31mERROR[39m[22m in [1m[eslint] 
+src\pages\Dashboard.js
+  Line 426:18:  Parsing [1m[31merror[39m[22m[1m: [1m[31mUnexpected[39m[22m[1m token (426:18)
+
+[39m[22m
+
+webpack compiled with [1m[31m2 errors[39m[22m and [1m[33m1 warning[39m[22m
+Compiling...
+Failed to compile.
+
+[eslint] 
+src\pages\Dashboard.js
+Syntax error: Unexpected token (427:9) (427:9)
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/pages/Dashboard.js[39m[22m
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: C:\Users\amida\Documents\nba-lineup-optimizer\frontend\src\pages\Dashboard.js: Unexpected token (427:9)
+
+[0m [90m 425 |[39m [90m            ))}[39m
+ [90m 426 |[39m [90m          </Box>*/[39m
+[31m[1m>[22m[39m[90m 427 |[39m         [33m<[39m[33m/[39m[33mPaper[39m[33m>[39m
+ [90m     |[39m          [31m[1m^[22m[39m
+ [90m 428 |[39m         
+ [90m 429 |[39m         [33m<[39m[33mTypography[39m variant[33m=[39m[32m"body2"[39m color[33m=[39m[32m"text.secondary"[39m sx[33m=[39m{{ mb[33m:[39m [35m4[39m[33m,[39m textAlign[33m:[39m [32m'center'[39m }}[33m>[39m
+ [90m 430 |[39m           [33mThese[39m charts show the team[32m's performance metrics over the last 5 games. [39m[0m
+    at constructor (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:360:19)
+    at FlowParserMixin.raise (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:3327:19)
+    at FlowParserMixin.unexpected (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:3347:16)
+    at FlowParserMixin.jsxParseIdentifier (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6742:12)
+    at FlowParserMixin.jsxParseNamespacedName (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6749:23)
+    at FlowParserMixin.jsxParseElementName (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6758:21)
+    at FlowParserMixin.jsxParseOpeningElementAt (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6834:22)
+    at FlowParserMixin.jsxParseElementAt (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6859:33)
+    at FlowParserMixin.jsxParseElement (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6922:17)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6932:19)
+    at FlowParserMixin.parseExprSubscripts (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10758:23)
+    at FlowParserMixin.parseUpdate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10743:21)
+    at FlowParserMixin.parseMaybeUnary (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10723:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10576:61)
+    at FlowParserMixin.parseExprOps (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10581:23)
+    at FlowParserMixin.parseMaybeConditional (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10558:23)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10521:21)
+    at C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5722:39
+    at FlowParserMixin.tryParse (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:3665:20)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5722:18)
+    at FlowParserMixin.parseExpressionBase (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10475:23)
+    at C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10471:39
+    at FlowParserMixin.allowInAnd (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12100:12)
+    at FlowParserMixin.parseExpression (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10471:17)
+    at FlowParserMixin.jsxParseExpressionContainer (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6805:31)
+    at FlowParserMixin.jsxParseElementAt (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6884:36)
+    at FlowParserMixin.jsxParseElementAt (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6871:32)
+    at FlowParserMixin.jsxParseElement (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6922:17)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6932:19)
+    at FlowParserMixin.parseExprSubscripts (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10758:23)
+    at FlowParserMixin.parseUpdate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10743:21)
+    at FlowParserMixin.parseMaybeUnary (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10723:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10576:61)
+    at FlowParserMixin.parseExprOps (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10581:23)
+    at FlowParserMixin.parseMaybeConditional (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10558:23)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10521:21)
+    at C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5722:39
+    at FlowParserMixin.tryParse (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:3665:20)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5722:18)
+    at C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10491:39
+    at FlowParserMixin.allowInAnd (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12100:12)
+    at FlowParserMixin.parseMaybeAssignAllowIn (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10491:17)
+    at FlowParserMixin.parseParenAndDistinguishExpression (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:11359:28)
+    at FlowParserMixin.parseParenAndDistinguishExpression (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5815:18)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:11006:23)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6937:20)
+    at FlowParserMixin.parseExprSubscripts (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10758:23)
+    at FlowParserMixin.parseUpdate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10743:21)
+    at FlowParserMixin.parseMaybeUnary (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10723:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10576:61)
+
+[1m[31mERROR[39m[22m in [1m[eslint] 
+src\pages\Dashboard.js
+  Line 427:9:  Parsing [1m[31merror[39m[22m[1m: [1m[31mUnexpected[39m[22m[1m token (427:9)
+
+[39m[22m
+
+webpack compiled with [1m[31m2 errors[39m[22m and [1m[33m1 warning[39m[22m
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+[39m[22m
+
+webpack compiled with [1m[33m1 warning[39m[22m
+Compiling...
+Failed to compile.
+
+[eslint] 
+src\pages\Dashboard.js
+Syntax error: Expected corresponding JSX closing tag for <Paper>. (433:6) (433:6)
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/pages/Dashboard.js[39m[22m
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: C:\Users\amida\Documents\nba-lineup-optimizer\frontend\src\pages\Dashboard.js: Expected corresponding JSX closing tag for <Paper>. (433:6)
+
+[0m [90m 431 |[39m           [33mPoints[39m represent scoring efficiency[33m,[39m [33mAssists[39m show team playmaking[33m,[39m and [33mRebounds[39m indicate defensive presence[33m.[39m
+ [90m 432 |[39m         [33m<[39m[33m/[39m[33mTypography[39m[33m>[39m
+[31m[1m>[22m[39m[90m 433 |[39m       [33m<[39m[33m/[39m[33mBox[39m[33m>[39m
+ [90m     |[39m       [31m[1m^[22m[39m
+ [90m 434 |[39m     )[33m;[39m
+ [90m 435 |[39m   }[33m;[39m
+ [90m 436 |[39m[0m
+    at constructor (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:360:19)
+    at FlowParserMixin.raise (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:3327:19)
+    at FlowParserMixin.jsxParseElementAt (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6900:16)
+    at FlowParserMixin.jsxParseElementAt (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6871:32)
+    at FlowParserMixin.jsxParseElement (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6922:17)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6932:19)
+    at FlowParserMixin.parseExprSubscripts (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10758:23)
+    at FlowParserMixin.parseUpdate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10743:21)
+    at FlowParserMixin.parseMaybeUnary (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10723:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10576:61)
+    at FlowParserMixin.parseExprOps (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10581:23)
+    at FlowParserMixin.parseMaybeConditional (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10558:23)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10521:21)
+    at C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5722:39
+    at FlowParserMixin.tryParse (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:3665:20)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5722:18)
+    at C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10491:39
+    at FlowParserMixin.allowInAnd (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12100:12)
+    at FlowParserMixin.parseMaybeAssignAllowIn (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10491:17)
+    at FlowParserMixin.parseParenAndDistinguishExpression (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:11359:28)
+    at FlowParserMixin.parseParenAndDistinguishExpression (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5815:18)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:11006:23)
+    at FlowParserMixin.parseExprAtom (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:6937:20)
+    at FlowParserMixin.parseExprSubscripts (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10758:23)
+    at FlowParserMixin.parseUpdate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10743:21)
+    at FlowParserMixin.parseMaybeUnary (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10723:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10576:61)
+    at FlowParserMixin.parseExprOps (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10581:23)
+    at FlowParserMixin.parseMaybeConditional (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10558:23)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10521:21)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5773:18)
+    at FlowParserMixin.parseExpressionBase (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10475:23)
+    at C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10471:39
+    at FlowParserMixin.allowInAnd (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12095:16)
+    at FlowParserMixin.parseExpression (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:10471:17)
+    at FlowParserMixin.parseReturnStatement (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12786:28)
+    at FlowParserMixin.parseStatementContent (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12437:21)
+    at FlowParserMixin.parseStatementLike (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12406:17)
+    at FlowParserMixin.parseStatementLike (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5140:24)
+    at FlowParserMixin.parseStatementListItem (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12386:17)
+    at FlowParserMixin.parseBlockOrModuleBlockBody (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12960:61)
+    at FlowParserMixin.parseBlockBody (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12953:10)
+    at FlowParserMixin.parseBlock (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:12941:10)
+    at FlowParserMixin.parseFunctionBody (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:11783:24)
+    at C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5114:63
+    at FlowParserMixin.forwardNoArrowParamsConversionAt (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5290:16)
+    at FlowParserMixin.parseFunctionBody (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5114:12)
+    at FlowParserMixin.parseArrowExpression (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:11758:10)
+    at FlowParserMixin.parseParenAndDistinguishExpression (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:11371:12)
+    at FlowParserMixin.parseParenAndDistinguishExpression (C:\Users\amida\Documents\nba-lineup-optimizer\frontend\node_modules\@babel\parser\lib\index.js:5815:18)
+
+[1m[31mERROR[39m[22m in [1m[eslint] 
+src\pages\Dashboard.js
+  Line 433:6:  Parsing [1m[31merror[39m[22m[1m: Expected corresponding JSX closing tag for <Paper>. (433:6)
+
+[39m[22m
+
+webpack compiled with [1m[31m2 errors[39m[22m and [1m[33m1 warning[39m[22m
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+[39m[22m
+
+webpack compiled with [1m[33m1 warning[39m[22m
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\Home.js
+  Line 23:8:  'BuildIcon' is defined but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\Home.js
+  Line 23:8:  'BuildIcon' is defined but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+[39m[22m
+
+webpack compiled with [1m[33m1 warning[39m[22m
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\Home.js
+  Line 23:8:  'BuildIcon' is defined but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\Home.js
+  Line 23:8:  'BuildIcon' is defined but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+[39m[22m
+
+webpack compiled with [1m[33m1 warning[39m[22m
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\Home.js
+  Line 23:8:  'BuildIcon' is defined but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\Home.js
+  Line 23:8:  'BuildIcon' is defined but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+[39m[22m
+
+webpack compiled with [1m[33m1 warning[39m[22m
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\Home.js
+  Line 23:8:  'BuildIcon' is defined but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\Home.js
+  Line 23:8:  'BuildIcon' is defined but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+[39m[22m
+
+webpack compiled with [1m[33m1 warning[39m[22m
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\Home.js
+  Line 23:8:  'BuildIcon' is defined but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\Home.js
+  Line 23:8:  'BuildIcon' is defined but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+[39m[22m
+
+webpack compiled with [1m[33m1 warning[39m[22m
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\Home.js
+  Line 23:8:  'BuildIcon' is defined but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\Home.js
+  Line 23:8:  'BuildIcon' is defined but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+[39m[22m
+
+webpack compiled with [1m[33m1 warning[39m[22m
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\Home.js
+  Line 23:8:  'BuildIcon' is defined but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\Home.js
+  Line 23:8:  'BuildIcon' is defined but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+[39m[22m
+
+webpack compiled with [1m[33m1 warning[39m[22m
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\Home.js
+  Line 23:8:  'BuildIcon' is defined but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\Home.js
+  Line 23:8:  'BuildIcon' is defined but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+[39m[22m
+
+webpack compiled with [1m[33m1 warning[39m[22m
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\Home.js
+  Line 23:8:  'BuildIcon' is defined but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\Home.js
+  Line 23:8:  'BuildIcon' is defined but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+[39m[22m
+
+webpack compiled with [1m[33m1 warning[39m[22m
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\Home.js
+  Line 23:8:  'BuildIcon' is defined but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\Home.js
+  Line 23:8:  'BuildIcon' is defined but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+[39m[22m
+
+webpack compiled with [1m[33m1 warning[39m[22m
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\Home.js
+  Line 23:8:  'BuildIcon' is defined but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\Home.js
+  Line 23:8:  'BuildIcon' is defined but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+[39m[22m
+
+webpack compiled with [1m[33m1 warning[39m[22m
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\Home.js
+  Line 23:8:  'BuildIcon' is defined but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\pages\Dashboard.js
+  Line 14:3:    'Tabs' is defined but never used                                  no-unused-vars
+  Line 15:3:    'Tab' is defined but never used                                   no-unused-vars
+  Line 16:3:    'Divider' is defined but never used                               no-unused-vars
+  Line 17:3:    'Button' is defined but never used                                no-unused-vars
+  Line 148:10:  'chartTab' is assigned a value but never used                     no-unused-vars
+  Line 266:9:   'handleCloseError' is assigned a value but never used             no-unused-vars
+  Line 270:9:   'handleChartTabChange' is assigned a value but never used         no-unused-vars
+  Line 279:9:   'getTopPerformancesChartData' is assigned a value but never used  no-unused-vars
+
+src\pages\Home.js
+  Line 23:8:  'BuildIcon' is defined but never used  no-unused-vars
+
+src\pages\LineupBuilder.js
+  Line 107:6:  React Hook useEffect has a missing dependency: 'lineup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 109:9:  'fetchSavedLineups' is assigned a value but never used                                                     no-unused-vars
+
+src\services\api.js
+  Line 8:3:  'mockOptimizeLineup' is defined but never used  no-unused-vars
+
+[39m[22m
+
+webpack compiled with [1m[33m1 warning[39m[22m
