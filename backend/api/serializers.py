@@ -73,50 +73,115 @@ class LineupSerializer(serializers.ModelSerializer):
         write_only=True,
         required=False
     )
+    total_stats = serializers.SerializerMethodField()
     
     class Meta:
         model = Lineup
-        fields = ['id', 'name', 'user', 'players', 'player_ids', 'offensive_rating', 
-                  'defensive_rating', 'net_rating', 'created_at', 'updated_at']
+        fields = ['id', 'name', 'user', 'players', 'player_ids', 'total_stats',
+                 'offensive_rating', 'defensive_rating', 'net_rating', 
+                 'created_at', 'updated_at']
         read_only_fields = ['offensive_rating', 'defensive_rating', 'net_rating']
     
+    def get_total_stats(self, obj):
+        """Calculate and return total stats for the lineup"""
+        if not obj.players.exists():
+            return {
+                'ppg': 0, 'rpg': 0, 'apg': 0, 'spg': 0, 'bpg': 0,
+                'fg_pct': 0, 'fg3_pct': 0, 'ft_pct': 0
+            }
+        
+        players = obj.players.all()
+        total_ppg = sum(p.points_per_game for p in players)
+        total_rpg = sum(p.rebounds_per_game for p in players)
+        total_apg = sum(p.assists_per_game for p in players)
+        total_spg = sum(p.steals_per_game for p in players)
+        total_bpg = sum(p.blocks_per_game for p in players)
+        
+        # Calculate average percentages
+        count = players.count()
+        avg_fg = sum(p.field_goal_percentage for p in players) / count if count > 0 else 0
+        avg_fg3 = sum(p.three_point_percentage for p in players) / count if count > 0 else 0
+        avg_ft = sum(p.free_throw_percentage for p in players) / count if count > 0 else 0
+        
+        return {
+            'ppg': round(total_ppg, 1),
+            'rpg': round(total_rpg, 1),
+            'apg': round(total_apg, 1),
+            'spg': round(total_spg, 1),
+            'bpg': round(total_bpg, 1),
+            'fg_pct': round(avg_fg, 3),
+            'fg3_pct': round(avg_fg3, 3),
+            'ft_pct': round(avg_ft, 3)
+        }
+    
+    def validate_player_ids(self, value):
+        """Validate player IDs"""
+        if not value:
+            raise serializers.ValidationError("At least one player is required")
+        
+        if len(value) > 5:
+            raise serializers.ValidationError("A lineup cannot have more than 5 players")
+        
+        # Check if all players exist
+        existing_ids = set(Player.objects.filter(
+            player_id__in=value
+        ).values_list('player_id', flat=True))
+        
+        missing_ids = set(value) - existing_ids
+        if missing_ids:
+            raise serializers.ValidationError(
+                f"Players with IDs {missing_ids} do not exist"
+            )
+        
+        return value
+    
     def create(self, validated_data):
-        player_ids = validated_data.pop('player_ids', [])
-        lineup = Lineup.objects.create(**validated_data)
-        
-        # Add players to lineup
-        for player_id in player_ids:
-            try:
-                player = Player.objects.get(player_id=player_id)
-                lineup.players.add(player)
-            except Player.DoesNotExist:
-                pass
-        
-        # Calculate ratings
-        lineup.calculate_ratings()
-        return lineup
+        """Create a new lineup with proper error handling"""
+        try:
+            # Extract and remove player_ids from validated_data
+            player_ids = validated_data.pop('player_ids', [])
+            
+            # Create the lineup
+            lineup = Lineup.objects.create(**validated_data)
+            
+            # Add players
+            if player_ids:
+                players = Player.objects.filter(player_id__in=player_ids)
+                lineup.players.set(players)
+            
+            # Calculate ratings
+            lineup.calculate_ratings()
+            
+            return lineup
+            
+        except Exception as e:
+            print(f"Error creating lineup: {str(e)}")
+            raise serializers.ValidationError(f"Failed to create lineup: {str(e)}")
     
     def update(self, instance, validated_data):
-        player_ids = validated_data.pop('player_ids', None)
-        
-        # Update lineup fields
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        
-        # Update players if provided
-        if player_ids is not None:
-            instance.players.clear()
-            for player_id in player_ids:
-                try:
-                    player = Player.objects.get(player_id=player_id)
-                    instance.players.add(player)
-                except Player.DoesNotExist:
-                    pass
-        
-        # Calculate ratings
-        instance.calculate_ratings()
-        instance.save()
-        return instance
+        """Update a lineup with proper error handling"""
+        try:
+            # Extract and remove player_ids from validated_data
+            player_ids = validated_data.pop('player_ids', None)
+            
+            # Update basic fields
+            for attr, value in validated_data.items():
+                setattr(instance, attr, value)
+            
+            # Update players if provided
+            if player_ids is not None:
+                players = Player.objects.filter(player_id__in=player_ids)
+                instance.players.set(players)
+            
+            # Calculate ratings and save
+            instance.calculate_ratings()
+            instance.save()
+            
+            return instance
+            
+        except Exception as e:
+            print(f"Error updating lineup: {str(e)}")
+            raise serializers.ValidationError(f"Failed to update lineup: {str(e)}")
 
 class LineupComparisonSerializer(serializers.ModelSerializer):
     lineup1_details = LineupSerializer(source='lineup1', read_only=True)

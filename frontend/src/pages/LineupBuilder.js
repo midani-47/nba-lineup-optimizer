@@ -395,14 +395,7 @@ const LineupBuilder = () => {
             <Typography variant="h6" gutterBottom>
               Current Lineup ({lineup.length}/5)
             </Typography>
-            <TextField
-              fullWidth
-              label="Lineup Name"
-              variant="outlined"
-              value={lineupName}
-              onChange={(e) => setLineupName(e.target.value)}
-              sx={{ mb: 2 }}
-            />
+            
             <Box sx={{ flexGrow: 1, mb: 2 }}>
               {lineup.length > 0 ? (
                 lineup.map((player) => (
@@ -505,7 +498,14 @@ const LineupBuilder = () => {
                 </Grid>
               </Grid>
             </Box>
-            
+            <TextField
+              fullWidth
+              label="Lineup Name"
+              variant="outlined"
+              value={lineupName}
+              onChange={(e) => setLineupName(e.target.value)}
+              sx={{ mb: 2 }}
+            />
             <Button
               variant="contained"
               color="primary"

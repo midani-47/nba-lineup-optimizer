@@ -75,15 +75,97 @@ class Lineup(models.Model):
     
     def calculate_ratings(self):
         """Calculate offensive, defensive, and net ratings based on player stats"""
-        if self.players.count() == 0:
-            return
+        try:
+            if not self.players.exists():
+                self.offensive_rating = 0
+                self.defensive_rating = 0
+                self.net_rating = 0
+                self.save()
+                return
             
-        # Simple average of player ratings for now
-        # In a real app, this would use more sophisticated calculations
-        self.offensive_rating = self.players.aggregate(models.Avg('offensive_rating'))['offensive_rating__avg']
-        self.defensive_rating = self.players.aggregate(models.Avg('defensive_rating'))['defensive_rating__avg']
-        self.net_rating = self.offensive_rating - self.defensive_rating
-        self.save()
+            # Get all players in a single query
+            players = self.players.all()
+            
+            # Calculate offensive rating (weighted average of points and assists)
+            total_points = sum(p.points_per_game for p in players)
+            total_assists = sum(p.assists_per_game for p in players)
+            self.offensive_rating = (total_points * 0.7 + total_assists * 0.3) * 2
+            
+            # Calculate defensive rating (weighted average of rebounds, steals, and blocks)
+            total_rebounds = sum(p.rebounds_per_game for p in players)
+            total_steals = sum(p.steals_per_game for p in players)
+            total_blocks = sum(p.blocks_per_game for p in players)
+            self.defensive_rating = (
+                total_rebounds * 0.5 + 
+                total_steals * 0.25 + 
+                total_blocks * 0.25
+            ) * 2
+            
+            # Calculate net rating
+            self.net_rating = self.offensive_rating - self.defensive_rating
+            
+            # Ensure ratings are not null
+            self.offensive_rating = self.offensive_rating or 0
+            self.defensive_rating = self.defensive_rating or 0
+            self.net_rating = self.net_rating or 0
+            
+            self.save()
+            
+        except Exception as e:
+            print(f"Error calculating ratings for lineup {self.id}: {str(e)}")
+            # Set default values in case of error
+            self.offensive_rating = 0
+            self.defensive_rating = 0
+            self.net_rating = 0
+            self.save()
+    
+    def get_total_stats(self):
+        """Calculate total stats for the lineup"""
+        try:
+            if not self.players.exists():
+                return {
+                    'ppg': 0, 'rpg': 0, 'apg': 0, 'spg': 0, 'bpg': 0,
+                    'fg_pct': 0, 'fg3_pct': 0, 'ft_pct': 0
+                }
+            
+            players = self.players.all()
+            
+            # Calculate totals
+            total_ppg = sum(p.points_per_game for p in players)
+            total_rpg = sum(p.rebounds_per_game for p in players)
+            total_apg = sum(p.assists_per_game for p in players)
+            total_spg = sum(p.steals_per_game for p in players)
+            total_bpg = sum(p.blocks_per_game for p in players)
+            
+            # Calculate average percentages
+            count = players.count()
+            avg_fg = sum(p.field_goal_percentage for p in players) / count if count > 0 else 0
+            avg_fg3 = sum(p.three_point_percentage for p in players) / count if count > 0 else 0
+            avg_ft = sum(p.free_throw_percentage for p in players) / count if count > 0 else 0
+            
+            return {
+                'ppg': round(total_ppg, 1),
+                'rpg': round(total_rpg, 1),
+                'apg': round(total_apg, 1),
+                'spg': round(total_spg, 1),
+                'bpg': round(total_bpg, 1),
+                'fg_pct': round(avg_fg, 3),
+                'fg3_pct': round(avg_fg3, 3),
+                'ft_pct': round(avg_ft, 3)
+            }
+            
+        except Exception as e:
+            print(f"Error calculating total stats for lineup {self.id}: {str(e)}")
+            return {
+                'ppg': 0, 'rpg': 0, 'apg': 0, 'spg': 0, 'bpg': 0,
+                'fg_pct': 0, 'fg3_pct': 0, 'ft_pct': 0
+            }
+    
+    def save(self, *args, **kwargs):
+        """Override save to ensure ratings are calculated"""
+        super().save(*args, **kwargs)
+        if not kwargs.get('skip_ratings', False):
+            self.calculate_ratings()
 
 class LineupComparison(models.Model):
     """Model to store lineup comparison results"""

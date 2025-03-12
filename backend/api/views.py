@@ -13,6 +13,7 @@ from .serializers import (
 from nba_api.stats.endpoints import leagueleaders, commonplayerinfo, teamdetails
 import pandas as pd
 import numpy as np
+from django.conf import settings
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -192,138 +193,150 @@ class LineupViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         """
-        Return all lineups for authenticated users,
-        or only public lineups (user=None) for anonymous users.
-        Also handles the public query parameter.
+        Return lineups based on authentication status and filters:
+        - Authenticated users: see their own lineups and public lineups
+        - Anonymous users: see only public lineups
         """
-        queryset = Lineup.objects.all()
+        queryset = Lineup.objects.all().prefetch_related('players')
         
-        # Check if public filter is applied
-        public = self.request.query_params.get('public', None)
-        if public:
-            return queryset.filter(user=None)
-            
-        # For authenticated users, return their lineups
+        # Get filter parameters
+        public_only = self.request.query_params.get('public', False)
+        user_only = self.request.query_params.get('user', False)
+        
         if self.request.user.is_authenticated:
-            return queryset.filter(user=self.request.user)
-            
-        # For anonymous users, return public lineups
-        return queryset.filter(user=None)
+            if public_only:
+                return queryset.filter(user=None)
+            elif user_only:
+                return queryset.filter(user=self.request.user)
+            else:
+                # Return both user's lineups and public lineups
+                return queryset.filter(Q(user=self.request.user) | Q(user=None))
+        else:
+            # Anonymous users can only see public lineups
+            return queryset.filter(user=None)
     
     def perform_create(self, serializer):
-        """
-        Create a lineup with the current user if authenticated,
-        or as a public lineup (user=None) if anonymous.
-        """
-        if self.request.user.is_authenticated:
-            serializer.save(user=self.request.user)
-        else:
-            # For anonymous users, create lineup without user
-            serializer.save(user=None)
+        """Create a lineup, handling both authenticated and anonymous users"""
+        try:
+            # Set the user if authenticated, otherwise create as public lineup
+            user = self.request.user if self.request.user.is_authenticated else None
+            
+            # Create the lineup
+            lineup = serializer.save(user=user)
+            
+            # Log the creation
+            print(f"Created lineup: {lineup.id} - {lineup.name} (User: {user})")
+            
+            # Verify the lineup was created
+            created_lineup = Lineup.objects.get(id=lineup.id)
+            print(f"Verified lineup creation: {created_lineup.id} - {created_lineup.name}")
+            
+            return lineup
+        except Exception as e:
+            print(f"Error creating lineup: {str(e)}")
+            raise
+    
+    def perform_update(self, serializer):
+        """Update a lineup, ensuring proper user access"""
+        try:
+            instance = self.get_object()
+            
+            # Only allow updates if:
+            # 1. User is authenticated and owns the lineup
+            # 2. Lineup is public (no user) and we're in development
+            if (self.request.user.is_authenticated and instance.user == self.request.user) or \
+               (instance.user is None and settings.DEBUG):
+                
+                # Update the lineup
+                lineup = serializer.save()
+                
+                # Log the update
+                print(f"Updated lineup: {lineup.id} - {lineup.name}")
+                
+                # Verify the update
+                updated_lineup = Lineup.objects.get(id=lineup.id)
+                print(f"Verified lineup update: {updated_lineup.id} - {updated_lineup.name}")
+                
+                return lineup
+            else:
+                raise PermissionError("You don't have permission to update this lineup")
+        except Exception as e:
+            print(f"Error updating lineup: {str(e)}")
+            raise
+    
+    def perform_destroy(self, instance):
+        """Delete a lineup, ensuring proper user access"""
+        try:
+            # Only allow deletion if:
+            # 1. User is authenticated and owns the lineup
+            # 2. Lineup is public (no user) and we're in development
+            if (self.request.user.is_authenticated and instance.user == self.request.user) or \
+               (instance.user is None and settings.DEBUG):
+                
+                # Log the deletion
+                print(f"Deleting lineup: {instance.id} - {instance.name}")
+                
+                # Perform the deletion
+                instance.delete()
+                
+                print(f"Successfully deleted lineup {instance.id}")
+            else:
+                raise PermissionError("You don't have permission to delete this lineup")
+        except Exception as e:
+            print(f"Error deleting lineup: {str(e)}")
+            raise
     
     @action(detail=True, methods=['post'])
     def optimize(self, request, pk=None):
         """Optimize a lineup based on specific criteria"""
         try:
             lineup = self.get_object()
-            optimization_type = request.data.get('optimization_type', 'balanced')
+            strategy = request.data.get('strategy', 'balanced')
             
-            # Check if an optimized lineup with the same type already exists
-            existing_optimized_lineup = Lineup.objects.filter(
-                name=f"{lineup.name} (Optimized - {optimization_type.capitalize()})",
-                user=lineup.user
-            ).first()
+            # Verify access permissions
+            if not (self.request.user.is_authenticated and lineup.user == self.request.user) and \
+               not (lineup.user is None and settings.DEBUG):
+                raise PermissionError("You don't have permission to optimize this lineup")
             
-            if existing_optimized_lineup:
-                return Response({"error": "An optimized lineup with this type already exists."}, status=status.HTTP_400_BAD_REQUEST)
-            
-            # Get all available players instead of just the ones in the lineup
+            # Get all available players
             all_players = Player.objects.all()
             
-            # Create a new lineup with the same name plus optimization type
+            # Different optimization strategies
+            if strategy == 'scoring':
+                optimized_players = all_players.order_by('-points_per_game')[:5]
+            elif strategy == 'defense':
+                optimized_players = all_players.order_by(
+                    F('steals_per_game') + F('blocks_per_game')
+                ).reverse()[:5]
+            else:  # balanced
+                optimized_players = all_players.annotate(
+                    total_score=(F('points_per_game') + F('rebounds_per_game') + 
+                               F('assists_per_game') + F('steals_per_game') + 
+                               F('blocks_per_game'))
+                ).order_by('-total_score')[:5]
+            
+            # Create optimized lineup
             optimized_lineup = Lineup.objects.create(
-                name=f"{lineup.name} (Optimized - {optimization_type.capitalize()})",
+                name=f"{lineup.name} (Optimized - {strategy.capitalize()})",
                 user=lineup.user
             )
             
-            # Different optimization strategies
-            if optimization_type == 'offensive':
-                # For offensive optimization, prioritize scoring and shooting
-                # Get one player from each position for a balanced lineup
-                positions = ['G', 'G', 'F', 'F', 'C']  # Standard basketball positions
-                
-                for position in positions:
-                    # Find players matching this position (partial match)
-                    position_players = all_players.filter(position__icontains=position)
-                    
-                    # Sort by offensive metrics
-                    if position == 'G':  # Guards - prioritize scoring and assists
-                        player = position_players.order_by('-points_per_game', '-assists_per_game').first()
-                    elif position == 'F':  # Forwards - prioritize scoring and rebounds
-                        player = position_players.order_by('-points_per_game', '-rebounds_per_game').first()
-                    elif position == 'C':  # Centers - prioritize rebounds and efficiency
-                        player = position_players.order_by('-rebounds_per_game', '-field_goal_percentage').first()
-                    
-                    if player:
-                        # Add to lineup if not already there
-                        if not optimized_lineup.players.filter(player_id=player.player_id).exists():
-                            optimized_lineup.players.add(player)
-                        else:
-                            # If player already exists, get the next best
-                            next_player = position_players.exclude(player_id=player.player_id).order_by('-points_per_game').first()
-                            if next_player:
-                                optimized_lineup.players.add(next_player)
-            
-            elif optimization_type == 'defensive':
-                # For defensive optimization, prioritize rebounds, blocks, and defensive rating
-                positions = ['G', 'G', 'F', 'F', 'C']
-                
-                for position in positions:
-                    position_players = all_players.filter(position__icontains=position)
-                    
-                    if position == 'G':  # Guards - prioritize steals and defensive rating
-                        player = position_players.order_by('-steals_per_game', 'defensive_rating').first()
-                    elif position == 'F':  # Forwards - prioritize defensive rating and rebounds
-                        player = position_players.order_by('defensive_rating', '-rebounds_per_game').first()
-                    elif position == 'C':  # Centers - prioritize blocks and rebounds
-                        player = position_players.order_by('-blocks_per_game', '-rebounds_per_game').first()
-                    
-                    if player:
-                        if not optimized_lineup.players.filter(player_id=player.player_id).exists():
-                            optimized_lineup.players.add(player)
-                        else:
-                            next_player = position_players.exclude(player_id=player.player_id).order_by('defensive_rating').first()
-                            if next_player:
-                                optimized_lineup.players.add(next_player)
-            
-            else:  # balanced
-                # For balanced optimization, create a well-rounded lineup
-                # Use a mix of offensive and defensive metrics
-                positions = ['G', 'G', 'F', 'F', 'C']
-                
-                for position in positions:
-                    position_players = all_players.filter(position__icontains=position)
-                    
-                    # For balanced, use player efficiency rating which accounts for both offense and defense
-                    player = position_players.order_by('-player_efficiency_rating').first()
-                    
-                    if player:
-                        if not optimized_lineup.players.filter(player_id=player.player_id).exists():
-                            optimized_lineup.players.add(player)
-                        else:
-                            next_player = position_players.exclude(player_id=player.player_id).order_by('-player_efficiency_rating').first()
-                            if next_player:
-                                optimized_lineup.players.add(next_player)
-            
-            # Calculate ratings for the new lineup
+            # Add players and calculate ratings
+            optimized_lineup.players.set(optimized_players)
             optimized_lineup.calculate_ratings()
             
-            # Return the optimized lineup
+            # Log the optimization
+            print(f"Created optimized lineup: {optimized_lineup.id} - {optimized_lineup.name}")
+            
             serializer = self.get_serializer(optimized_lineup)
             return Response(serializer.data)
-        
+            
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            print(f"Error optimizing lineup: {str(e)}")
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 class LineupComparisonViewSet(viewsets.ModelViewSet):
     serializer_class = LineupComparisonSerializer
