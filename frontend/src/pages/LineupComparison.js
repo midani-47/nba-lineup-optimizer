@@ -25,6 +25,7 @@ import {
   Snackbar
 } from '@mui/material';
 import { ResponsiveLine } from '@nivo/line';
+import { ResponsiveBar } from '@nivo/bar';
 import { getLineups, compareLineups } from '../services/api';
 
 const LineupComparison = () => {
@@ -178,6 +179,46 @@ const LineupComparison = () => {
     ];
   };
 
+  // Add this function to prepare data for the bar chart
+  const prepareBarChartData = () => {
+    if (!comparisonData || !comparisonData.stat_diff) return [];
+    
+    const { lineup1, lineup2, stat_diff } = comparisonData;
+    
+    return [
+      {
+        stat: 'Points',
+        [lineup1?.name || 'Lineup 1']: lineup1?.total_ppg || 0,
+        [lineup2?.name || 'Lineup 2']: lineup2?.total_ppg || 0,
+        difference: stat_diff.ppg
+      },
+      {
+        stat: 'Rebounds',
+        [lineup1?.name || 'Lineup 1']: lineup1?.total_rpg || 0,
+        [lineup2?.name || 'Lineup 2']: lineup2?.total_rpg || 0,
+        difference: stat_diff.rpg
+      },
+      {
+        stat: 'Assists',
+        [lineup1?.name || 'Lineup 1']: lineup1?.total_apg || 0,
+        [lineup2?.name || 'Lineup 2']: lineup2?.total_apg || 0,
+        difference: stat_diff.apg
+      },
+      {
+        stat: 'Steals',
+        [lineup1?.name || 'Lineup 1']: lineup1?.total_spg || 0,
+        [lineup2?.name || 'Lineup 2']: lineup2?.total_spg || 0,
+        difference: stat_diff.spg
+      },
+      {
+        stat: 'Blocks',
+        [lineup1?.name || 'Lineup 1']: lineup1?.total_bpg || 0,
+        [lineup2?.name || 'Lineup 2']: lineup2?.total_bpg || 0,
+        difference: stat_diff.bpg
+      }
+    ];
+  };
+
   if (loading) {
     return (
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -269,73 +310,73 @@ const LineupComparison = () => {
       ) : comparisonData ? (
         <>
           {/* Comparison Chart */}
-          <Paper sx={{ p: 3, mb: 4, height: 400 }} elevation={3}>
+          <Paper sx={{ p: 2, mb: 3 }} elevation={3}>
             <Typography variant="h6" gutterBottom>
               Statistical Comparison
             </Typography>
-            <Box sx={{ height: 320 }}>
-              <ResponsiveLine
-                data={getChartData()}
-                margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
-                xScale={{ type: 'point' }}
-                yScale={{
-                  type: 'linear',
-                  min: 'auto',
-                  max: 'auto',
-                  stacked: false,
-                  reverse: false,
-                }}
-                yFormat=" >-.1f"
+            <Box sx={{ height: 300 }}>
+              <ResponsiveBar
+                data={prepareBarChartData()}
+                keys={[
+                  comparisonData.lineup1?.name || 'Lineup 1',
+                  comparisonData.lineup2?.name || 'Lineup 2'
+                ]}
+                indexBy="stat"
+                margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
+                padding={0.3}
+                groupMode="grouped"
+                valueScale={{ type: 'linear' }}
+                indexScale={{ type: 'band', round: true }}
+                colors={{ scheme: 'nivo' }}
+                borderColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
                 axisTop={null}
                 axisRight={null}
                 axisBottom={{
                   tickSize: 5,
                   tickPadding: 5,
                   tickRotation: 0,
-                  legend: 'Category',
-                  legendOffset: 36,
+                  legend: 'Statistics',
                   legendPosition: 'middle',
+                  legendOffset: 32
                 }}
                 axisLeft={{
                   tickSize: 5,
                   tickPadding: 5,
                   tickRotation: 0,
                   legend: 'Value',
-                  legendOffset: -40,
                   legendPosition: 'middle',
+                  legendOffset: -40
                 }}
-                pointSize={10}
-                pointColor={{ theme: 'background' }}
-                pointBorderWidth={2}
-                pointBorderColor={{ from: 'serieColor' }}
-                pointLabelYOffset={-12}
-                useMesh={true}
+                labelSkipWidth={12}
+                labelSkipHeight={12}
+                labelTextColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
                 legends={[
                   {
+                    dataFrom: 'keys',
                     anchor: 'bottom-right',
                     direction: 'column',
                     justify: false,
-                    translateX: 100,
+                    translateX: 120,
                     translateY: 0,
-                    itemsSpacing: 0,
-                    itemDirection: 'left-to-right',
-                    itemWidth: 80,
+                    itemsSpacing: 2,
+                    itemWidth: 100,
                     itemHeight: 20,
-                    itemOpacity: 0.75,
-                    symbolSize: 12,
-                    symbolShape: 'circle',
-                    symbolBorderColor: 'rgba(0, 0, 0, .5)',
+                    itemDirection: 'left-to-right',
+                    itemOpacity: 0.85,
+                    symbolSize: 20,
                     effects: [
                       {
                         on: 'hover',
                         style: {
-                          itemBackground: 'rgba(0, 0, 0, .03)',
-                          itemOpacity: 1,
-                        },
-                      },
-                    ],
-                  },
+                          itemOpacity: 1
+                        }
+                      }
+                    ]
+                  }
                 ]}
+                animate={true}
+                motionStiffness={90}
+                motionDamping={15}
               />
             </Box>
           </Paper>

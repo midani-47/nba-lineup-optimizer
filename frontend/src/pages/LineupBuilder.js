@@ -216,11 +216,21 @@ const LineupBuilder = () => {
       }
     } catch (error) {
       console.error('Error saving lineup:', error);
-      setSnackbar({
-        open: true,
-        message: 'Error saving lineup. Please try again.',
-        severity: 'error',
-      });
+      
+      // Check for specific error messages
+      if (error.message === 'A lineup with this name already exists') {
+        setSnackbar({
+          open: true,
+          message: 'A lineup with this name already exists. Please choose a different name.',
+          severity: 'warning',
+        });
+      } else {
+        setSnackbar({
+          open: true,
+          message: 'Error saving lineup. Please try again.',
+          severity: 'error',
+        });
+      }
     }
   };
 
@@ -410,7 +420,7 @@ const LineupBuilder = () => {
                       image={player.image_url || getPlayerImageUrl(player.player_id)}
                       alt={player.name}
                       onError={(e) => {
-                        e.target.src = `https://via.placeholder.com/80x80?text=${player.name.charAt(0)}`;
+                        e.target.src = "https://via.placeholder.com/80x80/1a428a/ffffff?text=NBA";
                       }}
                     />
                     <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>

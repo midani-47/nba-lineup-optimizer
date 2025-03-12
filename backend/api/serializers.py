@@ -69,11 +69,12 @@ class LineupPlayerSerializer(serializers.ModelSerializer):
     """Simplified player serializer for lineup views"""
     full_name = serializers.CharField(read_only=True)
     team_name = serializers.SerializerMethodField()
+    image_url = serializers.SerializerMethodField()
     
     class Meta:
         model = Player
         fields = ['player_id', 'full_name', 'position', 'team_name', 
-                  'points_per_game', 'rebounds_per_game', 'assists_per_game']
+                  'points_per_game', 'rebounds_per_game', 'assists_per_game', 'image_url']
     
     def get_team_name(self, obj):
         try:
@@ -83,6 +84,14 @@ class LineupPlayerSerializer(serializers.ModelSerializer):
             # Handle case where team doesn't exist
             pass
         return "Free Agent"  # Default for players without a team
+        
+    def get_image_url(self, obj):
+        if obj.image_url:
+            return obj.image_url
+        try:
+            return f"https://cdn.nba.com/headshots/nba/latest/1040x760/{obj.player_id}.png"
+        except Exception:
+            return "https://via.placeholder.com/300x300/1a428a/ffffff?text=NBA"
 
 class LineupSerializer(serializers.ModelSerializer):
     players = LineupPlayerSerializer(many=True, read_only=True)
