@@ -6,12 +6,25 @@ echo "   NBA Lineup Optimizer - Startup Script (Unix)"
 echo "==================================================="
 echo ""
 
-# Check if Python is installed
+# Check if Python is installed and version is compatible
 if ! command -v python3 &> /dev/null; then
     echo "[ERROR] Python 3 is not installed or not in PATH"
     echo "Please install Python 3.8 or higher and try again"
     exit 1
 fi
+
+# Check Python version (need 3.9+ for scikit-learn 1.4.1)
+PYTHON_VERSION=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+PYTHON_MAJOR=$(echo $PYTHON_VERSION | cut -d. -f1)
+PYTHON_MINOR=$(echo $PYTHON_VERSION | cut -d. -f2)
+
+if [ "$PYTHON_MAJOR" -lt 3 ] || ([ "$PYTHON_MAJOR" -eq 3 ] && [ "$PYTHON_MINOR" -lt 9 ]); then
+    echo "[ERROR] Python 3.9 or higher is required (you have $PYTHON_VERSION)"
+    echo "Please upgrade Python and try again"
+    exit 1
+fi
+
+echo "Using Python $PYTHON_VERSION"
 
 # Check if Node.js is installed
 if ! command -v node &> /dev/null; then
@@ -38,11 +51,27 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Upgrade pip to latest version
+echo "Upgrading pip..."
+pip install --upgrade pip
+if [ $? -ne 0 ]; then
+    echo "[WARNING] Failed to upgrade pip, continuing with existing version"
+fi
+
 # Install backend dependencies
 echo "Installing backend dependencies..."
 pip install -r requirements.txt
 if [ $? -ne 0 ]; then
-    echo "[WARNING] Some dependencies may not have installed correctly"
+    echo "[ERROR] Failed to install required dependencies"
+    echo "Please check your requirements.txt file and Python version compatibility"
+    exit 1
+fi
+
+# Verify Django installation
+if ! python3 -c "import django" &> /dev/null; then
+    echo "[ERROR] Django installation verification failed"
+    echo "Try reinstalling with: pip install django==4.2.10"
+    exit 1
 fi
 
 # Check and fix database
@@ -120,4 +149,4 @@ echo "Press Ctrl+C to stop all servers"
 trap "kill $BACKEND_PID $FRONTEND_PID 2>/dev/null" EXIT
 
 # Wait for user to press Ctrl+C
-wait 
+wait
