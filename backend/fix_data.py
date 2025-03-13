@@ -1,12 +1,36 @@
 import os
 import django
+import sqlite3
 
 # Set up Django environment
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'nba_project.settings')
 django.setup()
 
 # Import models
-from api.models import Player, Team
+from api.models import Player, Team, Lineup
+
+def fix_database_schema():
+    """Add missing columns to the database schema"""
+    print("Fixing database schema...")
+    
+    # Connect to the SQLite database
+    conn = sqlite3.connect('db.sqlite3')
+    cursor = conn.cursor()
+    
+    # Check if image_url column exists in api_player table
+    cursor.execute("PRAGMA table_info(api_player)")
+    columns = [column[1] for column in cursor.fetchall()]
+    
+    if 'image_url' not in columns:
+        print("Adding image_url column to api_player table...")
+        cursor.execute("ALTER TABLE api_player ADD COLUMN image_url TEXT")
+        conn.commit()
+        print("Column added successfully")
+    else:
+        print("image_url column already exists")
+    
+    # Close the connection
+    conn.close()
 
 def fix_player_data():
     print("Fixing player data...")
@@ -28,6 +52,10 @@ def fix_player_data():
         player.player_efficiency_rating = 15.0
         player.usage_rate = 20.0
         player.true_shooting_percentage = 0.55
+        
+        # Add image URL for each player
+        if not player.image_url:
+            player.image_url = f"https://cdn.nba.com/headshots/nba/latest/1040x760/{player.player_id}.png"
         
         if not player.position or player.position == '':
             player.position = 'G-F'  # Default position
@@ -79,6 +107,9 @@ def fix_player_data():
                 player.rebounds_per_game = player_data["rpg"]
                 player.assists_per_game = player_data["apg"]
                 player.position = player_data["position"]
+                
+                # Set image URL
+                player.image_url = f"https://cdn.nba.com/headshots/nba/latest/1040x760/{player.player_id}.png"
                 
                 # Set team if provided
                 if "team_id" in player_data:
@@ -263,5 +294,62 @@ def assign_teams_by_name():
     print(f"Assigned teams to {players_updated} players by name")
 
 if __name__ == '__main__':
+    # First fix the database schema
+    fix_database_schema()
+    
+    # Then fix the data
     fix_player_data()
-    assign_teams_by_name() 
+    
+    # Fix lineup recursion issue
+    fix_lineup_recursion()
+    
+    print("Data fixing complete!")
+
+def fix_lineup_recursion():
+    """Fix the infinite recursion issue in Lineup model"""
+    print("Fixing lineup recursion issue...")
+    
+    # Get all lineups
+    lineups = Lineup.objects.all()
+    
+    for lineup in lineups:
+        try:
+            # Get all players in a single query
+            players = lineup.players.all()
+            
+            if not players.exists():
+                lineup.offensive_rating = 0
+                lineup.defensive_rating = 0
+                lineup.net_rating = 0
+                # Use skip_ratings=True to avoid recursion
+                lineup.save(skip_ratings=True)
+                continue
+            
+            # Calculate offensive rating (weighted average of points and assists)
+            total_points = sum(p.points_per_game for p in players)
+            total_assists = sum(p.assists_per_game for p in players)
+            lineup.offensive_rating = (total_points * 0.7 + total_assists * 0.3) * 2
+            
+            # Calculate defensive rating (weighted average of rebounds, steals, and blocks)
+            total_rebounds = sum(p.rebounds_per_game for p in players)
+            total_steals = sum(p.steals_per_game for p in players)
+            total_blocks = sum(p.blocks_per_game for p in players)
+            lineup.defensive_rating = (
+                total_rebounds * 0.5 + 
+                total_steals * 0.25 + 
+                total_blocks * 0.25
+            ) * 2
+            
+            # Calculate net rating
+            lineup.net_rating = lineup.offensive_rating - lineup.defensive_rating
+            
+            # Ensure ratings are not null
+            lineup.offensive_rating = lineup.offensive_rating or 0
+            lineup.defensive_rating = lineup.defensive_rating or 0
+            lineup.net_rating = lineup.net_rating or 0
+            
+            # Save with skip_ratings=True to avoid recursion
+            lineup.save(skip_ratings=True)
+            print(f"Fixed lineup: {lineup.name}")
+        except Exception as e:
+            print(f"Error fixing lineup {lineup.id}: {str(e)}") 

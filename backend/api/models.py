@@ -81,7 +81,6 @@ class Lineup(models.Model):
                 self.offensive_rating = 0
                 self.defensive_rating = 0
                 self.net_rating = 0
-                self.save()
                 return
             
             # Get all players in a single query
@@ -110,7 +109,7 @@ class Lineup(models.Model):
             self.defensive_rating = self.defensive_rating or 0
             self.net_rating = self.net_rating or 0
             
-            self.save()
+            # Don't save here - this will be handled by the save method
             
         except Exception as e:
             print(f"Error calculating ratings for lineup {self.id}: {str(e)}")
@@ -118,7 +117,6 @@ class Lineup(models.Model):
             self.offensive_rating = 0
             self.defensive_rating = 0
             self.net_rating = 0
-            self.save()
     
     def get_total_stats(self):
         """Calculate total stats for the lineup"""
@@ -164,9 +162,18 @@ class Lineup(models.Model):
     
     def save(self, *args, **kwargs):
         """Override save to ensure ratings are calculated"""
+        # Check if we should skip rating calculation (to avoid recursion)
+        skip_ratings = kwargs.pop('skip_ratings', False)
+        
+        # Call the original save method
         super().save(*args, **kwargs)
-        if not kwargs.get('skip_ratings', False):
+        
+        # Calculate ratings if not skipped
+        if not skip_ratings:
+            # Calculate ratings
             self.calculate_ratings()
+            # Save again with skip_ratings=True to avoid recursion
+            super().save(skip_ratings=True)
 
 class LineupComparison(models.Model):
     """Model to store lineup comparison results"""

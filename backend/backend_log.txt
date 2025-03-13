@@ -913,3 +913,17 @@ Quit the server with CTRL-BREAK.
 Watching for file changes with StatReloader
 Not Found: /logo192.png
 [12/Mar/2025 22:36:24] "GET /logo192.png HTTP/1.1" 404 2592
+Not Found: /logo192.png
+[13/Mar/2025 07:53:47] "GET /logo192.png HTTP/1.1" 404 2592
+C:\Users\amida\Documents\nba-lineup-optimizer\backend\api\models.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+March 12, 2025 - 22:35:50
+Django version 4.2.10, using settings 'nba_project.settings'
+Starting development server at http://127.0.0.1:8001/
+Quit the server with CTRL-BREAK.
+
+Watching for file changes with StatReloader
+Not Found: /logo192.png
+[13/Mar/2025 08:33:24] "GET /logo192.png HTTP/1.1" 404 2592
