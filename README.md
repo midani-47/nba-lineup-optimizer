@@ -12,13 +12,13 @@ A web application for creating, optimizing, and comparing NBA lineups.
 ## Quick Start
 
 ### Windows
-1. Clone this repository: `git clone https://github.com/yourusername/nba-lineup-optimizer.git`
+1. Clone this repository: `git clone https://github.com/midani-47/nba-lineup-optimizer.git`
 2. Navigate to the project directory: `cd nba-lineup-optimizer`
 3. Run the startup script: `.\start.bat`
 4. Open http://localhost:3000 in your browser
 
 ### Linux/Mac
-1. Clone this repository: `git clone https://github.com/yourusername/nba-lineup-optimizer.git`
+1. Clone this repository: `git clone https://github.com/midani-47/nba-lineup-optimizer.git`
 2. Navigate to the project directory: `cd nba-lineup-optimizer`
 3. Make the start script executable: `chmod +x start.sh`
 4. Run the startup script: `./start.sh`
