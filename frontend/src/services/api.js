@@ -964,4 +964,9 @@ export const getDashboardStats = async () => {
   }
 };
 
+export const getPlayerImageUrl = (playerId) => {
+  // Use the NBA's official headshots API with a smaller size for better performance
+  return `https://cdn.nba.com/headshots/nba/latest/260x190/${playerId}.png`;
+};
+
 export default api; 

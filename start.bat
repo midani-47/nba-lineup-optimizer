@@ -6,45 +6,75 @@ echo ===================================================
 echo.
 
 REM Check Python version
+echo Checking Python version...
 python --version > temp.txt 2>&1
 set /p PYTHON_VERSION=<temp.txt
 del temp.txt
-echo Found Python version: %PYTHON_VERSION%
-if "%PYTHON_VERSION:~7,1%" LSS "3" (
-    echo [ERROR] Python 3.8 or higher is required
-    goto :end
-)
-if "%PYTHON_VERSION:~7,3%" LSS "3.8" (
-    echo [ERROR] Python 3.8 or higher is required
+
+if not defined PYTHON_VERSION (
+    echo [ERROR] Python not found. Please install Python 3.8 or higher.
     goto :end
 )
 
+echo Found Python version: %PYTHON_VERSION%
+
+REM Extract major and minor version numbers
+for /f "tokens=2 delims= " %%a in ("%PYTHON_VERSION%") do set PY_VER=%%a
+for /f "tokens=1,2 delims=." %%a in ("%PY_VER%") do (
+    set PY_MAJOR=%%a
+    set PY_MINOR=%%b
+)
+
+REM Check if Python version is 3.8 or higher
+if %PY_MAJOR% LSS 3 (
+    echo [ERROR] Python 3.8 or higher is required, found %PY_VER%
+    goto :end
+)
+if %PY_MAJOR% EQU 3 (
+    if %PY_MINOR% LSS 8 (
+        echo [ERROR] Python 3.8 or higher is required, found %PY_VER%
+        goto :end
+    )
+)
+
+echo Python version check passed.
+echo.
+
 REM Check Node.js version
+echo Checking Node.js version...
 node --version > temp.txt 2>&1
 set /p NODE_VERSION=<temp.txt
 del temp.txt
-echo Found Node.js version: %NODE_VERSION%
-if "%NODE_VERSION:~1,2%" LSS "16" (
-    echo [ERROR] Node.js 16 or higher is required
+
+if not defined NODE_VERSION (
+    echo [ERROR] Node.js not found. Please install Node.js 16 or higher.
     goto :end
 )
 
-REM Check available memory
-wmic OS get FreePhysicalMemory /Value > temp.txt
-for /f "tokens=2 delims==" %%a in ('type temp.txt ^| find "FreePhysicalMemory"') do set FREE_MEM=%%a
-del temp.txt
-set /a FREE_MEM_GB=%FREE_MEM:~0,-3%/1024
-if %FREE_MEM_GB% LSS 2 (
-    echo [WARNING] Less than 2GB of free memory available
-    echo The application may run slowly
-    timeout /t 5
+echo Found Node.js version: %NODE_VERSION%
+
+REM Extract major version number
+set NODE_MAJOR=%NODE_VERSION:~1,2%
+if "%NODE_MAJOR:~1,1%"=="." set NODE_MAJOR=%NODE_VERSION:~1,1%
+
+if %NODE_MAJOR% LSS 16 (
+    echo [ERROR] Node.js 16 or higher is required, found %NODE_VERSION%
+    goto :end
 )
 
+echo Node.js version check passed.
+echo.
+
+REM Skip memory check as it's causing issues
+echo Skipping memory check...
+
 REM Clean old log files
+echo Cleaning old log files...
 if exist backend\backend_log.txt del backend\backend_log.txt
 if exist frontend\frontend_log.txt del frontend\frontend_log.txt
 
 REM Check if ports are available
+echo Checking if required ports are available...
 netstat -ano | find "8001" > nul
 if %ERRORLEVEL% EQU 0 (
     echo [ERROR] Port 8001 is already in use
@@ -59,11 +89,13 @@ if %ERRORLEVEL% EQU 0 (
 )
 
 REM Check if virtual environment exists
+echo Checking virtual environment...
 if not exist venv (
     echo Creating virtual environment...
     python -m venv venv
     if %ERRORLEVEL% NEQ 0 (
         echo [ERROR] Failed to create virtual environment
+        echo Make sure you have the venv module installed (pip install virtualenv)
         goto :end
     )
 )
@@ -78,9 +110,11 @@ if %ERRORLEVEL% NEQ 0 (
 
 REM Install backend dependencies
 echo Installing backend dependencies...
+pip install --upgrade pip
 pip install -r requirements.txt
 if %ERRORLEVEL% NEQ 0 (
     echo [WARNING] Some dependencies may not have installed correctly
+    echo Trying to continue anyway...
 )
 
 REM Check and fix database
@@ -90,6 +124,7 @@ cd backend
 python check_db.py
 if %ERRORLEVEL% NEQ 0 (
     echo [WARNING] Database check encountered issues
+    echo Trying to continue anyway...
 )
 
 REM Apply migrations
@@ -108,6 +143,7 @@ echo Fixing player data...
 python fix_data.py
 if %ERRORLEVEL% NEQ 0 (
     echo [WARNING] Data fix encountered issues
+    echo Trying to continue anyway...
 )
 
 REM Start backend server in the background

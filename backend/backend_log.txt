@@ -927,3 +927,6 @@ Quit the server with CTRL-BREAK.
 Watching for file changes with StatReloader
 Not Found: /logo192.png
 [13/Mar/2025 08:33:24] "GET /logo192.png HTTP/1.1" 404 2592
+[13/Mar/2025 08:33:50] "OPTIONS /api/lineups/ HTTP/1.1" 200 0
+Bad Request: /api/lineups/
+[13/Mar/2025 08:33:50] "POST /api/lineups/ HTTP/1.1" 400 91

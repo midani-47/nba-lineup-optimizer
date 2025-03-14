@@ -17,6 +17,7 @@ import CompareIcon from '@mui/icons-material/Compare';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import HomeIcon from '@mui/icons-material/Home';
 import { useNavigate, useLocation } from 'react-router-dom';
+import Tooltip from '@mui/material/Tooltip';
 
 const drawerWidth = 240;
 
@@ -86,21 +87,20 @@ const Sidebar = ({ open, toggleDrawer }) => {
   const location = useLocation();
 
   const menuItems = [
-    { text: 'Home', icon: <HomeIcon />, path: '/' },
-    { text: 'Performances', icon: <DashboardIcon />, path: '/performances' },
-    { text: 'Players', icon: <PeopleIcon />, path: '/players' },
-    { text: 'Lineup Builder', icon: <SportsSoccerIcon />, path: '/lineup-builder' },
-    { text: 'Lineup Comparison', icon: <CompareIcon />, path: '/lineup-comparison' },
-    { text: 'Lineup Optimizer', icon: <AutoFixHighIcon />, path: '/lineup-optimizer' },
+    { text: 'Home', icon: <HomeIcon />, path: '/', description: 'Dashboard and overview' },
+    { text: 'Performances', icon: <DashboardIcon />, path: '/performances', description: 'Player performance stats' },
+    { text: 'Players', icon: <PeopleIcon />, path: '/players', description: 'Browse all NBA players' },
+    { text: 'Lineup Builder', icon: <SportsSoccerIcon />, path: '/lineup-builder', description: 'Create and save lineups' },
+    { text: 'Lineup Comparison', icon: <CompareIcon />, path: '/lineup-comparison', description: 'Compare different lineups' },
+    { text: 'Lineup Optimizer', icon: <AutoFixHighIcon />, path: '/lineup-optimizer', description: 'Optimize your lineups' },
   ];
 
   const handleNavigation = (path) => {
-    // Use navigate with replace option to avoid adding to history stack
     navigate(path, { replace: true });
   };
 
   return (
-    <Drawer variant="permanent" open={open}>
+    <Drawer variant="permanent" open={true}>
       <Toolbar
         sx={{
           display: 'flex',
@@ -116,13 +116,19 @@ const Sidebar = ({ open, toggleDrawer }) => {
       <Divider />
       <List component="nav">
         {menuItems.map((item) => (
-          <MenuItem
-            key={item.text}
-            item={item}
-            isSelected={location.pathname === item.path}
-            open={open}
-            onClick={() => handleNavigation(item.path)}
-          />
+          <Tooltip 
+            key={item.text} 
+            title={item.description} 
+            placement="right"
+            arrow
+          >
+            <MenuItem
+              item={item}
+              isSelected={location.pathname === item.path}
+              open={true}
+              onClick={() => handleNavigation(item.path)}
+            />
+          </Tooltip>
         ))}
       </List>
     </Drawer>
