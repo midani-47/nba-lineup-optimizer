@@ -20,7 +20,7 @@ import {
   TableRow,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { getPlayerById } from '../services/api';
+import { getPlayerById, getPlayerImageUrl } from '../services/api';
 
 const PlayerDetail = () => {
   const { playerId } = useParams();
@@ -67,10 +67,6 @@ const PlayerDetail = () => {
 
   const handleGoBack = () => {
     navigate('/players');
-  };
-
-  const getPlayerImageUrl = (playerId) => {
-    return `https://cdn.nba.com/headshots/nba/latest/1040x760/${playerId}.png`;
   };
 
   if (loading) {
@@ -147,17 +143,25 @@ const PlayerDetail = () => {
       
       {/* Player Header */}
       <Card sx={{ mb: 4 }}>
-        <Grid container>
+        <Grid container spacing={3}>
           <Grid item xs={12} md={4}>
-            <CardMedia
-              component="img"
-              sx={{ height: 300, objectFit: 'contain', backgroundColor: '#f0f0f0' }}
-              image={player.image_url || getPlayerImageUrl(player.player_id)}
-              alt={player.name}
-              onError={(e) => {
-                e.target.src = `https://via.placeholder.com/300x300/1a428a/ffffff?text=NBA`;
-              }}
-            />
+            <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+              <CardMedia
+                component="img"
+                image={player.image_url || getPlayerImageUrl(player.player_id)}
+                alt={`${player.first_name} ${player.last_name}`}
+                sx={{ 
+                  height: 300, 
+                  objectFit: 'contain',
+                  backgroundColor: '#f8f8f8',
+                  padding: '16px'
+                }}
+                onError={(e) => {
+                  // Fall back to NBA logo if player image is unavailable
+                  e.target.src = `https://cdn.nba.com/logos/nba/nba-logoman-75-word_black.svg`;
+                }}
+              />
+            </Card>
           </Grid>
           <Grid item xs={12} md={8}>
             <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>

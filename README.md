@@ -1,169 +1,116 @@
 # NBA Lineup Optimizer
 
-A web application for creating, optimizing, and comparing NBA lineups.
-
-## System Requirements
-
-- Python 3.8 or higher
-- Node.js 16 or higher
-- 2GB free memory recommended
-- Ports 8001 (backend) and 3000 (frontend) must be available
-
-## Quick Start
-
-### Windows
-1. Clone this repository: `git clone https://github.com/midani-47/nba-lineup-optimizer.git`
-2. Navigate to the project directory: `cd nba-lineup-optimizer`
-3. Run the startup script: `.\start.bat`
-4. Open http://localhost:3000 in your browser
-
-### Linux/Mac
-1. Clone this repository: `git clone https://github.com/midani-47/nba-lineup-optimizer.git`
-2. Navigate to the project directory: `cd nba-lineup-optimizer`
-3. Make the start script executable: `chmod +x start.sh`
-4. Run the startup script: `./start.sh`
-5. Open http://localhost:3000 in your browser
-
-## First-Time Setup Issues
-
-If you encounter issues during the first-time setup, here are some common solutions:
-
-### Python Version Issues
-- Make sure you have Python 3.8 or higher installed
-- Verify your Python version with `python --version` or `python3 --version`
-- If you have multiple Python versions, make sure the correct one is in your PATH
-- On Windows, you may need to use `py -3.8` or similar to specify the version
-
-### Virtual Environment Issues
-- If you get errors about creating a virtual environment:
-  - Windows: `pip install virtualenv`
-  - Linux/Mac: `pip3 install virtualenv`
-- Then try running the startup script again
-
-### Node.js Issues
-- Make sure Node.js 16 or higher is installed
-- Verify your Node.js version with `node --version`
-- If you have an older version, download the latest LTS from https://nodejs.org/
-
-## Manual Installation
-
-If the quick start scripts don't work, follow these steps:
-
-### Backend Setup
-1. Create a virtual environment:
-   ```bash
-   # Windows
-   python -m venv venv
-   
-   # Linux/Mac
-   python3 -m venv venv
-   ```
-
-2. Activate the virtual environment:
-   - Windows: `venv\Scripts\activate`
-   - Linux/Mac: `source venv/bin/activate`
-
-3. Install dependencies:
-   ```bash
-   pip install --upgrade pip
-   pip install -r requirements.txt
-   ```
-
-4. Set up the database:
-   ```bash
-   cd backend
-   python manage.py migrate
-   python check_db.py
-   python fix_data.py
-   ```
-
-5. Start the backend server:
-   ```bash
-   python manage.py runserver 8001
-   ```
-
-### Frontend Setup
-1. Install dependencies:
-   ```bash
-   cd frontend
-   npm install --legacy-peer-deps
-   ```
-
-2. Start the frontend server:
-   ```bash
-   npm start
-   ```
-
-## Troubleshooting
-
-### Port Conflicts
-If ports 8001 or 3000 are in use:
-1. Kill the processes using those ports:
-   - Windows: `netstat -ano | findstr :8001` or `:3000`, then `taskkill /F /PID <PID>`
-   - Linux/Mac: `lsof -i :8001` or `:3000`, then `kill <PID>`
-2. Or change the ports:
-   - Backend: Edit `backend/nba_project/settings.py`
-   - Frontend: Edit `frontend/package.json`
-
-### Memory Issues
-- Close unnecessary applications
-- Increase system swap/page file size
-- Consider upgrading RAM if issues persist
-
-### Database Issues
-1. Delete the database file:
-   ```bash
-   cd backend
-   rm db.sqlite3  # Linux/Mac
-   del db.sqlite3  # Windows
-   ```
-2. Recreate the database:
-   ```bash
-   python manage.py migrate
-   python check_db.py
-   python fix_data.py
-   ```
-
-### Node.js Issues
-1. Clear npm cache:
-   ```bash
-   npm cache clean --force
-   ```
-2. Delete node_modules:
-   ```bash
-   cd frontend
-   rm -rf node_modules  # Linux/Mac
-   rmdir /s /q node_modules  # Windows
-   npm install --legacy-peer-deps
-   ```
-
-### Django Issues
-If you encounter Django-related errors:
-1. Verify Django installation:
-   ```bash
-   python -c "import django; print(django.get_version())"
-   ```
-2. Reinstall Django if needed:
-   ```bash
-   pip install django==4.2.10
-   ```
+An interactive web application for creating, optimizing, and comparing NBA lineups.
 
 ## Features
 
-- Create custom lineups with NBA players
-- Optimize lineups based on different strategies
-- Compare lineups and view detailed statistics
-- Real-time player statistics and updates
-- Beautiful and responsive user interface
+- Browse NBA players with detailed statistics
+- Create custom lineups with your favorite players
+- Optimize lineups based on different strategies (scoring, defense, balanced)
+- Compare lineups to analyze their strengths and weaknesses
+- View player performance metrics and statistics
 
-## Contributing
+## Requirements
 
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+- Python 3.8 or higher
+- Node.js 14 or higher
+- npm or yarn
+
+## Installation
+
+### Clone the repository
+
+```bash
+git clone https://github.com/yourusername/nba-lineup-optimizer.git
+cd nba-lineup-optimizer
+```
+
+### Backend Setup
+
+```bash
+# Navigate to backend directory
+cd backend
+
+# Create and activate a virtual environment (optional but recommended)
+python -m venv venv
+# On Windows
+venv\Scripts\activate
+# On macOS/Linux
+source venv/bin/activate
+
+# Install required packages
+pip install -r requirements.txt
+
+# Run database migrations
+python manage.py migrate
+
+# Run the database fix script to ensure everything is set up correctly
+python fix_migrations.py
+```
+
+### Frontend Setup
+
+```bash
+# Navigate to frontend directory
+cd ../frontend
+
+# Install dependencies
+npm install
+```
+
+## Running the Application
+
+### Option 1: Universal Start Script (Recommended)
+
+From the project root directory:
+
+```bash
+# Install required packages
+npm install
+
+# Run the application
+npm start
+```
+
+This script will automatically detect your operating system, start both the backend and frontend servers, and handle errors gracefully.
+
+### Option 2: Manual Start
+
+If you prefer to start the servers manually:
+
+#### Start the Backend
+
+```bash
+cd backend
+python manage.py runserver
+```
+
+#### Start the Frontend
+
+In a new terminal:
+
+```bash
+cd frontend
+npm start
+```
+
+## Usage
+
+1. **Browse Players**: Explore the NBA player database with detailed stats
+2. **Create Lineups**: Select players to build your own custom lineups
+3. **Optimize Lineups**: Automatically improve your lineups based on different strategies
+4. **Compare Lineups**: See how different lineups stack up against each other
+5. **View Player Details**: Dive deep into individual player statistics
+
+## Troubleshooting
+
+If you encounter issues:
+
+1. **Database Migration Errors**: Run `python fix_migrations.py` in the backend directory
+2. **Image Loading Issues**: Check your internet connection as player images are loaded from NBA's CDN
+3. **Startup Script Errors**: Try starting the backend and frontend manually as described in Option 2
+4. **Missing Player Data**: The application will create sample data if needed
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+MIT

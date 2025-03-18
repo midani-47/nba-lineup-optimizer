@@ -7,10 +7,9 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import Badge from '@mui/material/Badge';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import HomeIcon from '@mui/icons-material/Home';
 import { Link, useNavigate } from 'react-router-dom';
-import { Tooltip, Menu, MenuItem, Popover, List, ListItem, ListItemText, ListItemIcon, Box, Divider } from '@mui/material';
+import { Tooltip, Menu, MenuItem, Popover, List, ListItem, ListItemText, ListItemIcon, Box, Divider, Avatar } from '@mui/material';
 import UpdateIcon from '@mui/icons-material/Update';
 import StarIcon from '@mui/icons-material/Star';
 
@@ -178,7 +177,18 @@ const Navbar = ({ open, toggleDrawer }) => {
             aria-haspopup="true"
             aria-expanded={userMenuOpen ? 'true' : undefined}
           >
-            <AccountCircleIcon />
+            <Avatar 
+              alt="NBA" 
+              src="https://cdn.nba.com/logos/nba/nba-logoman-75-word_white.svg"
+              sx={{ 
+                width: 32, 
+                height: 32, 
+                bgcolor: 'transparent',
+                '& img': {
+                  objectFit: 'contain'
+                }
+              }}
+            />
           </IconButton>
         </Tooltip>
         

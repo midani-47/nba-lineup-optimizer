@@ -20,7 +20,7 @@ import {
   Alert,
   Snackbar,
 } from '@mui/material';
-import { getPlayers } from '../services/api';
+import { getPlayers, getPlayerImageUrl } from '../services/api';
 
 const Players = () => {
   const navigate = useNavigate();
@@ -128,11 +128,6 @@ const Players = () => {
     setSearchTerm('');
     setPositionFilter('');
     setTeamFilter('');
-  };
-  
-  const getPlayerImageUrl = (playerId) => {
-    // Reduce image size by requesting a smaller version
-    return `https://cdn.nba.com/headshots/nba/latest/260x190/${playerId}.png`;
   };
   
   const handleCloseError = () => {
@@ -255,13 +250,18 @@ const Players = () => {
               >
                 <CardMedia
                   component="img"
-                  height="120"
+                  height="140"
                   image={player.image_url || getPlayerImageUrl(player.player_id)}
-                  alt={player.name}
+                  alt={`${player.first_name} ${player.last_name}`}
                   onError={(e) => {
-                    e.target.src = `https://via.placeholder.com/120x120/1a428a/ffffff?text=NBA`;
+                    // Fall back to NBA logo if player image is unavailable
+                    e.target.src = `https://cdn.nba.com/logos/nba/nba-logoman-75-word_black.svg`;
                   }}
-                  sx={{ objectFit: 'contain', backgroundColor: '#f5f5f5' }}
+                  sx={{ 
+                    objectFit: 'contain', 
+                    backgroundColor: '#f8f8f8',
+                    padding: '8px'
+                  }}
                 />
                 <CardContent>
                   <Typography variant="h6" component="div" gutterBottom noWrap>
