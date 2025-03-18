@@ -293,6 +293,65 @@ def assign_teams_by_name():
     
     print(f"Assigned teams to {players_updated} players by name")
 
+def fix_lineup_recursion():
+    """Fix the potential infinite recursion issue in Lineup.save method"""
+    print("Fixing lineup recursion issue...")
+    try:
+        from api.models import Lineup
+        lineups = Lineup.objects.all()
+        fixed_count = 0
+        
+        for lineup in lineups:
+            if not hasattr(lineup, 'players') or not lineup.players.exists():
+                # Empty lineup, set ratings to 0
+                lineup.offensive_rating = 0
+                lineup.defensive_rating = 0
+                lineup.net_rating = 0
+                # Use update to bypass the save method and avoid recursion
+                Lineup.objects.filter(id=lineup.id).update(
+                    offensive_rating=0,
+                    defensive_rating=0,
+                    net_rating=0
+                )
+                fixed_count += 1
+                print(f"Fixed empty lineup: {lineup.name}")
+                continue
+                
+            # Calculate ratings directly without using save
+            try:
+                # Get player stats
+                players = lineup.players.all()
+                if players:
+                    # Calculate offensive rating (weighted average of points, assists)
+                    points_sum = sum(p.points_per_game for p in players if p.points_per_game is not None)
+                    assists_sum = sum(p.assists_per_game for p in players if p.assists_per_game is not None)
+                    offensive_rating = (points_sum * 0.7 + assists_sum * 0.3) * 2
+                    
+                    # Calculate defensive rating (weighted average of rebounds, blocks, steals)
+                    rebounds_sum = sum(p.rebounds_per_game for p in players if p.rebounds_per_game is not None)
+                    blocks_sum = sum(p.blocks_per_game for p in players if p.blocks_per_game is not None)
+                    steals_sum = sum(p.steals_per_game for p in players if p.steals_per_game is not None)
+                    defensive_rating = (rebounds_sum * 0.5 + blocks_sum * 0.3 + steals_sum * 0.2) * 5
+                    
+                    # Calculate net rating
+                    net_rating = offensive_rating - defensive_rating
+                    
+                    # Update directly to bypass save method
+                    Lineup.objects.filter(id=lineup.id).update(
+                        offensive_rating=offensive_rating,
+                        defensive_rating=defensive_rating,
+                        net_rating=net_rating
+                    )
+                    fixed_count += 1
+            except Exception as e:
+                print(f"Error calculating ratings for lineup {lineup.name}: {e}")
+        
+        print(f"Fixed {fixed_count} lineups")
+        return True
+    except Exception as e:
+        print(f"Error fixing lineup recursion: {e}")
+        return False
+
 if __name__ == '__main__':
     # First fix the database schema
     fix_database_schema()
@@ -303,53 +362,4 @@ if __name__ == '__main__':
     # Fix lineup recursion issue
     fix_lineup_recursion()
     
-    print("Data fixing complete!")
-
-def fix_lineup_recursion():
-    """Fix the infinite recursion issue in Lineup model"""
-    print("Fixing lineup recursion issue...")
-    
-    # Get all lineups
-    lineups = Lineup.objects.all()
-    
-    for lineup in lineups:
-        try:
-            # Get all players in a single query
-            players = lineup.players.all()
-            
-            if not players.exists():
-                lineup.offensive_rating = 0
-                lineup.defensive_rating = 0
-                lineup.net_rating = 0
-                # Use skip_ratings=True to avoid recursion
-                lineup.save(skip_ratings=True)
-                continue
-            
-            # Calculate offensive rating (weighted average of points and assists)
-            total_points = sum(p.points_per_game for p in players)
-            total_assists = sum(p.assists_per_game for p in players)
-            lineup.offensive_rating = (total_points * 0.7 + total_assists * 0.3) * 2
-            
-            # Calculate defensive rating (weighted average of rebounds, steals, and blocks)
-            total_rebounds = sum(p.rebounds_per_game for p in players)
-            total_steals = sum(p.steals_per_game for p in players)
-            total_blocks = sum(p.blocks_per_game for p in players)
-            lineup.defensive_rating = (
-                total_rebounds * 0.5 + 
-                total_steals * 0.25 + 
-                total_blocks * 0.25
-            ) * 2
-            
-            # Calculate net rating
-            lineup.net_rating = lineup.offensive_rating - lineup.defensive_rating
-            
-            # Ensure ratings are not null
-            lineup.offensive_rating = lineup.offensive_rating or 0
-            lineup.defensive_rating = lineup.defensive_rating or 0
-            lineup.net_rating = lineup.net_rating or 0
-            
-            # Save with skip_ratings=True to avoid recursion
-            lineup.save(skip_ratings=True)
-            print(f"Fixed lineup: {lineup.name}")
-        except Exception as e:
-            print(f"Error fixing lineup {lineup.id}: {str(e)}") 
+    print("Data fixing complete!") 
