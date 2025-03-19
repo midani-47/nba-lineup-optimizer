@@ -35,6 +35,9 @@ def fix_database_schema():
 def fix_player_data():
     print("Fixing player data...")
     
+    # Default image URL for non-top players
+    DEFAULT_PLAYER_IMAGE = "https://www.vectorstock.com/royalty-free-vector/basketball-ball-icon-vector-52387426"
+    
     # Get all players
     players = Player.objects.all()
     count = 0
@@ -53,9 +56,8 @@ def fix_player_data():
         player.usage_rate = 20.0
         player.true_shooting_percentage = 0.55
         
-        # Add image URL for each player
-        if not player.image_url:
-            player.image_url = f"https://cdn.nba.com/headshots/nba/latest/1040x760/{player.player_id}.png"
+        # Set default image URL for all players
+        player.image_url = DEFAULT_PLAYER_IMAGE
         
         if not player.position or player.position == '':
             player.position = 'G-F'  # Default position
@@ -88,7 +90,7 @@ def fix_player_data():
         {"id": 1627783, "name": "Jaylen Brown", "ppg": 23.0, "rpg": 5.5, "apg": 3.6, "position": "G-F", "team_id": 1610612738}, # Celtics
     ]
     
-    # Set the top players with accurate stats
+    # Set the top players with accurate stats and real images
     for player_data in top_players_by_id:
         try:
             player = Player.objects.filter(player_id=player_data["id"]).first()
@@ -108,7 +110,7 @@ def fix_player_data():
                 player.assists_per_game = player_data["apg"]
                 player.position = player_data["position"]
                 
-                # Set image URL
+                # Set real image URL for top players
                 player.image_url = f"https://cdn.nba.com/headshots/nba/latest/1040x760/{player.player_id}.png"
                 
                 # Set team if provided
@@ -352,9 +354,31 @@ def fix_lineup_recursion():
         print(f"Error fixing lineup recursion: {e}")
         return False
 
+def clean_test_lineups():
+    """Remove test lineups from the database"""
+    print("Cleaning up test lineups...")
+    test_names = ['ad', 'test 2', 'ad (Optimized - offense)', 'ddddd', 'vl', 'vlll']
+    deleted_count = 0
+    
+    for name in test_names:
+        try:
+            lineups = Lineup.objects.filter(name__icontains=name)
+            count = lineups.count()
+            lineups.delete()
+            deleted_count += count
+            if count > 0:
+                print(f"Deleted {count} lineup(s) with name containing '{name}'")
+        except Exception as e:
+            print(f"Error deleting lineups with name '{name}': {e}")
+    
+    print(f"Cleaned up {deleted_count} test lineups")
+
 if __name__ == '__main__':
     # First fix the database schema
     fix_database_schema()
+    
+    # Clean up test lineups
+    clean_test_lineups()
     
     # Then fix the data
     fix_player_data()
