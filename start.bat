@@ -8,27 +8,27 @@ echo.
 
 REM Check Python version
 echo Checking Python version...
-python --version >nul 2>&1
-if %errorlevel% neq 0 (
+for /f "tokens=*" %%i in ('python --version 2^>^&1') do set PYTHON_VERSION=%%i
+if not defined PYTHON_VERSION (
     echo [ERROR] Python is not installed or not in PATH
     echo Please install Python 3.8 or higher
     pause
     exit /b 1
 )
-echo Found Python version: %python --version%
+echo Found Python version: %PYTHON_VERSION%
 echo Python version check passed.
 echo.
 
 REM Check Node.js version
 echo Checking Node.js version...
-node --version >nul 2>&1
-if %errorlevel% neq 0 (
+for /f "tokens=*" %%i in ('node --version 2^>^&1') do set NODE_VERSION=%%i
+if not defined NODE_VERSION (
     echo [ERROR] Node.js is not installed or not in PATH
     echo Please install Node.js 14 or higher
     pause
     exit /b 1
 )
-echo Found Node.js version: %node --version%
+echo Found Node.js version: %NODE_VERSION%
 echo Node.js version check passed.
 echo.
 
@@ -41,7 +41,7 @@ echo.
 REM Function to check if a port is in use
 :check_port
 set "port=%1"
-netstat -ano | find ":%port%" >nul
+netstat -ano | find ":%port%" >nul 2>&1
 if %errorlevel% equ 0 (
     set /a port+=1
     goto check_port
@@ -72,7 +72,7 @@ REM Check and create virtual environment if needed
 echo Checking virtual environment...
 if not exist venv (
     echo Creating virtual environment...
-    python -m venv venv --clear >nul 2>&1
+    python -m venv venv --clear
     if %errorlevel% neq 0 (
         echo [ERROR] Failed to create virtual environment
         echo Please make sure you have the venv module installed
@@ -87,13 +87,13 @@ call venv\Scripts\activate.bat
 
 REM Install backend dependencies
 echo Installing backend dependencies...
-python -m pip install --upgrade pip >nul 2>&1
-pip install -r requirements.txt >nul 2>&1
+pip install --upgrade pip
+pip install -r requirements.txt
 
 REM Check and fix database
 echo Checking database...
 cd backend
-python fix_data.py >nul 2>&1
+python fix_data.py
 if %errorlevel% neq 0 (
     echo [WARNING] Database fix encountered issues
     echo Trying to continue anyway...
@@ -101,7 +101,7 @@ if %errorlevel% neq 0 (
 
 REM Apply migrations
 echo Applying database migrations...
-python manage.py migrate >nul 2>&1
+python manage.py migrate
 if %errorlevel% neq 0 (
     echo [ERROR] Failed to apply migrations
     cd ..
