@@ -111,6 +111,14 @@ If you encounter issues:
 3. **Startup Script Errors**: Try starting the backend and frontend manually as described in Option 2
 4. **Missing Player Data**: The application will create sample data if needed
 
+## Default Player Images
+
+The application uses a default basketball icon for players without official NBA headshots. To set up this image:
+
+1. Save the basketball icon image to: `backend/static/images/basketball-icon.png`
+2. The image should be a simple black basketball outline on a white background
+3. This icon will be used for all non-star players to reduce loading time and bandwidth usage
+
 ## License
 
 MIT

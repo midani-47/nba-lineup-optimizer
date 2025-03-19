@@ -35,8 +35,8 @@ def fix_database_schema():
 def fix_player_data():
     print("Fixing player data...")
     
-    # Default image URL for non-top players
-    DEFAULT_PLAYER_IMAGE = "https://www.vectorstock.com/royalty-free-vector/basketball-ball-icon-vector-52387426"
+    # Default image URL for non-top players - use a local image in the static folder
+    DEFAULT_PLAYER_IMAGE = "/static/images/basketball-icon.png"
     
     # Get all players
     players = Player.objects.all()
