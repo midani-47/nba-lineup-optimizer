@@ -3,7 +3,8 @@
 
 ![GIF](https://github.com/midani-47/midani-47/blob/main/gifs/Under-Construction-Sign-for-Locator.webp?raw=true)
 
-
+`
+{% comment %} 
 
 # NBA Lineup Optimizer
 
@@ -122,3 +123,5 @@ If you encounter issues:
 ## License
 
 MIT
+
+{% endcomment %}`
