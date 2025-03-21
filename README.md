@@ -1,3 +1,10 @@
+
+
+
+![GIF](https://github.com/midani-47/midani-47/blob/main/gifs/Under-Construction-Sign-for-Locator.webp?raw=true)
+
+
+
 # NBA Lineup Optimizer
 
 An interactive web application for creating, optimizing, and comparing NBA lineups.
