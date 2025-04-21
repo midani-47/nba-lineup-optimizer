@@ -77,15 +77,19 @@ if page == "Browse Players":
     # Filters
     col1, col2, col3 = st.columns(3)
     with col1:
+        # Fix for sorting teams - ensure all values are strings and handle NaN
+        team_list = players['team'].fillna("Unknown").astype(str).unique().tolist()
         selected_team = st.selectbox(
             "Filter by Team",
-            ["All Teams"] + sorted(players['team'].unique().tolist())
+            ["All Teams"] + sorted(team_list)
         )
     
     with col2:
+        # Fix for positions - ensure all values are strings and handle NaN
+        position_list = players['position'].fillna("Unknown").astype(str).unique().tolist()
         selected_position = st.selectbox(
             "Filter by Position",
-            ["All Positions"] + sorted(players['position'].unique().tolist())
+            ["All Positions"] + sorted(position_list)
         )
     
     with col3:
@@ -96,7 +100,8 @@ if page == "Browse Players":
     if selected_team != "All Teams":
         filtered_players = filtered_players[filtered_players['team'] == selected_team]
     if selected_position != "All Positions":
-        filtered_players = filtered_players[filtered_players['position'].str.contains(selected_position)]
+        # Handle potential missing values
+        filtered_players = filtered_players[filtered_players['position'].fillna("Unknown").str.contains(selected_position)]
     if search_name:
         filtered_players = filtered_players[filtered_players['name'].str.contains(search_name, case=False)]
     
@@ -108,42 +113,45 @@ if page == "Browse Players":
     
     # Player details
     st.subheader("Player Details")
-    selected_player = st.selectbox(
-        "Select a player to view details",
-        filtered_players['name'].tolist()
-    )
-    
-    if selected_player:
-        player_id = players[players['name'] == selected_player].iloc[0]['player_id']
-        player_data = player_stats[player_stats['player_id'] == player_id]
+    if not filtered_players.empty:
+        selected_player = st.selectbox(
+            "Select a player to view details",
+            filtered_players['name'].tolist()
+        )
         
-        col1, col2 = st.columns([1, 2])
-        with col1:
-            player_info = players[players['name'] == selected_player].iloc[0]
-            st.markdown(f"**Team:** {player_info['team']}")
-            st.markdown(f"**Position:** {player_info['position']}")
-            st.markdown(f"**Age:** {player_info['age']}")
-            st.markdown(f"**Height:** {player_info['height']}")
-            st.markdown(f"**Weight:** {player_info['weight']} lbs")
+        if selected_player:
+            player_id = players[players['name'] == selected_player].iloc[0]['player_id']
+            player_data = player_stats[player_stats['player_id'] == player_id]
             
-            # Add button to select player for lineup
-            if st.button(f"Add {selected_player} to lineup"):
-                if len(st.session_state.selected_players) < 5:
-                    if selected_player not in st.session_state.selected_players:
-                        st.session_state.selected_players.append(selected_player)
-                        st.success(f"Added {selected_player} to your lineup!")
+            col1, col2 = st.columns([1, 2])
+            with col1:
+                player_info = players[players['name'] == selected_player].iloc[0]
+                st.markdown(f"**Team:** {player_info['team']}")
+                st.markdown(f"**Position:** {player_info['position']}")
+                st.markdown(f"**Age:** {player_info['age']}")
+                st.markdown(f"**Height:** {player_info['height']}")
+                st.markdown(f"**Weight:** {player_info['weight']} lbs")
+                
+                # Add button to select player for lineup
+                if st.button(f"Add {selected_player} to lineup"):
+                    if len(st.session_state.selected_players) < 5:
+                        if selected_player not in st.session_state.selected_players:
+                            st.session_state.selected_players.append(selected_player)
+                            st.success(f"Added {selected_player} to your lineup!")
+                        else:
+                            st.warning(f"{selected_player} is already in your lineup!")
                     else:
-                        st.warning(f"{selected_player} is already in your lineup!")
+                        st.error("You can only have 5 players in a lineup. Remove a player first.")
+            
+            with col2:
+                # Display radar chart of player's key stats
+                if not player_data.empty:
+                    fig = plot_player_radar_chart(player_data)
+                    st.plotly_chart(fig, use_container_width=True)
                 else:
-                    st.error("You can only have 5 players in a lineup. Remove a player first.")
-        
-        with col2:
-            # Display radar chart of player's key stats
-            if not player_data.empty:
-                fig = plot_player_radar_chart(player_data)
-                st.plotly_chart(fig, use_container_width=True)
-            else:
-                st.info("No detailed stats available for this player")
+                    st.info("No detailed stats available for this player")
+    else:
+        st.info("No players found matching your filters")
 
 # Page: Create Lineup
 elif page == "Create Lineup":

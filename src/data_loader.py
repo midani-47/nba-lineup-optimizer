@@ -15,7 +15,7 @@ TEAMS_FILE = os.path.join(DATA_DIR, 'teams.csv')
 
 def load_nba_players():
     """
-    Load NBA player data, either from cache or API.
+    Load NBA player data, prioritizing sample data for speed.
     
     Returns:
         pandas.DataFrame: DataFrame with player data
@@ -25,7 +25,238 @@ def load_nba_players():
         print("Loading players from cache...")
         return pd.read_csv(PLAYERS_FILE)
     
-    print("Fetching players from NBA API...")
+    print("Creating sample player data...")
+    return create_sample_players()
+
+def load_player_stats():
+    """
+    Load player statistics, prioritizing sample data for speed.
+    
+    Returns:
+        pandas.DataFrame: DataFrame with player statistics
+    """
+    # Check if we have cached data
+    if os.path.exists(PLAYER_STATS_FILE):
+        print("Loading player stats from cache...")
+        return pd.read_csv(PLAYER_STATS_FILE)
+    
+    print("Creating sample player statistics...")
+    return create_sample_player_stats()
+
+def load_team_data():
+    """
+    Load team data, either from cache or sample data.
+    
+    Returns:
+        pandas.DataFrame: DataFrame with team data
+    """
+    # Check if we have cached data
+    if os.path.exists(TEAMS_FILE):
+        print("Loading teams from cache...")
+        return pd.read_csv(TEAMS_FILE)
+    
+    print("Creating sample team data...")
+    return create_sample_teams()
+
+def create_sample_players():
+    """
+    Create sample player data for demonstration purposes.
+    
+    Returns:
+        pandas.DataFrame: DataFrame with sample player data
+    """
+    print("Creating sample player data...")
+    
+    # Get real team data from static resource (this is fast)
+    nba_teams = teams.get_teams()
+    
+    # Create sample positions
+    positions = ['PG', 'SG', 'SF', 'PF', 'C', 'PG/SG', 'SG/SF', 'SF/PF', 'PF/C']
+    
+    # Create sample players with realistic attributes
+    sample_players = []
+    player_id = 1000
+    
+    # Add team-based players
+    for team in nba_teams:
+        team_name = team['full_name']
+        team_id = team['id']
+        
+        # Add 12 players per team
+        for i in range(12):
+            # Choose position based on index
+            if i < 2:
+                position = 'PG' if i == 0 else 'PG/SG'
+            elif i < 4:
+                position = 'SG' if i == 2 else 'SG/SF'
+            elif i < 7:
+                position = 'SF' if i == 4 else ('SF/PF' if i == 5 else 'PF')
+            elif i < 10:
+                position = 'PF' if i == 7 else ('PF/C' if i == 8 else 'C')
+            else:
+                position = random.choice(positions)
+            
+            # Generate player data
+            first_name = f"Player{player_id}"
+            last_name = f"{chr(65 + i)}{team['abbreviation']}"
+            height = f"{random.randint(5, 7)}'{random.randint(0, 11)}"
+            weight = random.randint(175, 285)
+            age = random.randint(19, 38)
+            
+            player = {
+                'player_id': player_id,
+                'name': f"{first_name} {last_name}",
+                'first_name': first_name,
+                'last_name': last_name,
+                'active': True,
+                'height': height,
+                'weight': weight,
+                'position': position,
+                'team_id': team_id,
+                'team': team_name,
+                'age': age,
+                'from_year': datetime.now().year - random.randint(0, 15)
+            }
+            
+            sample_players.append(player)
+            player_id += 1
+    
+    # Create a DataFrame
+    players_df = pd.DataFrame(sample_players)
+    
+    # Save to cache for future use
+    os.makedirs(DATA_DIR, exist_ok=True)
+    players_df.to_csv(PLAYERS_FILE, index=False)
+    
+    return players_df
+
+def create_sample_teams():
+    """
+    Create sample team data for demonstration purposes.
+    
+    Returns:
+        pandas.DataFrame: DataFrame with sample team data
+    """
+    print("Creating sample team data...")
+    
+    # Get real team data from static resource (this is fast)
+    nba_teams = teams.get_teams()
+    teams_df = pd.DataFrame(nba_teams)
+    
+    # Rename columns for consistency
+    teams_df = teams_df.rename(columns={
+        'id': 'team_id',
+        'full_name': 'name',
+        'abbreviation': 'abbreviation',
+        'nickname': 'nickname',
+        'city': 'city',
+        'state': 'state',
+        'year_founded': 'year_founded'
+    })
+    
+    # Save to cache
+    os.makedirs(DATA_DIR, exist_ok=True)
+    teams_df.to_csv(TEAMS_FILE, index=False)
+    
+    return teams_df
+
+def create_sample_player_stats():
+    """
+    Create sample player statistics for demonstration purposes.
+    
+    Returns:
+        pandas.DataFrame: DataFrame with sample player statistics
+    """
+    print("Creating sample player statistics...")
+    
+    # Load or create sample players
+    if os.path.exists(PLAYERS_FILE):
+        players_df = pd.read_csv(PLAYERS_FILE)
+    else:
+        players_df = create_sample_players()
+    
+    # Create sample data for each player
+    all_stats = []
+    
+    for _, player in players_df.iterrows():
+        # Generate random stats for 20 games
+        for game_idx in range(20):
+            game_date = (datetime.now() - timedelta(days=game_idx)).strftime('%Y-%m-%d')
+            
+            # Player's position affects their stats distribution
+            position = player['position'].split('/')[0]  # Use primary position
+            
+            # Base stats with some randomness
+            if position in ['PG', 'SG']:  # Guards
+                pts = random.randint(8, 25)
+                reb = random.randint(1, 7)
+                ast = random.randint(3, 12)
+                stl = random.randint(0, 3)
+                blk = random.randint(0, 1)
+                fg_pct = round(random.uniform(0.35, 0.55), 3)
+                fg3_pct = round(random.uniform(0.30, 0.45), 3)
+            elif position in ['SF', 'PF']:  # Forwards
+                pts = random.randint(10, 22)
+                reb = random.randint(4, 12)
+                ast = random.randint(1, 6)
+                stl = random.randint(0, 2)
+                blk = random.randint(0, 2)
+                fg_pct = round(random.uniform(0.40, 0.60), 3)
+                fg3_pct = round(random.uniform(0.25, 0.40), 3)
+            else:  # Centers
+                pts = random.randint(8, 20)
+                reb = random.randint(7, 15)
+                ast = random.randint(0, 4)
+                stl = random.randint(0, 1)
+                blk = random.randint(0, 4)
+                fg_pct = round(random.uniform(0.45, 0.65), 3)
+                fg3_pct = round(random.uniform(0.10, 0.35), 3)
+            
+            # Common stats
+            ft_pct = round(random.uniform(0.65, 0.95), 3)
+            minutes = random.randint(10, 38)
+            tov = random.randint(0, 5)
+            pf = random.randint(0, 5)
+            plus_minus = random.randint(-20, 20)
+            
+            game_stats = {
+                'player_id': player['player_id'],
+                'player_name': player['name'],
+                'game_date': game_date,
+                'pts': pts,
+                'reb': reb,
+                'ast': ast,
+                'stl': stl,
+                'blk': blk,
+                'fg_pct': fg_pct,
+                'fg3_pct': fg3_pct,
+                'ft_pct': ft_pct,
+                'min': minutes,
+                'tov': tov,
+                'pf': pf,
+                'plus_minus': plus_minus
+            }
+            
+            all_stats.append(game_stats)
+    
+    # Create DataFrame
+    stats_df = pd.DataFrame(all_stats)
+    
+    # Save to cache
+    os.makedirs(DATA_DIR, exist_ok=True)
+    stats_df.to_csv(PLAYER_STATS_FILE, index=False)
+    
+    return stats_df
+
+def fetch_real_data_background():
+    """
+    Alternative function to fetch real NBA data.
+    This is separated out to avoid slowing down the app startup.
+    
+    Only call this if you want to get real data instead of samples.
+    """
+    print("Warning: Fetching real NBA data. This will take a long time.")
+    
     # Get all active players
     active_players = players.get_active_players()
     
@@ -37,9 +268,9 @@ def load_nba_players():
     weights = []
     positions = []
     
-    for i, player in enumerate(active_players):
+    for i, player in enumerate(active_players[:20]):  # Limit to just 20 players for demo
         try:
-            print(f"Fetching details for {player['full_name']} ({i+1}/{len(active_players)})")
+            print(f"Fetching details for {player['full_name']} ({i+1}/20)")
             player_info = commonplayerinfo.CommonPlayerInfo(player_id=player['id'])
             player_info_df = player_info.common_player_info.get_data_frame()
             
@@ -105,187 +336,7 @@ def load_nba_players():
     os.makedirs(DATA_DIR, exist_ok=True)
     players_df.to_csv(PLAYERS_FILE, index=False)
     
-    return players_df
-
-def load_player_stats():
-    """
-    Load player statistics, either from cache or API.
-    
-    Returns:
-        pandas.DataFrame: DataFrame with player statistics
-    """
-    # Check if we have cached data
-    if os.path.exists(PLAYER_STATS_FILE):
-        print("Loading player stats from cache...")
-        return pd.read_csv(PLAYER_STATS_FILE)
-    
-    print("Fetching player stats from NBA API...")
-    
-    # Get active players
-    active_players = players.get_active_players()
-    
-    # Get current season
-    current_year = datetime.now().year
-    season = f"{current_year-1}-{str(current_year)[2:]}" if datetime.now().month < 10 else f"{current_year}-{str(current_year+1)[2:]}"
-    
-    # Fetch game logs for each player
-    all_stats = []
-    
-    for i, player in enumerate(active_players[:100]):  # Limit to 100 players for demo
-        try:
-            print(f"Fetching game log for {player['full_name']} ({i+1}/100)")
-            
-            # Get game logs from current season
-            game_logs = playergamelog.PlayerGameLog(
-                player_id=player['id'],
-                season=season
-            )
-            df = game_logs.get_data_frames()[0]
-            
-            if not df.empty:
-                # Add player ID and name
-                df['player_id'] = player['id']
-                df['player_name'] = player['full_name']
-                
-                # Append to list of dataframes
-                all_stats.append(df)
-            
-            # Sleep to avoid hitting API rate limits
-            time.sleep(0.6)
-            
-        except Exception as e:
-            print(f"Error fetching game log for {player['full_name']}: {e}")
-    
-    # Combine all stats
-    if all_stats:
-        combined_stats = pd.concat(all_stats, ignore_index=True)
-        
-        # Rename columns for consistency
-        combined_stats = combined_stats.rename(columns={
-            'GAME_DATE': 'game_date',
-            'PTS': 'pts',
-            'REB': 'reb',
-            'AST': 'ast',
-            'STL': 'stl',
-            'BLK': 'blk',
-            'FG_PCT': 'fg_pct',
-            'FG3_PCT': 'fg3_pct',
-            'FT_PCT': 'ft_pct',
-            'MIN': 'min',
-            'TOV': 'tov',
-            'PF': 'pf',
-            'PLUS_MINUS': 'plus_minus'
-        })
-        
-        # Save to cache
-        os.makedirs(DATA_DIR, exist_ok=True)
-        combined_stats.to_csv(PLAYER_STATS_FILE, index=False)
-        
-        return combined_stats
-    else:
-        print("No player stats fetched. Using sample data.")
-        return create_sample_player_stats()
-
-def load_team_data():
-    """
-    Load team data, either from cache or API.
-    
-    Returns:
-        pandas.DataFrame: DataFrame with team data
-    """
-    # Check if we have cached data
-    if os.path.exists(TEAMS_FILE):
-        print("Loading teams from cache...")
-        return pd.read_csv(TEAMS_FILE)
-    
-    print("Fetching teams from NBA API...")
-    
-    # Get all NBA teams
-    nba_teams = teams.get_teams()
-    teams_df = pd.DataFrame(nba_teams)
-    
-    # Rename columns for consistency
-    teams_df = teams_df.rename(columns={
-        'id': 'team_id',
-        'full_name': 'name',
-        'abbreviation': 'abbreviation',
-        'nickname': 'nickname',
-        'city': 'city',
-        'state': 'state',
-        'year_founded': 'year_founded'
-    })
-    
-    # Save to cache
-    os.makedirs(DATA_DIR, exist_ok=True)
-    teams_df.to_csv(TEAMS_FILE, index=False)
-    
-    return teams_df
-
-def create_sample_player_stats():
-    """
-    Create sample player statistics for demonstration purposes.
-    
-    Returns:
-        pandas.DataFrame: DataFrame with sample player statistics
-    """
-    print("Creating sample player statistics...")
-    
-    # Get active players
-    all_players = players.get_active_players()
-    
-    # Randomly select 100 players
-    selected_players = random.sample(all_players, min(100, len(all_players)))
-    
-    # Create sample data for the last 20 games
-    all_stats = []
-    
-    for player in selected_players:
-        # Generate random stats for 20 games
-        for game_idx in range(20):
-            game_date = (datetime.now() - timedelta(days=game_idx)).strftime('%Y-%m-%d')
-            
-            # Random stats with some realistic constraints
-            pts = random.randint(0, 40)
-            reb = random.randint(0, 15)
-            ast = random.randint(0, 12)
-            stl = random.randint(0, 5)
-            blk = random.randint(0, 4)
-            fg_pct = round(random.uniform(0.2, 0.9), 3)
-            fg3_pct = round(random.uniform(0.1, 0.6), 3)
-            ft_pct = round(random.uniform(0.6, 1.0), 3)
-            minutes = random.randint(5, 48)
-            tov = random.randint(0, 8)
-            pf = random.randint(0, 6)
-            plus_minus = random.randint(-30, 30)
-            
-            game_stats = {
-                'player_id': player['id'],
-                'player_name': player['full_name'],
-                'game_date': game_date,
-                'pts': pts,
-                'reb': reb,
-                'ast': ast,
-                'stl': stl,
-                'blk': blk,
-                'fg_pct': fg_pct,
-                'fg3_pct': fg3_pct,
-                'ft_pct': ft_pct,
-                'min': minutes,
-                'tov': tov,
-                'pf': pf,
-                'plus_minus': plus_minus
-            }
-            
-            all_stats.append(game_stats)
-    
-    # Create DataFrame
-    stats_df = pd.DataFrame(all_stats)
-    
-    # Save to cache
-    os.makedirs(DATA_DIR, exist_ok=True)
-    stats_df.to_csv(PLAYER_STATS_FILE, index=False)
-    
-    return stats_df
+    print("Real player data fetched and saved.")
 
 if __name__ == "__main__":
     # Test data loading
