@@ -1,6 +1,6 @@
 # NBA Lineup Optimizer
 
-An interactive web application for creating, optimizing, and comparing NBA lineups.
+A user-friendly tool for NBA lineup analysis and optimization, designed for data science beginners.
 
 ## Features
 
@@ -9,107 +9,77 @@ An interactive web application for creating, optimizing, and comparing NBA lineu
 - Optimize lineups based on different strategies (scoring, defense, balanced)
 - Compare lineups to analyze their strengths and weaknesses
 - View player performance metrics and statistics
+- ML-based predictions for lineup performance
 
 ## Requirements
 
 - Python 3.8 or higher
-- Node.js 14 or higher
-- npm or yarn
+- pip (Python package installer)
 
 ## Installation
 
-### Clone the repository
+### Windows
 
-```bash
+```
+# Clone this repository
 git clone https://github.com/yourusername/nba-lineup-optimizer.git
 cd nba-lineup-optimizer
-```
 
-### Backend Setup
-
-```bash
-# Navigate to backend directory
-cd backend
-
-# Create and activate a virtual environment (optional but recommended)
+# Create a virtual environment 
 python -m venv venv
-# On Windows
 venv\Scripts\activate
-# On macOS/Linux
-source venv/bin/activate
-
-# Install required packages
-pip install -r requirements.txt
-
-# Run database migrations
-python manage.py migrate
-
-# Run the database fix script to ensure everything is set up correctly
-python fix_migrations.py
-```
-
-### Frontend Setup
-
-```bash
-# Navigate to frontend directory
-cd ../frontend
 
 # Install dependencies
-npm install
+pip install -r requirements.txt
+```
+
+### macOS/Linux
+
+```
+# Clone this repository
+git clone https://github.com/yourusername/nba-lineup-optimizer.git
+cd nba-lineup-optimizer
+
+# Create a virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
 ```
 
 ## Running the Application
 
-### Option 1: Universal Start Script (Recommended)
-
-From the project root directory:
-
-```bash
-# Install required packages
-npm install
-
-# Run the application
-npm start
+```
+streamlit run app.py
 ```
 
-This script will automatically detect your operating system, start both the backend and frontend servers, and handle errors gracefully.
+This will start the web application and automatically open it in your default browser.
 
-### Option 2: Manual Start
+## Project Structure
 
-If you prefer to start the servers manually:
+- `app.py`: Main Streamlit application entry point
+- `data/`: Data storage directory
+- `src/`: Source code
+  - `data_loader.py`: Functions for loading NBA data
+  - `models/`: ML models for lineup optimization
+  - `analysis/`: Statistical analysis modules
+  - `visualization/`: Data visualization components
+  - `optimizer/`: Lineup optimization algorithms
 
-#### Start the Backend
+## How to Use
 
-```bash
-cd backend
-python manage.py runserver
-```
+1. **Browse Players**: View all available NBA players with their stats
+2. **Create Lineup**: Select players to create your own custom lineup
+3. **Optimize Lineup**: Use different optimization strategies for your lineup
+4. **Analyze Performance**: View statistical analysis of your lineup
+5. **ML Predictions**: Get performance predictions based on machine learning models
 
-#### Start the Frontend
+## For Beginners
 
-In a new terminal:
+This project is designed to be beginner-friendly. Each module contains detailed comments and explanations to help you understand the statistical methods and ML concepts being used.
 
-```bash
-cd frontend
-npm start
-```
-
-## Usage
-
-1. **Browse Players**: Explore the NBA player database with detailed stats
-2. **Create Lineups**: Select players to build your own custom lineups
-3. **Optimize Lineups**: Automatically improve your lineups based on different strategies
-4. **Compare Lineups**: See how different lineups stack up against each other
-5. **View Player Details**: Dive deep into individual player statistics
-
-## Troubleshooting
-
-If you encounter issues:
-
-1. **Database Migration Errors**: Run `python fix_migrations.py` in the backend directory
-2. **Image Loading Issues**: Check your internet connection as player images are loaded from NBA's CDN
-3. **Startup Script Errors**: Try starting the backend and frontend manually as described in Option 2
-4. **Missing Player Data**: The application will create sample data if needed
+Feel free to explore, modify, and learn from the code!
 
 ## License
 
