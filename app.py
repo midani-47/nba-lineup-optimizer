@@ -204,42 +204,63 @@ elif page == "Create Lineup":
                 selected_stats = player_stats[player_stats['player_id'].isin(selected_player_ids)]
                 
                 if not selected_stats.empty:
-                    # Display average statistics for the lineup
-                    avg_stats = selected_stats.groupby('player_id').mean().reset_index()
+                    # Display average statistics for the lineup - handle numeric columns properly
+                    # Only include numeric columns for mean calculation
+                    numeric_cols = selected_stats.select_dtypes(include=['number']).columns.tolist()
+                    avg_stats = selected_stats.groupby('player_id')[numeric_cols].mean().reset_index()
+                    
+                    # Merge with player names
                     avg_stats = avg_stats.merge(players[['player_id', 'name']], on='player_id')
                     
                     # Display positions for lineup balance check
                     positions = []
                     for player_name in st.session_state.selected_players:
-                        pos = players[players['name'] == player_name]['position'].values[0]
-                        positions.append(pos)
+                        pos_val = players[players['name'] == player_name]['position'].values
+                        if len(pos_val) > 0:
+                            positions.append(pos_val[0])
+                        else:
+                            positions.append("Unknown")
                     
                     st.markdown("### Lineup Composition")
                     st.markdown(f"**Positions:** {', '.join(positions)}")
                     
                     # Display lineup stats summary
                     st.markdown("### Lineup Statistics")
+                    # Ensure these stats columns exist
                     stats_cols = ['pts', 'reb', 'ast', 'stl', 'blk', 'fg_pct', 'fg3_pct', 'ft_pct']
-                    avg_lineup_stats = avg_stats[stats_cols].mean()
+                    available_stats_cols = [col for col in stats_cols if col in avg_stats.columns]
                     
-                    col_a, col_b, col_c, col_d = st.columns(4)
-                    with col_a:
-                        st.metric("Points", f"{avg_lineup_stats['pts']:.1f}")
-                        st.metric("Rebounds", f"{avg_lineup_stats['reb']:.1f}")
-                    with col_b:
-                        st.metric("Assists", f"{avg_lineup_stats['ast']:.1f}")
-                        st.metric("Steals", f"{avg_lineup_stats['stl']:.1f}")
-                    with col_c:
-                        st.metric("Blocks", f"{avg_lineup_stats['blk']:.1f}")
-                        st.metric("FG%", f"{avg_lineup_stats['fg_pct']:.3f}")
-                    with col_d:
-                        st.metric("3P%", f"{avg_lineup_stats['fg3_pct']:.3f}")
-                        st.metric("FT%", f"{avg_lineup_stats['ft_pct']:.3f}")
-                    
-                    # Display player comparison chart
-                    st.markdown("### Player Comparison")
-                    fig = plot_player_comparison(avg_stats)
-                    st.plotly_chart(fig, use_container_width=True)
+                    if available_stats_cols:
+                        avg_lineup_stats = avg_stats[available_stats_cols].mean()
+                        
+                        col_a, col_b, col_c, col_d = st.columns(4)
+                        with col_a:
+                            if 'pts' in avg_lineup_stats:
+                                st.metric("Points", f"{avg_lineup_stats['pts']:.1f}")
+                            if 'reb' in avg_lineup_stats:
+                                st.metric("Rebounds", f"{avg_lineup_stats['reb']:.1f}")
+                        with col_b:
+                            if 'ast' in avg_lineup_stats:
+                                st.metric("Assists", f"{avg_lineup_stats['ast']:.1f}")
+                            if 'stl' in avg_lineup_stats:
+                                st.metric("Steals", f"{avg_lineup_stats['stl']:.1f}")
+                        with col_c:
+                            if 'blk' in avg_lineup_stats:
+                                st.metric("Blocks", f"{avg_lineup_stats['blk']:.1f}")
+                            if 'fg_pct' in avg_lineup_stats:
+                                st.metric("FG%", f"{avg_lineup_stats['fg_pct']:.3f}")
+                        with col_d:
+                            if 'fg3_pct' in avg_lineup_stats:
+                                st.metric("3P%", f"{avg_lineup_stats['fg3_pct']:.3f}")
+                            if 'ft_pct' in avg_lineup_stats:
+                                st.metric("FT%", f"{avg_lineup_stats['ft_pct']:.3f}")
+                        
+                        # Display player comparison chart
+                        st.markdown("### Player Comparison")
+                        fig = plot_player_comparison(avg_stats)
+                        st.plotly_chart(fig, use_container_width=True)
+                    else:
+                        st.warning("Required statistics columns not found in the data.")
                 else:
                     st.info("No statistical data available for the selected players")
         else:

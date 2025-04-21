@@ -11,14 +11,48 @@ A user-friendly tool for NBA lineup analysis and optimization, designed for data
 - View player performance metrics and statistics
 - ML-based predictions for lineup performance
 
-## Requirements
+## Quick Start
+
+### Windows
+```
+start.bat
+```
+
+### macOS/Linux
+```
+./start.sh
+```
+
+That's it! The app will automatically:
+1. Create a virtual environment (if needed)
+2. Install all required dependencies
+3. Generate sample NBA player data
+4. Launch the application in your browser
+
+## Reset Data
+
+If you want to clear cached data and start fresh:
+
+### Windows
+```
+reset.bat
+```
+
+### macOS/Linux
+```
+./reset.sh
+```
+
+## Advanced Setup (Optional)
+
+### Requirements
 
 - Python 3.8 or higher
 - pip (Python package installer)
 
-## Installation
+### Manual Installation
 
-### Windows
+#### Windows
 
 ```
 # Clone this repository
@@ -31,9 +65,12 @@ venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
+
+# Run the application
+python -m streamlit run app.py
 ```
 
-### macOS/Linux
+#### macOS/Linux
 
 ```
 # Clone this repository
@@ -41,20 +78,23 @@ git clone https://github.com/yourusername/nba-lineup-optimizer.git
 cd nba-lineup-optimizer
 
 # Create a virtual environment
-python3 -m venv venv
+python -m venv venv
 source venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
+
+# Run the application
+python -m streamlit run app.py
 ```
 
-## Running the Application
+#### macOS with Homebrew (Recommended for macOS)
+
+For macOS users with Homebrew, we recommend using the helper script which installs necessary system dependencies:
 
 ```
-streamlit run app.py
+./mac_setup.sh
 ```
-
-This will start the web application and automatically open it in your default browser.
 
 ## Project Structure
 
