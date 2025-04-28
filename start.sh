@@ -8,7 +8,7 @@ echo ""
 if ! command -v python3 &> /dev/null; then
     echo "Python is not installed or not in PATH."
     echo "Please install Python 3.8 or higher from https://www.python.org/downloads/"
-    echo ""
+echo ""
     exit 1
 fi
 
