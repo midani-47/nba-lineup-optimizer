@@ -181,11 +181,6 @@ For macOS users with Homebrew, we recommend using the helper script which instal
 4. **Analyze Performance**: View statistical analysis of your lineup
 5. **ML Predictions**: Get performance predictions based on machine learning models
 
-## For Beginners
-
-This project is designed to be beginner-friendly. Each module contains detailed comments and explanations to help you understand the statistical methods and ML concepts being used.
-
-Feel free to explore, modify, and learn from the code!
 
 ## License
 
