@@ -14,9 +14,6 @@ import Sidebar from './components/Sidebar';
 const Home = lazy(() => import('./pages/Home'));
 
 // Other pages are loaded with lower priority
-const Performances = lazy(() => 
-  import(/* webpackChunkName: "performances" */ './pages/Dashboard')
-);
 const Players = lazy(() => 
   import(/* webpackChunkName: "players" */ './pages/Players')
 );
@@ -25,9 +22,6 @@ const PlayerDetail = lazy(() =>
 );
 const LineupBuilder = lazy(() => 
   import(/* webpackChunkName: "lineup-builder" */ './pages/LineupBuilder')
-);
-const LineupComparison = lazy(() => 
-  import(/* webpackChunkName: "lineup-comparison" */ './pages/LineupComparison')
 );
 const LineupOptimizer = lazy(() => 
   import(/* webpackChunkName: "lineup-optimizer" */ './pages/LineupOptimizer')
@@ -118,15 +112,7 @@ function App() {
           {/* Make Home the default landing page */}
           <Route path="/" element={<Home />} />
           
-          {/* Performances page (formerly Dashboard) */}
-          <Route path="/performances" element={
-            <AppLayout>
-              <Suspense fallback={<LoadingFallback />}>
-                <Performances />
-              </Suspense>
-            </AppLayout>
-          } />
-          
+          {/* Players pages */}
           <Route path="/players" element={
             <AppLayout>
               <Suspense fallback={<LoadingFallback />}>
@@ -151,14 +137,6 @@ function App() {
             </AppLayout>
           } />
           
-          <Route path="/lineup-comparison" element={
-            <AppLayout>
-              <Suspense fallback={<LoadingFallback />}>
-                <LineupComparison />
-              </Suspense>
-            </AppLayout>
-          } />
-          
           <Route path="/lineup-optimizer" element={
             <AppLayout>
               <Suspense fallback={<LoadingFallback />}>
@@ -170,8 +148,10 @@ function App() {
           {/* Redirect /home to / */}
           <Route path="/home" element={<Navigate to="/" replace />} />
           
-          {/* Redirect old dashboard path to performances */}
-          <Route path="/dashboard" element={<Navigate to="/performances" replace />} />
+          {/* Redirect old paths to new ones */}
+          <Route path="/dashboard" element={<Navigate to="/" replace />} />
+          <Route path="/performances" element={<Navigate to="/" replace />} />
+          <Route path="/lineup-comparison" element={<Navigate to="/lineup-builder" replace />} />
           
           {/* Catch all other routes and redirect to home */}
           <Route path="*" element={<Navigate to="/" replace />} />

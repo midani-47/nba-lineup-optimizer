@@ -23,7 +23,7 @@ def calculate_lineup_offensive_rating(player_ids: List[str], player_stats: pd.Da
         return 50.0  # Default score if no stats available
     
     # Calculate average stats for the lineup
-    avg_lineup_stats = lineup_stats.groupby('player_id').mean().reset_index()
+    avg_lineup_stats = lineup_stats.groupby('player_id').mean(numeric_only=True).reset_index()
     
     # Create offensive metrics based on key offensive stats
     avg_pts = avg_lineup_stats['pts'].mean()
@@ -65,7 +65,7 @@ def calculate_lineup_defensive_rating(player_ids: List[str], player_stats: pd.Da
         return 50.0  # Default score if no stats available
     
     # Calculate average stats for the lineup
-    avg_lineup_stats = lineup_stats.groupby('player_id').mean().reset_index()
+    avg_lineup_stats = lineup_stats.groupby('player_id').mean(numeric_only=True).reset_index()
     
     # Create defensive metrics based on key defensive stats
     avg_stl = avg_lineup_stats['stl'].mean()
@@ -105,7 +105,7 @@ def calculate_lineup_efficiency(player_ids: List[str], player_stats: pd.DataFram
         return 50.0  # Default score if no stats available
     
     # Calculate average stats for the lineup
-    avg_lineup_stats = lineup_stats.groupby('player_id').mean().reset_index()
+    avg_lineup_stats = lineup_stats.groupby('player_id').mean(numeric_only=True).reset_index()
     
     # Create efficiency metrics based on key efficiency stats
     avg_fg_pct = avg_lineup_stats['fg_pct'].mean()
@@ -145,7 +145,7 @@ def calculate_lineup_versatility(player_ids: List[str], player_stats: pd.DataFra
         return 50.0  # Default score if no stats available
     
     # Calculate average stats for each player
-    player_avgs = lineup_stats.groupby('player_id').mean()
+    player_avgs = lineup_stats.groupby('player_id').mean(numeric_only=True)
     
     # Define key statistical categories
     stat_categories = ['pts', 'reb', 'ast', 'stl', 'blk', 'fg3m']
@@ -203,7 +203,7 @@ def calculate_lineup_compatibility(player_ids: List[str], player_stats: pd.DataF
         return 50.0  # Default score if data is missing
     
     # Group by player and get average stats
-    player_avgs = lineup_stats.groupby('player_id').mean().reset_index()
+    player_avgs = lineup_stats.groupby('player_id').mean(numeric_only=True).reset_index()
     
     # Calculate compatibility score based on complementary skills
     compatibility_score = 0

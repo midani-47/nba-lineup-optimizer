@@ -140,8 +140,8 @@ def analyze_lineup(player_ids: List[str]) -> Dict[str, Any]:
         }
     
     # Calculate average and total stats
-    avg_stats = lineup_stats.groupby('player_id').mean().mean()
-    total_stats = lineup_stats.groupby('player_id').mean().sum()
+    avg_stats = lineup_stats.groupby('player_id').mean(numeric_only=True).mean(numeric_only=True)
+    total_stats = lineup_stats.groupby('player_id').mean(numeric_only=True).sum(numeric_only=True)
     
     # Format stats dictionaries
     avg_stats_dict = {

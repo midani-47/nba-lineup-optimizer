@@ -5,20 +5,21 @@ from sklearn.preprocessing import StandardScaler
 from typing import List, Dict, Any, Tuple
 import joblib
 import os
+import random
 
 class LineupPredictor:
     """
     Machine learning model for predicting lineup performance.
     """
     
-    def __init__(self):
+    def __init__(self, model_path: str = 'data/models/lineup_predictor'):
         """Initialize the lineup predictor with default models"""
         self.offense_model = None
         self.defense_model = None
         self.scaler = None
         self.feature_names = None
         self.model_trained = False
-        self.model_path = os.path.join('models', 'lineup_predictor')
+        self.model_path = model_path
         
     def _prepare_features(self, player_ids: List[str], player_stats: pd.DataFrame) -> np.ndarray:
         """
@@ -43,7 +44,7 @@ class LineupPredictor:
                 return np.zeros(20)
         
         # Group by player and get mean stats
-        avg_player_stats = lineup_stats.groupby('player_id').mean()
+        avg_player_stats = lineup_stats.groupby('player_id').mean(numeric_only=True)
         
         # Select relevant features
         relevant_stats = ['pts', 'reb', 'ast', 'stl', 'blk', 'fg_pct', 'fg3_pct']
@@ -71,7 +72,7 @@ class LineupPredictor:
     def train(self, lineups: List[List[str]], 
               offensive_ratings: List[float], 
               defensive_ratings: List[float],
-              player_stats: pd.DataFrame) -> bool:
+              player_stats: pd.DataFrame) -> Dict[str, Any]:
         """
         Train the prediction models on lineup data.
         
@@ -82,10 +83,10 @@ class LineupPredictor:
             player_stats: DataFrame containing player statistics
             
         Returns:
-            True if training was successful, False otherwise
+            Dictionary with training metrics
         """
         if len(lineups) != len(offensive_ratings) or len(lineups) != len(defensive_ratings):
-            return False
+            return {'error': 'Data size mismatch'}
         
         # Prepare training data
         X = []
@@ -97,16 +98,35 @@ class LineupPredictor:
         y_offense = np.array(offensive_ratings)
         y_defense = np.array(defensive_ratings)
         
+        # Split data into train/test
+        from sklearn.model_selection import train_test_split
+        X_train, X_test, y_off_train, y_off_test, y_def_train, y_def_test = train_test_split(
+            X, y_offense, y_defense, test_size=0.2, random_state=42
+        )
+        
         # Scale features
         self.scaler = StandardScaler()
-        X_scaled = self.scaler.fit_transform(X)
+        X_train_scaled = self.scaler.fit_transform(X_train)
+        X_test_scaled = self.scaler.transform(X_test)
         
         # Train models
         self.offense_model = RandomForestRegressor(n_estimators=100, random_state=42)
         self.defense_model = RandomForestRegressor(n_estimators=100, random_state=42)
         
-        self.offense_model.fit(X_scaled, y_offense)
-        self.defense_model.fit(X_scaled, y_defense)
+        self.offense_model.fit(X_train_scaled, y_off_train)
+        self.defense_model.fit(X_train_scaled, y_def_train)
+        
+        # Evaluate models
+        from sklearn.metrics import mean_squared_error, r2_score
+        
+        y_off_pred = self.offense_model.predict(X_test_scaled)
+        y_def_pred = self.defense_model.predict(X_test_scaled)
+        
+        off_mse = mean_squared_error(y_off_test, y_off_pred)
+        off_r2 = r2_score(y_off_test, y_off_pred)
+        
+        def_mse = mean_squared_error(y_def_test, y_def_pred)
+        def_r2 = r2_score(y_def_test, y_def_pred)
         
         self.model_trained = True
         
@@ -119,7 +139,14 @@ class LineupPredictor:
         joblib.dump(self.scaler, os.path.join(self.model_path, 'scaler.pkl'))
         joblib.dump(self.feature_names, os.path.join(self.model_path, 'feature_names.pkl'))
         
-        return True
+        return {
+            'n_samples': len(lineups),
+            'n_features': len(self.feature_names),
+            'offense_mse': off_mse,
+            'offense_r2': off_r2,
+            'defense_mse': def_mse,
+            'defense_r2': def_r2
+        }
     
     def load_models(self) -> bool:
         """
@@ -139,7 +166,7 @@ class LineupPredictor:
             # Models not found, need to train
             return False
     
-    def predict(self, player_ids: List[str], player_stats: pd.DataFrame) -> Dict[str, float]:
+    def predict(self, player_ids: List[str], player_stats: pd.DataFrame) -> Tuple[float, float]:
         """
         Predict offensive and defensive ratings for a lineup.
         
@@ -148,12 +175,13 @@ class LineupPredictor:
             player_stats: DataFrame containing player statistics
             
         Returns:
-            Dictionary with predicted ratings
+            Tuple of (offensive_rating, defensive_rating)
         """
         if not self.model_trained:
             # Try to load models, and if that fails, use a simple heuristic
             if not self.load_models():
-                return self._simple_prediction(player_ids, player_stats)
+                result = self._simple_prediction(player_ids, player_stats)
+                return result['offense'], result['defense']
         
         # Prepare features
         features = self._prepare_features(player_ids, player_stats)
@@ -166,14 +194,7 @@ class LineupPredictor:
         offense_pred = self.offense_model.predict(features_scaled)[0]
         defense_pred = self.defense_model.predict(features_scaled)[0]
         
-        # Calculate overall rating (weighted average)
-        overall_pred = 0.6 * offense_pred + 0.4 * defense_pred
-        
-        return {
-            'offense': float(offense_pred),
-            'defense': float(defense_pred),
-            'overall': float(overall_pred)
-        }
+        return float(offense_pred), float(defense_pred)
     
     def _simple_prediction(self, player_ids: List[str], player_stats: pd.DataFrame) -> Dict[str, float]:
         """
@@ -193,7 +214,7 @@ class LineupPredictor:
             return {'offense': 50.0, 'defense': 50.0, 'overall': 50.0}
         
         # Calculate average offensive and defensive indicators
-        avg_stats = lineup_stats.groupby('player_id').mean().mean()
+        avg_stats = lineup_stats.groupby('player_id').mean(numeric_only=True).mean()
         
         # Offensive rating based on points, assists, and shooting percentages
         offense_rating = 0.0
@@ -230,23 +251,22 @@ class LineupPredictor:
             'overall': float(overall_rating)
         }
     
-    def generate_training_data(self, player_stats: pd.DataFrame, player_info: pd.DataFrame, 
-                               num_samples: int = 100) -> Tuple[List[List[str]], List[float], List[float]]:
+    def generate_training_data(self, player_stats: pd.DataFrame, num_samples: int = 500) -> Tuple[List[List[str]], List[float], List[float]]:
         """
         Generate synthetic training data for model development.
         
         Args:
             player_stats: DataFrame containing player statistics
-            player_info: DataFrame containing player information
             num_samples: Number of lineup samples to generate
             
         Returns:
             Tuple of (lineups, offensive_ratings, defensive_ratings)
         """
-        from src.optimizer.metrics import calculate_lineup_offensive_rating, calculate_lineup_defensive_rating
-        
         # Get all player IDs
-        all_player_ids = player_info['player_id'].unique()
+        if player_stats.empty:
+            return [], [], []
+            
+        all_player_ids = player_stats['player_id'].unique()
         
         # Generate random lineups
         lineups = []
@@ -254,44 +274,132 @@ class LineupPredictor:
         defensive_ratings = []
         
         for _ in range(num_samples):
-            # Select 5 random players
+            # Randomly select 5 players
             lineup = np.random.choice(all_player_ids, size=5, replace=False).tolist()
-            
-            # Calculate ratings
-            offense_rating = calculate_lineup_offensive_rating(lineup, player_stats)
-            defense_rating = calculate_lineup_defensive_rating(lineup, player_stats)
-            
             lineups.append(lineup)
-            offensive_ratings.append(offense_rating)
-            defensive_ratings.append(defense_rating)
+            
+            # Get lineup stats
+            lineup_stats = player_stats[player_stats['player_id'].isin(lineup)]
+            
+            if lineup_stats.empty:
+                # Skip empty lineups
+                continue
+                
+            # Calculate average stats
+            avg_stats = lineup_stats.groupby('player_id').mean(numeric_only=True).mean()
+            
+            # Calculate offensive rating (scoring ability)
+            off_rating = 0.0
+            if 'pts' in avg_stats:
+                off_rating += avg_stats['pts'] * 2.5
+            if 'ast' in avg_stats:
+                off_rating += avg_stats['ast'] * 5
+            if 'fg_pct' in avg_stats:
+                off_rating += avg_stats['fg_pct'] * 50
+            if 'fg3_pct' in avg_stats:
+                off_rating += avg_stats['fg3_pct'] * 60
+                
+            # Normalize to 0-100 scale
+            off_rating = min(100, off_rating / 50 * 100)
+            
+            # Calculate defensive rating (defensive ability)
+            def_rating = 0.0
+            if 'stl' in avg_stats:
+                def_rating += avg_stats['stl'] * 15
+            if 'blk' in avg_stats:
+                def_rating += avg_stats['blk'] * 15
+            if 'reb' in avg_stats:
+                def_rating += avg_stats['reb'] * 3
+                
+            # Normalize to 0-100 scale
+            def_rating = min(100, def_rating / 30 * 100)
+            
+            # Add some noise to make the data more realistic
+            off_rating += np.random.normal(0, 5)  # Add noise with std=5
+            def_rating += np.random.normal(0, 5)  # Add noise with std=5
+            
+            # Clip to 0-100 range
+            off_rating = max(0, min(100, off_rating))
+            def_rating = max(0, min(100, def_rating))
+            
+            offensive_ratings.append(off_rating)
+            defensive_ratings.append(def_rating)
         
         return lineups, offensive_ratings, defensive_ratings
     
-    def get_feature_importance(self) -> Dict[str, List[Tuple[str, float]]]:
+    def get_feature_importance(self) -> pd.DataFrame:
         """
-        Get the importance of each feature in the prediction models.
+        Get feature importance from trained models.
         
         Returns:
-            Dictionary with feature importance for each model
+            DataFrame with feature importance for offense and defense models
         """
         if not self.model_trained and not self.load_models():
-            return {"error": "Models not trained"}
+            # No models available
+            return pd.DataFrame()
         
-        # Get feature importance from the models
+        # Get feature importance
         offense_importance = self.offense_model.feature_importances_
         defense_importance = self.defense_model.feature_importances_
         
-        # Pair with feature names
-        offense_features = [(name, float(importance)) 
-                           for name, importance in zip(self.feature_names, offense_importance)]
-        defense_features = [(name, float(importance)) 
-                           for name, importance in zip(self.feature_names, defense_importance)]
+        # Create DataFrame
+        importance_df = pd.DataFrame({
+            'Feature': self.feature_names,
+            'Offense Importance': offense_importance,
+            'Defense Importance': defense_importance
+        })
         
-        # Sort by importance (descending)
-        offense_features.sort(key=lambda x: x[1], reverse=True)
-        defense_features.sort(key=lambda x: x[1], reverse=True)
+        return importance_df
+    
+    def predict_best_substitution(self, current_lineup: List[str], bench_players: List[str], 
+                               player_stats: pd.DataFrame) -> Dict[str, Any]:
+        """
+        Find the best substitution to improve lineup performance.
         
-        return {
-            "offense": offense_features[:10],  # Top 10 features
-            "defense": defense_features[:10]   # Top 10 features
-        } 
+        Args:
+            current_lineup: Current lineup (list of player IDs)
+            bench_players: Available bench players (list of player IDs)
+            player_stats: DataFrame containing player statistics
+            
+        Returns:
+            Dictionary with substitution details
+        """
+        if not self.model_trained and not self.load_models():
+            return None
+            
+        if len(current_lineup) < 5 or not bench_players:
+            return None
+            
+        # Get current lineup ratings
+        current_off, current_def = self.predict(current_lineup, player_stats)
+        current_overall = (current_off + current_def) / 2
+        
+        best_improvement = -1
+        best_substitution = None
+        
+        # Try substituting each player in the lineup with each bench player
+        for i, starter in enumerate(current_lineup):
+            for bench in bench_players:
+                # Create new lineup with the substitution
+                new_lineup = current_lineup.copy()
+                new_lineup[i] = bench
+                
+                # Predict ratings for new lineup
+                new_off, new_def = self.predict(new_lineup, player_stats)
+                new_overall = (new_off + new_def) / 2
+                
+                # Calculate improvement
+                overall_improvement = new_overall - current_overall
+                
+                # Check if this is the best improvement so far
+                if overall_improvement > best_improvement:
+                    best_improvement = overall_improvement
+                    best_substitution = {
+                        'replace_player_id': starter,
+                        'with_player_id': bench,
+                        'overall_improvement': overall_improvement,
+                        'offense_improvement': new_off - current_off,
+                        'defense_improvement': new_def - current_def
+                    }
+        
+        return best_substitution 

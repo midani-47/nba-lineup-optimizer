@@ -1,22 +1,20 @@
-import React, { memo } from 'react';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import MuiDrawer from '@mui/material/Drawer';
-import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import PeopleIcon from '@mui/icons-material/People';
-import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
-import CompareIcon from '@mui/icons-material/Compare';
-import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import HomeIcon from '@mui/icons-material/Home';
-import { useNavigate, useLocation } from 'react-router-dom';
+import PeopleIcon from '@mui/icons-material/People';
+import SportsMmaIcon from '@mui/icons-material/SportsMma';
+import TuneIcon from '@mui/icons-material/Tune';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '@mui/material/Tooltip';
 
 const drawerWidth = 240;
@@ -47,92 +45,110 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
   }),
 );
 
-// Memoized menu item component to prevent unnecessary re-renders
-const MenuItem = memo(({ item, isSelected, open, onClick }) => (
-  <ListItem disablePadding sx={{ display: 'block' }}>
-    <ListItemButton
-      selected={isSelected}
-      onClick={onClick}
-      sx={{
-        minHeight: 48,
-        justifyContent: open ? 'initial' : 'center',
-        px: 2.5,
-      }}
-    >
-      <ListItemIcon
-        sx={{
-          minWidth: 0,
-          mr: open ? 3 : 'auto',
-          justifyContent: 'center',
-          color: isSelected ? 'primary.main' : 'inherit',
-        }}
-      >
-        {item.icon}
-      </ListItemIcon>
-      <ListItemText 
-        primary={item.text} 
-        sx={{ 
-          opacity: open ? 1 : 0,
-          '& .MuiTypography-root': {
-            fontWeight: isSelected ? 600 : 400,
-          }
-        }} 
-      />
-    </ListItemButton>
-  </ListItem>
-));
+// Simplified navigation items - removed redundant items
+const mainNavItems = [
+  { name: 'Home', icon: <HomeIcon />, path: '/', description: 'Dashboard and overview' },
+  { name: 'Players', icon: <PeopleIcon />, path: '/players', description: 'Browse and analyze players' },
+  { name: 'Lineup Builder', icon: <SportsMmaIcon />, path: '/lineup-builder', description: 'Create and manage lineups' },
+  { name: 'Lineup Optimizer', icon: <TuneIcon />, path: '/lineup-optimizer', description: 'Optimize lineups with AI' },
+];
 
-const Sidebar = ({ open, toggleDrawer }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
+const secondaryNavItems = [
+  { name: 'About', icon: <InfoIcon />, path: '/about', description: 'About this project' },
+  { name: 'GitHub', icon: <GitHubIcon />, path: 'https://github.com/username/nba-lineup-optimizer', description: 'View source code', external: true },
+];
 
-  const menuItems = [
-    { text: 'Home', icon: <HomeIcon />, path: '/', description: 'Dashboard and overview' },
-    { text: 'Performances', icon: <DashboardIcon />, path: '/performances', description: 'Player performance stats' },
-    { text: 'Players', icon: <PeopleIcon />, path: '/players', description: 'Browse all NBA players' },
-    { text: 'Lineup Builder', icon: <SportsSoccerIcon />, path: '/lineup-builder', description: 'Create and save lineups' },
-    { text: 'Lineup Comparison', icon: <CompareIcon />, path: '/lineup-comparison', description: 'Compare different lineups' },
-    { text: 'Lineup Optimizer', icon: <AutoFixHighIcon />, path: '/lineup-optimizer', description: 'Optimize your lineups' },
-  ];
-
-  const handleNavigation = (path) => {
-    navigate(path, { replace: true });
-  };
-
+function Sidebar({ open, toggleDrawer }) {
   return (
-    <Drawer variant="permanent" open={true}>
-      <Toolbar
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'flex-end',
-          px: [1],
-        }}
-      >
-        <IconButton onClick={toggleDrawer}>
-          <ChevronLeftIcon />
-        </IconButton>
-      </Toolbar>
-      <Divider />
+    <Drawer variant="permanent" open={open}>
       <List component="nav">
-        {menuItems.map((item) => (
+        {/* Drawer header with close button */}
+        <ListItemButton
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+            px: 1,
+          }}
+          onClick={toggleDrawer}
+        >
+          <IconButton>
+            <ChevronLeftIcon />
+          </IconButton>
+        </ListItemButton>
+        <Divider />
+        
+        {/* Main navigation items */}
+        {mainNavItems.map((item) => (
           <Tooltip 
-            key={item.text} 
+            key={item.name} 
             title={item.description} 
-            placement="right"
-            arrow
+            placement="right" 
+            arrow 
+            disableHoverListener={open}
           >
-            <MenuItem
-              item={item}
-              isSelected={location.pathname === item.path}
-              open={true}
-              onClick={() => handleNavigation(item.path)}
-            />
+            <ListItemButton
+              component={Link}
+              to={item.path}
+              sx={{
+                minHeight: 48,
+                justifyContent: open ? 'initial' : 'center',
+                px: 2.5,
+              }}
+            >
+              <ListItemIcon
+                sx={{
+                  minWidth: 0,
+                  mr: open ? 3 : 'auto',
+                  justifyContent: 'center',
+                }}
+              >
+                {item.icon}
+              </ListItemIcon>
+              <ListItemText primary={item.name} sx={{ opacity: open ? 1 : 0 }} />
+            </ListItemButton>
+          </Tooltip>
+        ))}
+        
+        <Divider sx={{ my: 1 }} />
+        
+        {/* Secondary navigation items */}
+        {secondaryNavItems.map((item) => (
+          <Tooltip 
+            key={item.name} 
+            title={item.description} 
+            placement="right" 
+            arrow 
+            disableHoverListener={open}
+          >
+            <ListItemButton
+              component={item.external ? 'a' : Link}
+              to={!item.external ? item.path : undefined}
+              href={item.external ? item.path : undefined}
+              target={item.external ? '_blank' : undefined}
+              rel={item.external ? 'noopener noreferrer' : undefined}
+              sx={{
+                minHeight: 48,
+                justifyContent: open ? 'initial' : 'center',
+                px: 2.5,
+              }}
+            >
+              <ListItemIcon
+                sx={{
+                  minWidth: 0,
+                  mr: open ? 3 : 'auto',
+                  justifyContent: 'center',
+                }}
+              >
+                {item.icon}
+              </ListItemIcon>
+              <ListItemText primary={item.name} sx={{ opacity: open ? 1 : 0 }} />
+            </ListItemButton>
           </Tooltip>
         ))}
       </List>
     </Drawer>
   );
-};
+}
 
-export default memo(Sidebar); 
+export default Sidebar; 

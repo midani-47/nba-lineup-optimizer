@@ -86,10 +86,10 @@ class FeatureEngineer:
         
         # Basic aggregated features
         for col in self.feature_columns:
-            features[f'avg_{col}'] = lineup_stats[col].mean()
+            features[f'avg_{col}'] = lineup_stats[col].mean(numeric_only=True)
             features[f'max_{col}'] = lineup_stats[col].max()
             features[f'min_{col}'] = lineup_stats[col].min()
-            features[f'std_{col}'] = lineup_stats[col].std()
+            features[f'std_{col}'] = lineup_stats[col].std(numeric_only=True)
         
         # Advanced lineup features
         
@@ -114,9 +114,9 @@ class FeatureEngineer:
         
         # Experience balance (if available)
         if 'experience' in lineup_stats.columns:
-            features['avg_experience'] = lineup_stats['experience'].mean()
+            features['avg_experience'] = lineup_stats['experience'].mean(numeric_only=True)
             features['max_experience'] = lineup_stats['experience'].max()
-            features['experience_diversity'] = lineup_stats['experience'].std() / lineup_stats['experience'].mean() if lineup_stats['experience'].mean() > 0 else 0
+            features['experience_diversity'] = lineup_stats['experience'].std(numeric_only=True) / lineup_stats['experience'].mean(numeric_only=True) if lineup_stats['experience'].mean(numeric_only=True) > 0 else 0
         
         return features
     

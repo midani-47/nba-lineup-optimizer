@@ -6,6 +6,7 @@ from nba_api.stats.endpoints import playergamelog, commonplayerinfo, teamgamelog
 import time
 import random
 from datetime import datetime, timedelta
+import numpy as np
 
 # Paths for cached data
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data')
@@ -15,18 +16,30 @@ TEAMS_FILE = os.path.join(DATA_DIR, 'teams.csv')
 
 def load_nba_players():
     """
-    Load NBA player data, prioritizing sample data for speed.
+    Load NBA player data with caching.
+    Checks if the data is cached, if not creates sample data.
     
     Returns:
-        pandas.DataFrame: DataFrame with player data
+        DataFrame containing player information
     """
-    # Check if we have cached data
-    if os.path.exists(PLAYERS_FILE):
-        print("Loading players from cache...")
-        return pd.read_csv(PLAYERS_FILE)
+    # Check if data exists in cache
+    players_path = os.path.join('data', 'players.csv')
     
-    print("Creating sample player data...")
-    return create_sample_players()
+    if not os.path.exists(players_path):
+        # If not cached, create sample data
+        print("No player data found. Creating sample data...")
+        players_df = create_sample_player_data()
+    else:
+        # Load cached data
+        print("Loading players from cache...")
+        players_df = pd.read_csv(players_path)
+        
+    # Check if we need to enhance the dataset
+    if len(players_df) < 200:  # Less than 200 players means we should enhance
+        print("Current dataset has only", len(players_df), "players. Enhancing dataset...")
+        players_df = enhance_player_dataset()
+    
+    return players_df
 
 def load_player_stats():
     """
@@ -764,6 +777,243 @@ def create_sample_player_stats_for_real_players(players_df):
     # Create DataFrame
     stats_df = pd.DataFrame(all_stats)
     return stats_df
+
+# Fix the enhance_player_dataset function to use correct team columns
+def enhance_player_dataset():
+    """
+    Enhance the player dataset by tripling the number of players while maintaining realistic data.
+    This function loads existing player data, generates new players based on team data,
+    and saves the enhanced dataset.
+    
+    Returns:
+        pandas.DataFrame: The enhanced player dataset
+    """
+    import pandas as pd
+    import numpy as np
+    import os
+    from datetime import datetime
+    
+    # Load existing data
+    players_path = os.path.join('data', 'players.csv')
+    stats_path = os.path.join('data', 'player_stats.csv')
+    teams_path = os.path.join('data', 'teams.csv')
+    
+    if not all(os.path.exists(path) for path in [players_path, stats_path, teams_path]):
+        print("Required data files not found. Creating sample data first.")
+        players = create_sample_player_data()
+        stats = create_sample_player_stats()
+        teams = load_team_data()
+    else:
+        players = pd.read_csv(players_path)
+        stats = pd.read_csv(stats_path)
+        teams = pd.read_csv(teams_path)
+    
+    # Get the highest player_id to start new IDs from
+    max_player_id = players['player_id'].max()
+    current_players_count = len(players)
+    new_players_count = current_players_count * 2  # Tripling = original + 2x more
+    
+    # Create list for new players
+    new_players = []
+    new_stats = []
+    
+    # Real NBA player first names and last names for generating realistic names
+    first_names = [
+        "James", "Michael", "Chris", "Kevin", "Anthony", "Stephen", "Russell", "Damian", 
+        "Giannis", "Joel", "Devin", "Jayson", "Kawhi", "Paul", "Jimmy", "Donovan", 
+        "Trae", "Zion", "Luka", "Kyrie", "Ja", "Bam", "Bradley", "Nikola", "Jamal",
+        "Brandon", "De'Aaron", "John", "Zach", "Jrue", "Tyler", "Malcolm", "Khris",
+        "Pascal", "Kyle", "Fred", "Gordon", "Aaron", "Draymond", "Jerami", "Lou",
+        "Evan", "Marcus", "Ben", "Lamelo", "Cade", "Paolo", "Victor", "Jaylen"
+    ]
+    
+    last_names = [
+        "James", "Jordan", "Paul", "Durant", "Davis", "Curry", "Westbrook", "Lillard",
+        "Antetokounmpo", "Embiid", "Booker", "Tatum", "Leonard", "George", "Butler", "Mitchell",
+        "Young", "Williamson", "Doncic", "Irving", "Morant", "Adebayo", "Beal", "Jokic", "Murray",
+        "Ingram", "Fox", "Wall", "LaVine", "Holiday", "Herro", "Brogdon", "Middleton",
+        "Siakam", "Lowry", "VanVleet", "Hayward", "Gordon", "Green", "Grant", "Williams",
+        "Fournier", "Smart", "Simmons", "Ball", "Cunningham", "Banchero", "Wembanyama", "Brown"
+    ]
+    
+    # Realistic heights and weights by position
+    position_attributes = {
+        "PG": {"height_range": (70, 76), "weight_range": (175, 200)},
+        "SG": {"height_range": (74, 78), "weight_range": (185, 215)},
+        "SF": {"height_range": (76, 81), "weight_range": (200, 230)},
+        "PF": {"height_range": (79, 83), "weight_range": (220, 250)},
+        "C":  {"height_range": (81, 87), "weight_range": (240, 290)}
+    }
+    
+    # Create new players
+    for i in range(new_players_count):
+        # Generate a new unique player ID
+        new_player_id = max_player_id + i + 1
+        
+        # Randomly select a team from existing teams
+        team = teams.sample(1).iloc[0]
+        team_id = team['team_id']
+        team_name = team['name']  # Changed from 'full_name' to 'name'
+        
+        # Generate a random position
+        positions = ["PG", "SG", "SF", "PF", "C"]
+        weights = [0.2, 0.2, 0.2, 0.2, 0.2]  # Equal distribution
+        position = np.random.choice(positions, p=weights)
+        
+        # Sometimes create combo positions
+        if np.random.random() < 0.3:  # 30% chance of combo position
+            secondary_position = np.random.choice([p for p in positions if p != position])
+            position = f"{position}/{secondary_position}"
+        
+        # Get appropriate height and weight ranges for the position
+        base_position = position.split('/')[0]  # Use the primary position for attributes
+        height_range = position_attributes[base_position]["height_range"]
+        weight_range = position_attributes[base_position]["weight_range"]
+        
+        # Generate height and weight
+        height_inches = np.random.randint(*height_range)
+        height_feet = height_inches // 12
+        height_remainder = height_inches % 12
+        height = f"{height_feet}'{height_remainder}\""
+        
+        weight = np.random.randint(*weight_range)
+        
+        # Generate random age between 19 and 37
+        age = np.random.randint(19, 38)
+        
+        # Random year they joined (between 2010 and 2024)
+        from_year = np.random.randint(2010, 2025)
+        
+        # Generate name
+        first_name = np.random.choice(first_names)
+        last_name = np.random.choice(last_names)
+        full_name = f"{first_name} {last_name}"
+        
+        # Create player record
+        new_player = {
+            'player_id': new_player_id,
+            'name': full_name,
+            'first_name': first_name,
+            'last_name': last_name,
+            'active': True,
+            'height': height,
+            'weight': weight,
+            'position': position,
+            'team_id': team_id,
+            'team': team_name,
+            'age': age,
+            'from_year': from_year
+        }
+        
+        new_players.append(new_player)
+        
+        # Generate player stats based on position
+        # Base stats on position
+        if base_position == "PG":
+            # Point guards tend to have more assists and steals
+            pts_base = np.random.uniform(12, 25)
+            reb_base = np.random.uniform(2, 6)
+            ast_base = np.random.uniform(5, 10)
+            stl_base = np.random.uniform(1, 2.5)
+            blk_base = np.random.uniform(0.1, 0.8)
+            fg_pct_base = np.random.uniform(0.40, 0.48)
+            fg3_pct_base = np.random.uniform(0.32, 0.42)
+            ft_pct_base = np.random.uniform(0.75, 0.90)
+        elif base_position == "SG":
+            # Shooting guards tend to score more and shoot 3s
+            pts_base = np.random.uniform(15, 27)
+            reb_base = np.random.uniform(3, 6)
+            ast_base = np.random.uniform(3, 7)
+            stl_base = np.random.uniform(0.8, 2.0)
+            blk_base = np.random.uniform(0.2, 1.0)
+            fg_pct_base = np.random.uniform(0.42, 0.48)
+            fg3_pct_base = np.random.uniform(0.35, 0.45)
+            ft_pct_base = np.random.uniform(0.78, 0.90)
+        elif base_position == "SF":
+            # Small forwards are all-around players
+            pts_base = np.random.uniform(14, 26)
+            reb_base = np.random.uniform(5, 8)
+            ast_base = np.random.uniform(2, 6)
+            stl_base = np.random.uniform(0.8, 1.8)
+            blk_base = np.random.uniform(0.5, 1.3)
+            fg_pct_base = np.random.uniform(0.44, 0.50)
+            fg3_pct_base = np.random.uniform(0.33, 0.40)
+            ft_pct_base = np.random.uniform(0.75, 0.88)
+        elif base_position == "PF":
+            # Power forwards get rebounds and blocks
+            pts_base = np.random.uniform(12, 23)
+            reb_base = np.random.uniform(7, 12)
+            ast_base = np.random.uniform(1.5, 4.5)
+            stl_base = np.random.uniform(0.5, 1.5)
+            blk_base = np.random.uniform(0.8, 2.0)
+            fg_pct_base = np.random.uniform(0.48, 0.56)
+            fg3_pct_base = np.random.uniform(0.28, 0.38)
+            ft_pct_base = np.random.uniform(0.70, 0.85)
+        else:  # Center
+            # Centers focus on rebounds, blocks, and high FG%
+            pts_base = np.random.uniform(10, 22)
+            reb_base = np.random.uniform(8, 14)
+            ast_base = np.random.uniform(1, 4)
+            stl_base = np.random.uniform(0.4, 1.2)
+            blk_base = np.random.uniform(1.0, 2.5)
+            fg_pct_base = np.random.uniform(0.52, 0.65)
+            fg3_pct_base = np.random.uniform(0.20, 0.33)
+            ft_pct_base = np.random.uniform(0.60, 0.80)
+        
+        # Add some random variation for 10 games
+        for game in range(10):
+            # Generate a random opponent from teams
+            opponent_team = teams.sample(1).iloc[0]['team_id']
+            
+            # Add some game-to-game variation
+            pts = max(0, pts_base + np.random.normal(0, pts_base * 0.2))
+            reb = max(0, reb_base + np.random.normal(0, reb_base * 0.2))
+            ast = max(0, ast_base + np.random.normal(0, ast_base * 0.2))
+            stl = max(0, stl_base + np.random.normal(0, stl_base * 0.3))
+            blk = max(0, blk_base + np.random.normal(0, blk_base * 0.3))
+            
+            # More stable percentages with small variations
+            fg_pct = max(0, min(1, fg_pct_base + np.random.normal(0, 0.05)))
+            fg3_pct = max(0, min(1, fg3_pct_base + np.random.normal(0, 0.07)))
+            ft_pct = max(0, min(1, ft_pct_base + np.random.normal(0, 0.06)))
+            
+            # Create game stat record
+            game_stat = {
+                'player_id': new_player_id,
+                'game_id': f"G{new_player_id}_{game}",
+                'date': (datetime.now().date() - pd.Timedelta(days=game)).strftime('%Y-%m-%d'),
+                'home_team': team_id,
+                'away_team': opponent_team,
+                'pts': round(pts, 1),
+                'reb': round(reb, 1),
+                'ast': round(ast, 1),
+                'stl': round(stl, 1),
+                'blk': round(blk, 1),
+                'fg_pct': round(fg_pct, 3),
+                'fg3_pct': round(fg3_pct, 3),
+                'ft_pct': round(ft_pct, 3),
+                'turnover': round(max(0, np.random.normal(2, 1)), 1),
+                'pf': round(max(0, np.random.normal(2.5, 1)), 1)
+            }
+            
+            new_stats.append(game_stat)
+    
+    # Convert to DataFrame
+    new_players_df = pd.DataFrame(new_players)
+    new_stats_df = pd.DataFrame(new_stats)
+    
+    # Combine with existing data
+    enhanced_players = pd.concat([players, new_players_df], ignore_index=True)
+    enhanced_stats = pd.concat([stats, new_stats_df], ignore_index=True)
+    
+    # Save enhanced datasets
+    enhanced_players.to_csv(players_path, index=False)
+    enhanced_stats.to_csv(stats_path, index=False)
+    
+    print(f"Enhanced player dataset from {current_players_count} to {len(enhanced_players)} players")
+    print(f"Enhanced stats dataset to {len(enhanced_stats)} records")
+    
+    return enhanced_players
 
 if __name__ == "__main__":
     # Test data loading
