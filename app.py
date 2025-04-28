@@ -638,8 +638,8 @@ elif page == "Lineup Builder":
                 with col_player:
                     st.markdown(f"""
                     <div style='padding:0.5rem;background-color:#e6f3ff;border-radius:0.3rem;margin-bottom:0.5rem;'>
-                        <strong>{i+1}. {player.get('name', 'Unknown')}</strong><br>
-                        <small>{player.get('position', 'N/A')}</small>
+                        <strong style='color:#333333;'>{i+1}. {player.get('name', 'Unknown')}</strong><br>
+                        <small style='color:#555555;'>{player.get('position', 'N/A')}</small>
                     </div>
                     """, unsafe_allow_html=True)
                 
@@ -1191,7 +1191,7 @@ elif page == "ML Prediction":
     if 'ml_selected_positions' not in st.session_state:
         st.session_state.ml_selected_positions = {}
         
-    # Add built-in lineup selector for ML page
+    # Create pre-made lineup selection
     st.subheader("Pre-made Lineups")
     builtin_lineups = list(st.session_state.custom_lineups.keys())
     
@@ -1205,22 +1205,26 @@ elif page == "ML Prediction":
         
         if selected_lineup != "None":
             if st.button("Load Selected Lineup", key="ml_load_lineup"):
-                # Get player IDs from selected lineup
-                lineup_player_ids = st.session_state.custom_lineups[selected_lineup]
-                
-                # Get player positions
-                position_map = {}
-                for player_id in lineup_player_ids:
-                    player_info = players_df[players_df['player_id'] == player_id]
-                    if not player_info.empty:
-                        position = player_info.iloc[0]['position']
-                        position_map[position] = player_id
-                
-                # Update session state for selected positions
-                st.session_state.ml_selected_positions = position_map
-                
-                st.success(f"Loaded {selected_lineup}")
-                st.rerun()
+                try:
+                    # Get player IDs from selected lineup
+                    lineup_player_ids = st.session_state.custom_lineups[selected_lineup]
+                    
+                    # Get player positions
+                    position_map = {}
+                    for player_id in lineup_player_ids:
+                        player_info = players_df[players_df['player_id'] == player_id]
+                        if not player_info.empty:
+                            position = player_info.iloc[0]['position'] 
+                            position_map[position] = player_id
+                    
+                    # Update session state for selected positions
+                    st.session_state.ml_selected_positions = position_map
+                    
+                    st.success(f"Loaded {selected_lineup}")
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Error loading lineup: {str(e)}")
+                    st.info("Please try selecting a different lineup or create a new one.")
         
     # Player Selection Section
     st.subheader("Player Selection 🏀")
@@ -1245,11 +1249,13 @@ elif page == "ML Prediction":
                 default_index = 0
                 if pos in st.session_state.ml_selected_positions:
                     saved_id = st.session_state.ml_selected_positions[pos]
-                    # Find the index of the saved player
-                    player_indices = players_in_pos.index[players_in_pos['player_id'] == saved_id].tolist()
-                    if player_indices:
-                        default_index = player_indices[0] - players_in_pos.index[0]
-                        default_index = max(0, min(default_index, len(players_in_pos) - 1))
+                    # Find matching players
+                    matches = players_in_pos[players_in_pos['player_id'] == saved_id]
+                    if not matches.empty:
+                        # Get the integer index (position in the options list)
+                        options_list = players_in_pos['player_id'].tolist()
+                        if saved_id in options_list:
+                            default_index = int(options_list.index(saved_id))
                 
                 # Create selectbox with player names as display and player_id as value
                 selected_player = st.selectbox(
@@ -1257,7 +1263,7 @@ elif page == "ML Prediction":
                     options=players_in_pos['player_id'].tolist(),
                     format_func=lambda x: players_df[players_df['player_id'] == x]['name'].iloc[0] if not players_df[players_df['player_id'] == x].empty else f"Unknown Player ({x})",
                     key=f"pos_{pos}",
-                    index=default_index
+                    index=int(default_index)  # Explicitly convert to int to avoid int64 issues
                 )
                 
                 if selected_player:
