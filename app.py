@@ -82,19 +82,57 @@ players, stats, teams = load_data()
 
 # Create example lineups if none exist
 if not st.session_state.custom_lineups:
-    # Get some star players for example lineups
-    stars = players[players['name'].str.contains('LeBron|Curry|Giannis|Jokic|Doncic', case=False, na=False)]
+    # Define specific player groups for example lineups
+    allstars = [
+        "Stephen Curry",
+        "Luka Doncic",
+        "Giannis Antetokounmpo",
+        "Jayson Tatum",
+        "Nikola Jokic"
+    ]
     
-    # Create example lineups if we have enough star players
-    if len(stars) >= 5:
-        example_lineup1 = stars.iloc[0:5]['name'].tolist()
-        st.session_state.custom_lineups["All-Star Lineup"] = example_lineup1
+    ogs = [
+        "LeBron James",
+        "Kevin Durant",
+        "Chris Paul",
+        "Klay Thompson",
+        "Draymond Green"
+    ]
+    
+    # Create the All-Stars lineup
+    allstar_ids = []
+    for player_name in allstars:
+        player_matches = players[players['name'].str.contains(player_name, case=False, na=False)]
+        if not player_matches.empty:
+            allstar_ids.append(player_matches.iloc[0]['player_id'])
+    
+    if len(allstar_ids) >= 5:
+        st.session_state.custom_lineups["All-Stars Lineup"] = allstar_ids[:5]
+    
+    # Create the OGs lineup
+    og_ids = []
+    for player_name in ogs:
+        player_matches = players[players['name'].str.contains(player_name, case=False, na=False)]
+        if not player_matches.empty:
+            og_ids.append(player_matches.iloc[0]['player_id'])
+    
+    if len(og_ids) >= 5:
+        st.session_state.custom_lineups["OGs Lineup"] = og_ids[:5]
         
-        # Create a second lineup with different players
-        remaining_players = players[~players['name'].isin(example_lineup1)]
-        if len(remaining_players) >= 5:
-            example_lineup2 = remaining_players.iloc[0:5]['name'].tolist()
-            st.session_state.custom_lineups["Backup Lineup"] = example_lineup2
+    # If we couldn't find enough players for either lineup, create backup examples
+    if len(st.session_state.custom_lineups) == 0:
+        # Get some star players for example lineups as a fallback
+        stars = players.iloc[:10]  # Just take the first 10 players as a backup
+        
+        if len(stars) >= 5:
+            example_lineup1 = stars.iloc[0:5]['player_id'].tolist()
+            st.session_state.custom_lineups["All-Star Lineup"] = example_lineup1
+            
+            # Create a second lineup with different players
+            remaining_players = players.iloc[10:20]  # Take the next set of players
+            if len(remaining_players) >= 5:
+                example_lineup2 = remaining_players.iloc[0:5]['player_id'].tolist()
+                st.session_state.custom_lineups["OGs Lineup"] = example_lineup2
 
 # Sidebar navigation
 st.sidebar.title("NBA Lineup Optimizer")
@@ -108,10 +146,10 @@ page = st.sidebar.radio(
     "Select a page",
     options=["ML Prediction", "Player Explorer", "Lineup Builder", "Lineup Optimizer"],
     format_func=lambda x: {
-        "ML Prediction": "🧠 ML Prediction",
+        "ML Prediction": "⚙️ ML Prediction",
         "Player Explorer": "👤 Player Explorer",
         "Lineup Builder": "🏀 Lineup Builder",
-        "Lineup Optimizer": "⚙️ Lineup Optimizer"
+        "Lineup Optimizer": "📊 Lineup Optimizer"
     }[x]
 )
 
@@ -202,6 +240,16 @@ if page == "Player Explorer":
             filtered_players = filtered_players[filtered_players['position'] == selected_position]
         if search_name:
             filtered_players = filtered_players[filtered_players['name'].str.contains(search_name, case=False)]
+            
+        # Put Stephen Curry at the top of the list if he's in the results
+        if not filtered_players.empty:
+            curry_players = filtered_players[filtered_players['name'].str.contains('Stephen Curry|Steph Curry', case=False)]
+            if not curry_players.empty:
+                curry_player = curry_players.iloc[0]
+                # Remove curry from filtered_players
+                filtered_players = filtered_players[~filtered_players['player_id'].isin(curry_players['player_id'])]
+                # Add curry back at the top
+                filtered_players = pd.concat([pd.DataFrame([curry_player]), filtered_players], ignore_index=True)
         
         # Player selection with improved UI
         st.markdown("<h3 style='color:#1e3a8a;background-color:#f0f2f6;padding:10px;border-radius:5px;'>Player Selection</h3>", unsafe_allow_html=True)
@@ -209,24 +257,89 @@ if page == "Player Explorer":
             # Show count of filtered players
             st.info(f"Found {len(filtered_players)} players matching your filters")
             
-            # Use a more prominent selectbox for player selection
-            selected_player = st.selectbox(
-                "Select Player for Analysis",
-                filtered_players['name'].tolist(),
-                format_func=lambda x: f"🏀 {x}"
-            )
-        
-            # Add to lineup button - use primary button style
-            if st.button("✨ Add to Lineup", type="primary"):
-                player_id = filtered_players[filtered_players['name'] == selected_player]['player_id'].iloc[0]
-                if len(st.session_state.selected_players) < 5:
-                    if player_id not in st.session_state.selected_players:
-                        st.session_state.selected_players.append(player_id)
-                        st.success(f"Added {selected_player} to lineup")
+            # Create a more user-friendly player selection interface with pagination
+            if 'current_page' not in st.session_state:
+                st.session_state.current_page = 0
+                
+            players_per_page = 10
+            page_count = (len(filtered_players) + players_per_page - 1) // players_per_page
+            
+            # Page navigation
+            col_prev, col_page, col_next = st.columns([1, 3, 1])
+            with col_prev:
+                if st.button("◀ Prev") and st.session_state.current_page > 0:
+                    st.session_state.current_page -= 1
+            
+            with col_page:
+                page_options = [f"Page {i+1} of {page_count}" for i in range(page_count)]
+                if page_options:
+                    page_selection = st.selectbox(
+                        "Page", 
+                        options=range(page_count),
+                        format_func=lambda x: page_options[x],
+                        index=min(st.session_state.current_page, page_count-1) if page_count > 0 else 0
+                    )
+                    st.session_state.current_page = page_selection
+            
+            with col_next:
+                if st.button("Next ▶") and st.session_state.current_page < page_count - 1:
+                    st.session_state.current_page += 1
+            
+            # Get players for current page
+            start_idx = st.session_state.current_page * players_per_page
+            end_idx = min(start_idx + players_per_page, len(filtered_players))
+            current_page_players = filtered_players.iloc[start_idx:end_idx]
+            
+            # Display players with improved styling and indication if they're already in the lineup
+            for _, player in current_page_players.iterrows():
+                is_in_lineup = player['player_id'] in st.session_state.selected_players
+                
+                col_player, col_buttons = st.columns([3, 1])
+                
+                with col_player:
+                    player_name = player['name']
+                    player_position = player['position'] if 'position' in player else 'Unknown'
+                    player_team = player['team'] if 'team' in player else 'Unknown'
+                    
+                    if is_in_lineup:
+                        st.markdown(f"""
+                        <div style='background-color:#e6f7e6;padding:0.5rem;border-radius:0.3rem;border-left:4px solid #28a745;'>
+                            <strong>{player_name}</strong> ({player_position}, {player_team})
+                            <span style='color:#28a745;'>✓ In Lineup</span>
+                        </div>
+                        """, unsafe_allow_html=True)
                     else:
-                        st.warning(f"{selected_player} is already in lineup")
-                else:
-                    st.error("Lineup already has 5 players. Remove a player first.")
+                        st.markdown(f"""
+                        <div style='padding:0.5rem;border-radius:0.3rem;'>
+                            <strong>{player_name}</strong> ({player_position}, {player_team})
+                        </div>
+                        """, unsafe_allow_html=True)
+                
+                with col_buttons:
+                    if is_in_lineup:
+                        if st.button("Remove", key=f"remove_{player['player_id']}"):
+                            st.session_state.selected_players.remove(player['player_id'])
+                            st.success(f"Removed {player_name} from lineup")
+                            st.rerun()
+                    else:
+                        if len(st.session_state.selected_players) < 5:
+                            if st.button("Add", key=f"add_{player['player_id']}"):
+                                st.session_state.selected_players.append(player['player_id'])
+                                st.success(f"Added {player_name} to lineup")
+                                st.rerun()
+                        else:
+                            st.warning("Lineup full")
+                            
+                st.markdown("---")
+                
+            # Show selected player details
+            if 'selected_player_id' in st.session_state and st.session_state.selected_player_id:
+                st.subheader("Selected Player Details")
+                player_data = players[players['player_id'] == st.session_state.selected_player_id].iloc[0]
+                st.write(f"**Name:** {player_data['name']}")
+                st.write(f"**Team:** {player_data['team']}")
+                st.write(f"**Position:** {player_data['position']}")
+                
         else:
             st.warning("No players found with the selected filters.")
             st.markdown("""
@@ -241,96 +354,145 @@ if page == "Player Explorer":
             """, unsafe_allow_html=True)
     
     with col2:
-        if 'selected_player' in locals() and not filtered_players.empty:
-            # Player details
-            player_data = filtered_players[filtered_players['name'] == selected_player].iloc[0]
-            player_id = player_data['player_id']
-            player_stats = stats[stats['player_id'] == player_id]
-            
-            st.subheader(f"Player Analysis: {selected_player}")
-            
-            # Player Bio
-            col_bio1, col_bio2 = st.columns(2)
-            with col_bio1:
-                st.write(f"**Team:** {player_data['team']}")
-                st.write(f"**Position:** {player_data['position']}")
-            with col_bio2:
-                st.write(f"**Height:** {player_data['height']} cm")
-                st.write(f"**Weight:** {player_data['weight']} kg")
-            
-            # Player Stats Visualization
-            if not player_stats.empty:
-                # Radar Chart
-                st.subheader("Player Performance Radar")
+        if 'player_id' in filtered_players.columns:
+            # Current lineup preview at the top
+            if st.session_state.selected_players:
+                st.subheader("Current Lineup")
+                lineup_players = []
+                for player_id in st.session_state.selected_players[:5]:
+                    player_info = players[players['player_id'] == player_id]
+                    if not player_info.empty:
+                        lineup_players.append(player_info.iloc[0])
                 
-                # Calculate key metrics
-                key_stats = ['pts', 'reb', 'ast', 'stl', 'blk']
-                stat_values = []
+                if lineup_players:
+                    lineup_df = pd.DataFrame(lineup_players)
+                    lineup_display = lineup_df[['name', 'position', 'team']]
+                    st.dataframe(lineup_display, use_container_width=True)
+                    
+                    # Clear lineup button
+                    if st.button("Clear Lineup", key="clear_lineup_explorer"):
+                        st.session_state.selected_players = []
+                        st.rerun()
+            
+            # Player selection from the list
+            if 'filtered_players' in locals() and not filtered_players.empty:
+                st.subheader("Select a Player for Detailed Analysis")
                 
-                for stat in key_stats:
-                    if stat in player_stats.columns:
-                        stat_values.append(player_stats[stat].mean(numeric_only=True))
+                # Use a selectbox for quick player selection
+                selected_player_name = st.selectbox(
+                    "Choose a player to view stats",
+                    filtered_players['name'].tolist(),
+                    format_func=lambda x: f"🏀 {x}"
+                )
+                
+                if selected_player_name:
+                    # Store selected player ID
+                    player_id = filtered_players[filtered_players['name'] == selected_player_name]['player_id'].iloc[0]
+                    st.session_state.selected_player_id = player_id
+                    
+                    # Player details
+                    player_data = filtered_players[filtered_players['player_id'] == player_id].iloc[0]
+                    player_stats = stats[stats['player_id'] == str(player_id)] if 'player_id' in stats.columns else pd.DataFrame()
+                    
+                    st.subheader(f"Player Analysis: {selected_player_name}")
+                    
+                    # Player Bio
+                    col_bio1, col_bio2 = st.columns(2)
+                    with col_bio1:
+                        st.write(f"**Team:** {player_data['team'] if 'team' in player_data else 'Unknown'}")
+                        st.write(f"**Position:** {player_data['position'] if 'position' in player_data else 'Unknown'}")
+                    with col_bio2:
+                        st.write(f"**Height:** {player_data['height'] if 'height' in player_data else 'Unknown'}")
+                        st.write(f"**Weight:** {player_data['weight'] if 'weight' in player_data else 'Unknown'} kg")
+                    
+                    # Add/Remove from lineup button
+                    if player_id in st.session_state.selected_players:
+                        if st.button("⛔ Remove from Lineup", type="primary", key=f"detail_remove_{player_id}"):
+                            st.session_state.selected_players.remove(player_id)
+                            st.success(f"Removed {selected_player_name} from lineup")
+                            st.rerun()
                     else:
-                        stat_values.append(0)
-                
-                # Create radar chart with fixed max range based on league averages
-                # This ensures the chart scale stays consistent between players
-                stat_max_values = {
-                    'pts': 30,  # Max points per game
-                    'reb': 15,  # Max rebounds per game
-                    'ast': 12,  # Max assists per game
-                    'stl': 4,   # Max steals per game
-                    'blk': 4    # Max blocks per game
-                }
-                
-                fig = go.Figure()
-                
-                fig.add_trace(go.Scatterpolar(
-                    r=stat_values,
-                    theta=key_stats,
-                    fill='toself',
-                    name=selected_player,
-                    fillcolor='rgba(0, 123, 255, 0.3)',
-                    line=dict(color='rgb(0, 123, 255)')
-                ))
-                
-                # Set a fixed range for better comparison between players
-                fig.update_layout(
-                    polar=dict(
-                        radialaxis=dict(
-                            visible=True,
-                            range=[0, max([stat_max_values[stat] for stat in key_stats])],
-                            showticklabels=True
+                        if len(st.session_state.selected_players) < 5:
+                            if st.button("✅ Add to Lineup", type="primary", key=f"detail_add_{player_id}"):
+                                st.session_state.selected_players.append(player_id)
+                                st.success(f"Added {selected_player_name} to lineup")
+                                st.rerun()
+                        else:
+                            st.error("Your lineup already has 5 players. Remove a player first.")
+                    
+                    # Player Stats Visualization
+                    if not player_stats.empty:
+                        # Radar Chart
+                        st.subheader("Player Performance Radar")
+                        
+                        # Calculate key metrics
+                        key_stats = ['pts', 'reb', 'ast', 'stl', 'blk']
+                        stat_values = []
+                        
+                        for stat in key_stats:
+                            if stat in player_stats.columns:
+                                stat_values.append(player_stats[stat].mean(numeric_only=True))
+                            else:
+                                stat_values.append(0)
+                        
+                        # Create radar chart with fixed max range based on league averages
+                        # This ensures the chart scale stays consistent between players
+                        stat_max_values = {
+                            'pts': 30,  # Max points per game
+                            'reb': 15,  # Max rebounds per game
+                            'ast': 12,  # Max assists per game
+                            'stl': 4,   # Max steals per game
+                            'blk': 4    # Max blocks per game
+                        }
+                        
+                        fig = go.Figure()
+                        
+                        fig.add_trace(go.Scatterpolar(
+                            r=stat_values,
+                            theta=key_stats,
+                            fill='toself',
+                            name=selected_player_name,
+                            fillcolor='rgba(0, 123, 255, 0.3)',
+                            line=dict(color='rgb(0, 123, 255)')
+                        ))
+                        
+                        # Set a fixed range for better comparison between players
+                        fig.update_layout(
+                            polar=dict(
+                                radialaxis=dict(
+                                    visible=True,
+                                    range=[0, max([stat_max_values[stat] for stat in key_stats])],
+                                    showticklabels=True
+                                )
+                            ),
+                            showlegend=True,
+                            title="Player Stats Compared to League Maximums"
                         )
-                    ),
-                    showlegend=True,
-                    title="Player Stats Compared to League Maximums"
-                )
-                
-                st.plotly_chart(fig)
-                
-                # Shooting percentages
-                st.subheader("Shooting Percentages")
-                
-                shooting_stats = ['fg_pct', 'fg3_pct', 'ft_pct']
-                shooting_labels = ['Field Goal %', '3-Point %', 'Free Throw %']
-                shooting_values = []
-                
-                for stat in shooting_stats:
-                    if stat in player_stats.columns:
-                        shooting_values.append(player_stats[stat].mean() * 100)  # Convert to percentage
+                        
+                        st.plotly_chart(fig)
+                        
+                        # Shooting percentages
+                        st.subheader("Shooting Percentages")
+                        
+                        shooting_stats = ['fg_pct', 'fg3_pct', 'ft_pct']
+                        shooting_labels = ['Field Goal %', '3-Point %', 'Free Throw %']
+                        shooting_values = []
+                        
+                        for stat in shooting_stats:
+                            if stat in player_stats.columns:
+                                shooting_values.append(player_stats[stat].mean() * 100)  # Convert to percentage
+                            else:
+                                shooting_values.append(0)
+                        
+                        fig = px.bar(
+                            x=shooting_labels,
+                            y=shooting_values,
+                            labels={'x': 'Shot Type', 'y': 'Percentage (%)'}
+                        )
+                        
+                        st.plotly_chart(fig)
                     else:
-                        shooting_values.append(0)
-                
-                fig = px.bar(
-                    x=shooting_labels,
-                    y=shooting_values,
-                    labels={'x': 'Shot Type', 'y': 'Percentage (%)'}
-                )
-                
-                st.plotly_chart(fig)
-            else:
-                st.warning("No statistics available for this player.")
+                        st.warning("No statistics available for this player.")
 
 # Page: Lineup Builder
 elif page == "Lineup Builder":
@@ -339,285 +501,478 @@ elif page == "Lineup Builder":
     <div style='background-color:#f0f2f6;padding:1rem;border-radius:0.5rem;margin-bottom:1rem;color:#333333;'>
     <h4 style='margin-top:0;color:#1e3a8a;'>How to use this page:</h4>
     <ol>
-        <li>Review and manage your current lineup</li>
-        <li>Analyze the position distribution and team balance</li>
-        <li>View team-level statistics projected from player averages</li>
+        <li>Select players to add to your custom lineup</li>
+        <li>View the combined stats of your selected players</li>
+        <li>Compare different lineup combinations</li>
     </ol>
-    <p><b>Tip:</b> A balanced lineup typically includes 2 guards, 2 forwards, and 1 center.</p>
     </div>
     """, unsafe_allow_html=True)
     
-    col1, col2 = st.columns([1, 1])
+    # Initialize session state for lineup and selected position
+    if 'lineup' not in st.session_state:
+        st.session_state.lineup = []
+    if 'selected_position' not in st.session_state:
+        st.session_state.selected_position = "All Positions"
+    
+    # Load player data
+    try:
+        players_df = load_nba_players()
+        player_stats = load_player_stats()
+        
+        # Deduplicate player data based on player_id
+        players_df = players_df.drop_duplicates(subset=['player_id'])
+        
+        # Join with player stats for displaying
+        if 'player_id' in player_stats.columns:
+            player_stats = player_stats.groupby('player_id').mean(numeric_only=True).reset_index()
+            avg_player_stats = pd.merge(players_df, player_stats, on='player_id', how='left')
+        else:
+            avg_player_stats = players_df.copy()
+    except Exception as e:
+        st.error(f"Error loading data: {e}")
+        st.stop()
+    
+    # Create columns for page layout
+    col1, col2 = st.columns([3, 2])
     
     with col1:
-        st.subheader("Current Lineup")
+        st.subheader("Available Players")
         
-        # Show current lineup
-        if st.session_state.selected_players:
-            st.write(f"Lineup Name: {st.session_state.current_lineup_name}")
+        # Create filters for selecting players
+        position_options = ["All Positions"] + sorted(players_df["position"].unique().tolist())
+        selected_position = st.selectbox("Filter by Position", position_options, key="position_filter")
+        
+        # Player search with autocomplete
+        player_search = st.text_input("Search Players", key="player_search")
+        
+        # Filter players based on position and search term
+        filtered_players = players_df.copy()
+        
+        # Apply position filter
+        if selected_position != "All Positions":
+            filtered_players = filtered_players[filtered_players["position"] == selected_position]
+        
+        # Apply search filter
+        if player_search:
+            filtered_players = filtered_players[
+                filtered_players["name"].str.contains(player_search, case=False, na=False)
+            ]
+        
+        # Pagination for player list
+        players_per_page = 10
+        total_pages = max(1, len(filtered_players) // players_per_page + (1 if len(filtered_players) % players_per_page > 0 else 0))
+        
+        col_page, col_nav = st.columns([3, 1])
+        with col_page:
+            page_num = st.number_input("Page", min_value=1, max_value=total_pages, value=1, step=1)
+        
+        start_idx = (page_num - 1) * players_per_page
+        end_idx = min(start_idx + players_per_page, len(filtered_players))
+        
+        current_page_players = filtered_players.iloc[start_idx:end_idx]
+        
+        # Show player selection with proper styling
+        for _, player in current_page_players.iterrows():
+            col_info, col_add = st.columns([4, 1])
             
-            # Allow user to modify lineup name
-            new_name = st.text_input("Change Lineup Name", value=st.session_state.current_lineup_name)
-            if new_name != st.session_state.current_lineup_name:
-                st.session_state.current_lineup_name = new_name
+            with col_info:
+                st.markdown(f"""
+                <div style='padding:0.5rem;border-radius:0.3rem;background-color:#f8f9fa;'>
+                    <strong>{player['name']}</strong><br>
+                    <small>{player['position']} | {player['team'] if 'team' in player else 'Team N/A'}</small>
+                </div>
+                """, unsafe_allow_html=True)
             
-            # Display players in lineup
-            for i, player_id in enumerate(st.session_state.selected_players):
-                player = players[players['player_id'] == player_id].iloc[0]
-                col_p1, col_p2, col_p3 = st.columns([3, 1, 1])
+            with col_add:
+                # Check if player is already in lineup
+                is_in_lineup = False
+                for lineup_player in st.session_state.lineup:
+                    if lineup_player.get('player_id') == player['player_id']:
+                        is_in_lineup = True
+                        break
                 
-                with col_p1:
-                    st.write(f"{i+1}. {player['name']} ({player['position']}, {player['team']})")
-                
-                with col_p3:
-                    if st.button(f"Remove {i+1}", key=f"remove_{i}"):
-                        st.session_state.selected_players.pop(i)
+                if not is_in_lineup and len(st.session_state.lineup) < 5:
+                    if st.button("Add", key=f"add_{player['player_id']}"):
+                        player_stats_row = player_stats[player_stats['player_id'] == player['player_id']]
+                        
+                        # Create player object with stats
+                        player_with_stats = player.copy()
+                        if not player_stats_row.empty:
+                            for stat in ['pts', 'reb', 'ast', 'stl', 'blk']:
+                                if stat in player_stats_row.columns:
+                                    player_with_stats[stat] = player_stats_row[stat].iloc[0]
+                        
+                        st.session_state.lineup.append(player_with_stats.to_dict())
                         st.rerun()
-            
-            # Clear lineup button
-            if st.button("Clear Lineup"):
-                st.session_state.selected_players = []
-                st.rerun()
-        else:
-            st.info("No players selected. Use the Player Explorer to add players to your lineup.")
+                elif is_in_lineup:
+                    st.markdown("<span style='color:green'>✓ In lineup</span>", unsafe_allow_html=True)
+                else:
+                    st.markdown("<span style='color:gray'>Lineup full</span>", unsafe_allow_html=True)
     
     with col2:
-        st.subheader("Lineup Analysis")
+        st.subheader("Your Lineup")
         
-        if len(st.session_state.selected_players) > 0:
-            # Position distribution
-            position_counts = {}
-            for player_id in st.session_state.selected_players:
-                player = players[players['player_id'] == player_id].iloc[0]
-                position = player['position']
-                if position in position_counts:
-                    position_counts[position] += 1
-                else:
-                    position_counts[position] = 1
-            
-            # Display position distribution
-            st.write("**Position Distribution:**")
-            fig = px.pie(
-                values=list(position_counts.values()),
-                names=list(position_counts.keys()),
-                title="Position Distribution"
-            )
-            st.plotly_chart(fig)
-            
-            # Calculate and display team stats
-            if len(st.session_state.selected_players) > 0:
-                st.write("**Team Statistics:**")
+        if st.session_state.lineup:
+            # Display current lineup
+            for i, player in enumerate(st.session_state.lineup):
+                col_player, col_remove = st.columns([3, 1])
                 
-                lineup_stats = stats[stats['player_id'].isin(st.session_state.selected_players)]
-                if not lineup_stats.empty:
-                    # Calculate average stats
-                    avg_stats = lineup_stats.mean(numeric_only=True)
+                with col_player:
+                    st.markdown(f"""
+                    <div style='padding:0.5rem;background-color:#e6f3ff;border-radius:0.3rem;margin-bottom:0.5rem;'>
+                        <strong>{i+1}. {player.get('name', 'Unknown')}</strong><br>
+                        <small>{player.get('position', 'N/A')}</small>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                with col_remove:
+                    if st.button("Remove", key=f"remove_{i+1}"):  # Changed from i to i+1
+                        st.session_state.lineup.pop(i)
+                        st.rerun()
+            
+            # Calculate lineup statistics if we have stats
+            if 'pts' in player_stats.columns:
+                st.subheader("Lineup Statistics")
+                
+                # Extract stats for visualization
+                lineup_stats = []
+                for player in st.session_state.lineup:
+                    player_id = player.get('player_id')
+                    if player_id:
+                        player_stats_row = player_stats[player_stats['player_id'] == player_id]
+                        if not player_stats_row.empty:
+                            player_name = player.get('name', 'Unknown')
+                            lineup_stats.append({
+                                'Player': player_name,
+                                'PTS': player_stats_row['pts'].iloc[0] if 'pts' in player_stats_row else 0,
+                                'REB': player_stats_row['reb'].iloc[0] if 'reb' in player_stats_row else 0,
+                                'AST': player_stats_row['ast'].iloc[0] if 'ast' in player_stats_row else 0,
+                                'STL': player_stats_row['stl'].iloc[0] if 'stl' in player_stats_row else 0,
+                                'BLK': player_stats_row['blk'].iloc[0] if 'blk' in player_stats_row else 0
+                            })
+                
+                if lineup_stats:
+                    # Create DataFrame for display
+                    lineup_df = pd.DataFrame(lineup_stats)
                     
-                    key_stats = {
-                        'pts': 'Points',
-                        'reb': 'Rebounds',
-                        'ast': 'Assists',
-                        'stl': 'Steals',
-                        'blk': 'Blocks'
-                    }
+                    # Calculate totals and averages
+                    totals = lineup_df.drop('Player', axis=1).sum()
+                    averages = lineup_df.drop('Player', axis=1).mean()
                     
-                    stat_values = []
-                    stat_names = []
+                    # Display totals and averages
+                    col_totals, col_avgs = st.columns(2)
                     
-                    for key, name in key_stats.items():
-                        if key in avg_stats:
-                            stat_values.append(avg_stats[key] * 5)  # Multiply by 5 for team total
-                            stat_names.append(name)
+                    with col_totals:
+                        st.markdown("**Lineup Totals**")
+                        for stat, value in totals.items():
+                            st.markdown(f"**{stat}:** {value:.1f}")
                     
+                    with col_avgs:
+                        st.markdown("**Lineup Averages**")
+                        for stat, value in averages.items():
+                            st.markdown(f"**{stat}:** {value:.1f}")
+                    
+                    # Visualization of stats distribution
+                    st.subheader("Stats Distribution")
+                    
+                    # Reshape data for plotting with Plotly
+                    plot_data = []
+                    for _, row in lineup_df.iterrows():
+                        for stat in ['PTS', 'REB', 'AST', 'STL', 'BLK']:
+                            plot_data.append({
+                                'Player': row['Player'],
+                                'Stat': stat,
+                                'Value': row[stat]
+                            })
+                    
+                    plot_df = pd.DataFrame(plot_data)
+                    
+                    # Create grouped bar chart
                     fig = px.bar(
-                        x=stat_names,
-                        y=stat_values,
-                        labels={'x': 'Statistic', 'y': 'Value (Team Total)'}
+                        plot_df,
+                        x='Player',
+                        y='Value',
+                        color='Stat',
+                        barmode='group',
+                        title='Player Stats Comparison',
+                        labels={'Value': 'Statistic Value', 'Player': 'Player Name'},
+                        height=400
                     )
                     
-                    st.plotly_chart(fig)
-                else:
-                    st.warning("No statistics available for the selected players.")
+                    st.plotly_chart(fig, use_container_width=True)
+                    
+                    # Save lineup button
+                    lineup_name = st.text_input("Lineup Name", value="My Custom Lineup")
+                    
+                    if st.button("Save Lineup"):
+                        # Save to session state
+                        player_ids = [player.get('player_id') for player in st.session_state.lineup if player.get('player_id')]
+                        if len(player_ids) == 5:
+                            st.session_state.custom_lineups[lineup_name] = player_ids
+                            st.success(f"Lineup '{lineup_name}' saved successfully!")
+                        else:
+                            st.warning("Please add 5 players to save a complete lineup.")
+                
+            else:
+                st.info("No statistical data available for visualization.")
         else:
-            st.info("Add players to your lineup to see the analysis.")
+            st.info("Your lineup is empty. Add players from the list on the left.")
+            st.markdown("""
+            <div style='background-color:#f0f2f6;padding:1rem;border-radius:0.5rem;margin-top:1rem;color:#333333;'>
+            <strong>Tips for building a lineup:</strong>
+            <ul>
+                <li>Add a mix of players from different positions for balance</li>
+                <li>Consider combining high-scoring players with defensive specialists</li>
+                <li>Look for players with complementary skills</li>
+            </ul>
+            </div>
+            """, unsafe_allow_html=True)
 
 # Page: Lineup Optimizer
 elif page == "Lineup Optimizer":
-    st.header("⚙️ Lineup Optimizer")
+    st.header("📊 Lineup Optimizer")
     st.markdown("""
     <div style='background-color:#f0f2f6;padding:1rem;border-radius:0.5rem;margin-bottom:1rem;color:#333333;'>
     <h4 style='margin-top:0;color:#1e3a8a;'>How to use this page:</h4>
     <ol>
-        <li>Select an optimization strategy that matches your team's needs</li>
-        <li>Click "Optimize Lineup" to generate the best combination of players</li>
-        <li>Review the optimized lineup and its projected performance</li>
-        <li>Apply the changes if you're satisfied with the result</li>
+        <li>Select a lineup from your saved lineups</li>
+        <li>Choose an optimization strategy (scoring, defense, or balanced)</li>
+        <li>Review the optimized lineup and performance comparison</li>
     </ol>
-    <p><b>Note:</b> You need at least 5 players in your lineup to use the optimizer.</p>
     </div>
     """, unsafe_allow_html=True)
     
-    if len(st.session_state.selected_players) < 5:
-        st.warning("You need at least 5 players in your lineup to use the optimizer. Please add more players in the Lineup Builder.")
-    else:
-        optimization_method = st.selectbox(
-            "Select Optimization Method",
-            ["Scoring", "Defense", "Balanced"]
+    # Check if we have any lineups to optimize
+    if not st.session_state.custom_lineups:
+        st.warning("You don't have any saved lineups. Please build and save a lineup first.")
+        st.stop()
+    
+    # Select a lineup
+    lineup_names = list(st.session_state.custom_lineups.keys())
+    selected_lineup = st.selectbox("Select Lineup to Optimize", lineup_names)
+    
+    # Get the selected lineup's player IDs
+    player_ids = st.session_state.custom_lineups[selected_lineup]
+    
+    # Ensure we have 5 players in the lineup
+    if len(player_ids) != 5:
+        st.warning(f"The selected lineup has {len(player_ids)} players, but we need exactly 5 for optimization.")
+        st.stop()
+    
+    # Load player data if not already loaded
+    try:
+        players_df = load_nba_players()
+        player_stats = load_player_stats()
+        
+        # Get the stats for the selected players
+        lineup_players = []
+        lineup_player_stats = []
+        
+        for player_id in player_ids:
+            player_info = players_df[players_df['player_id'] == player_id]
+            player_stat = player_stats[player_stats['player_id'] == player_id]
+            
+            if not player_info.empty and not player_stat.empty:
+                lineup_players.append(player_info.iloc[0])
+                lineup_player_stats.append(player_stat.iloc[0])
+        
+        # Create DataFrames
+        lineup_df = pd.DataFrame(lineup_players)
+        stats_df = pd.DataFrame(lineup_player_stats)
+        
+    except Exception as e:
+        st.error(f"Error loading data: {e}")
+        st.stop()
+    
+    # Show the current lineup
+    st.subheader("Current Lineup")
+    
+    # Display players in a table
+    if not lineup_df.empty:
+        # Join with stats for display
+        display_df = pd.merge(
+            lineup_df[['player_id', 'name', 'position']],
+            stats_df[['player_id', 'pts', 'reb', 'ast', 'stl', 'blk']],
+            on='player_id'
         )
         
-        if st.button("Optimize Lineup"):
-            with st.spinner("Optimizing lineup..."):
-                if optimization_method == "Scoring":
-                    optimized_lineup = optimize_lineup_for_scoring(
-                        st.session_state.selected_players, 
-                        stats, 
-                        players
-                    )
-                elif optimization_method == "Defense":
-                    optimized_lineup = optimize_lineup_for_defense(
-                        st.session_state.selected_players, 
-                        stats, 
-                        players
-                    )
-                else:  # Balanced
-                    optimized_lineup = optimize_lineup_for_balanced(
-                        st.session_state.selected_players, 
-                        stats, 
-                        players
-                    )
-                
-                # Display optimized lineup
-                st.subheader(f"Optimized Lineup ({optimization_method})")
-                
-                # Show before and after comparison
-                col_before, col_after = st.columns(2)
-                
-                with col_before:
-                    st.write("**Original Lineup:**")
-                    for player_id in st.session_state.selected_players[:5]:
-                        player = players[players['player_id'] == player_id].iloc[0]
-                        st.write(f"- {player['name']} ({player['position']}, {player['team']})")
-                
-                with col_after:
-                    st.write("**Optimized Lineup:**")
-                    for player_id in optimized_lineup:
-                        player = players[players['player_id'] == player_id].iloc[0]
-                        st.write(f"- {player['name']} ({player['position']}, {player['team']})")
-                
-                # Calculate chemistry score
-                chemistry_score = calculate_lineup_chemistry(optimized_lineup, players)
-                st.write(f"**Lineup Chemistry Score:** {chemistry_score:.2f}/100")
-                
-                # Check lineup balance
-                is_balanced, position_coverage = check_lineup_balance(optimized_lineup, players)
-                if is_balanced:
-                    st.success("This lineup has good position balance.")
+        st.dataframe(display_df[['name', 'position', 'pts', 'reb', 'ast', 'stl', 'blk']])
+    else:
+        st.warning("Could not find all players in the lineup.")
+        st.stop()
+    
+    # Select optimization strategy
+    st.subheader("Optimization Strategy")
+    
+    optimization_strategy = st.radio(
+        "Select Strategy",
+        ["Scoring Focused", "Defense Focused", "Balanced Approach"],
+        horizontal=True
+    )
+    
+    # Optimize button
+    if st.button("Optimize Lineup"):
+        with st.spinner("Optimizing lineup..."):
+            try:
+                # Get the proper optimization function based on strategy
+                if optimization_strategy == "Scoring Focused":
+                    optimize_func = optimize_lineup_for_scoring
+                elif optimization_strategy == "Defense Focused":
+                    optimize_func = optimize_lineup_for_defense
                 else:
-                    missing_positions = [pos for pos, covered in position_coverage.items() if not covered]
-                    st.warning(f"This lineup may lack coverage in: {', '.join(missing_positions)}")
+                    optimize_func = optimize_lineup_for_balanced
                 
-                # Visualize key metrics comparison
-                st.subheader("Lineup Comparison")
+                # Optimize the lineup
+                optimized_player_ids = optimize_func(player_ids, player_stats, players_df)
                 
-                # Calculate metrics for both lineups
-                original_stats = stats[stats['player_id'].isin(st.session_state.selected_players[:5])]
-                optimized_stats = stats[stats['player_id'].isin(optimized_lineup)]
+                # Get the stats for the optimized players
+                optimized_players = []
+                optimized_player_stats = []
                 
-                # Create properly calculated metrics for comparison
-                key_metrics = ['pts', 'reb', 'ast', 'stl', 'blk']
-                key_metric_names = ['Points', 'Rebounds', 'Assists', 'Steals', 'Blocks']
-                original_values = []
-                optimized_values = []
-                
-                # First, aggregate player stats by player_id to get average values per player
-                try:
-                    # Get average stats for each player in original lineup
-                    orig_player_avgs = original_stats.groupby('player_id').mean(numeric_only=True)
-                    # Get average stats for each player in optimized lineup
-                    opt_player_avgs = optimized_stats.groupby('player_id').mean(numeric_only=True)
+                for player_id in optimized_player_ids:
+                    player_info = players_df[players_df['player_id'] == player_id]
+                    player_stat = player_stats[player_stats['player_id'] == player_id]
                     
-                    # Calculate team totals for each metric
-                    for metric in key_metrics:
-                        if metric in orig_player_avgs.columns and metric in opt_player_avgs.columns:
-                            # Sum the averages for each player to get team total
-                            orig_total = orig_player_avgs[metric].sum()
-                            opt_total = opt_player_avgs[metric].sum()
-                            
-                            original_values.append(orig_total)
-                            optimized_values.append(opt_total)
-                        else:
-                            # Add default values if metric not found
-                            original_values.append(0)
-                            optimized_values.append(0)
-                            st.warning(f"Could not calculate {metric} due to missing data. Using default values.")
-                except Exception as e:
-                    # Handle any errors gracefully
-                    st.warning(f"Error calculating lineup stats: {e}. Using estimated values.")
+                    if not player_info.empty and not player_stat.empty:
+                        optimized_players.append(player_info.iloc[0])
+                        optimized_player_stats.append(player_stat.iloc[0])
+                
+                # Create DataFrames
+                optimized_df = pd.DataFrame(optimized_players)
+                optimized_stats_df = pd.DataFrame(optimized_player_stats)
+                
+                # Show the optimized lineup
+                st.subheader("Optimized Lineup")
+                
+                # Display optimized players in a table
+                if not optimized_df.empty:
+                    # Join with stats for display
+                    optimized_display_df = pd.merge(
+                        optimized_df[['player_id', 'name', 'position']],
+                        optimized_stats_df[['player_id', 'pts', 'reb', 'ast', 'stl', 'blk']],
+                        on='player_id'
+                    )
                     
-                    # Fallback to simple calculation method (to ensure we have different values)
+                    st.dataframe(optimized_display_df[['name', 'position', 'pts', 'reb', 'ast', 'stl', 'blk']])
+                    
+                    # Analyze differences
+                    original_totals = stats_df[['pts', 'reb', 'ast', 'stl', 'blk']].sum()
+                    optimized_totals = optimized_stats_df[['pts', 'reb', 'ast', 'stl', 'blk']].sum()
+                    
+                    # Compare lineups
+                    st.subheader("Lineup Comparison")
+                    
+                    # Create comparison data
+                    key_metrics = ['pts', 'reb', 'ast', 'stl', 'blk']
+                    key_metric_names = ['Points', 'Rebounds', 'Assists', 'Steals', 'Blocks']
+                    
+                    original_values = [original_totals[metric] for metric in key_metrics]
+                    optimized_values = [optimized_totals[metric] for metric in key_metrics]
+                    
+                    # Calculate improvement percentages
+                    improvements = []
                     for i, metric in enumerate(key_metrics):
-                        original_values.append(random.uniform(70, 90))  # Placeholder
-                        optimized_values.append(original_values[i] * random.uniform(1.05, 1.2))  # Slightly better
-                
-                # Create comparison chart with better labels
-                fig = go.Figure()
-                
-                fig.add_trace(go.Bar(
-                    x=key_metric_names,
-                    y=original_values,
-                    name='Original Lineup',
-                    marker_color='rgba(58, 71, 180, 0.6)'
-                ))
-                
-                fig.add_trace(go.Bar(
-                    x=key_metric_names,
-                    y=optimized_values,
-                    name='Optimized Lineup',
-                    marker_color='rgba(246, 78, 139, 0.6)'
-                ))
-                
-                fig.update_layout(
-                    title="Lineup Comparison (Team Totals)",
-                    xaxis_title="Metrics",
-                    yaxis_title="Value",
-                    barmode='group',
-                    bargap=0.15,
-                    bargroupgap=0.1
-                )
-                
-                st.plotly_chart(fig)
-                
-                # Show improvement percentage for each metric
-                st.subheader("Performance Improvement")
-                improvement_data = []
-                
-                for i, metric in enumerate(key_metrics):
-                    if original_values[i] > 0:
-                        pct_change = ((optimized_values[i] - original_values[i]) / original_values[i]) * 100
+                        if original_values[i] > 0:
+                            pct_change = ((optimized_values[i] - original_values[i]) / original_values[i]) * 100
+                            improvements.append(pct_change)
+                        else:
+                            improvements.append(0)
+                    
+                    # Create a bar chart with different colors for original and optimized
+                    fig = go.Figure()
+                    
+                    fig.add_trace(go.Bar(
+                        x=key_metric_names,
+                        y=original_values,
+                        name='Original Lineup',
+                        marker_color='rgba(58, 71, 180, 0.8)'  # Darker blue
+                    ))
+                    
+                    fig.add_trace(go.Bar(
+                        x=key_metric_names,
+                        y=optimized_values,
+                        name='Optimized Lineup',
+                        marker_color='rgba(246, 78, 139, 0.8)'  # Darker pink
+                    ))
+                    
+                    fig.update_layout(
+                        title="Lineup Comparison (Team Totals)",
+                        xaxis_title="Metrics",
+                        yaxis_title="Value",
+                        barmode='group',
+                        bargap=0.15,
+                        bargroupgap=0.1,
+                        legend=dict(
+                            orientation="h",
+                            yanchor="bottom",
+                            y=1.02,
+                            xanchor="right",
+                            x=1
+                        )
+                    )
+                    
+                    st.plotly_chart(fig, use_container_width=True)
+                    
+                    # Add explanation text below the chart
+                    st.markdown("""
+                    **Understanding the Comparison Chart:**
+                    
+                    This bar chart compares the total statistics between your original lineup and the optimized lineup:
+                    - **Blue bars** represent the performance metrics of your original lineup
+                    - **Pink bars** represent the performance metrics of the optimized lineup
+                    
+                    The optimization algorithm prioritizes improvements based on your selected strategy:
+                    - **Scoring Focused**: Prioritizes points and shooting efficiency
+                    - **Defense Focused**: Prioritizes steals, blocks, and defensive rebounds
+                    - **Balanced Approach**: Seeks to optimize across all statistical categories
+                    """)
+                    
+                    # Show improvement percentage for each metric
+                    st.subheader("Performance Improvement")
+                    improvement_data = []
+                    
+                    for i, metric in enumerate(key_metrics):
                         improvement_data.append({
                             "Metric": key_metric_names[i], 
                             "Original": original_values[i], 
                             "Optimized": optimized_values[i], 
-                            "Change %": pct_change
+                            "Change %": improvements[i]
                         })
-                
-                if improvement_data:
-                    improvement_df = pd.DataFrame(improvement_data)
-                    st.dataframe(improvement_df.set_index("Metric").style.format({
-                        "Original": "{:.1f}",
-                        "Optimized": "{:.1f}",
-                        "Change %": "{:+.1f}%"
-                    }), use_container_width=True)
-                
-                # Option to update current lineup
-                if st.button("Update Current Lineup with Optimized Result"):
-                    st.session_state.selected_players = optimized_lineup + st.session_state.selected_players[5:]
-                    st.success("Lineup updated successfully!")
-                    st.rerun()
+                    
+                    if improvement_data:
+                        improvement_df = pd.DataFrame(improvement_data)
+                        
+                        # Style the dataframe to highlight improvements
+                        def highlight_improvements(val):
+                            if isinstance(val, float) and 'Change' in improvement_df.columns[improvement_df.eq(val).any()]:
+                                if val > 1:
+                                    return 'background-color: rgba(0, 200, 0, 0.2)'
+                                elif val < -1:
+                                    return 'background-color: rgba(200, 0, 0, 0.2)'
+                            return ''
+                        
+                        styled_df = improvement_df.style.format({
+                            "Original": "{:.1f}",
+                            "Optimized": "{:.1f}",
+                            "Change %": "{:+.1f}%"
+                        }).applymap(highlight_improvements)
+                        
+                        st.dataframe(styled_df, use_container_width=True)
+                    
+                    # Save the optimized lineup
+                    if st.button("Save Optimized Lineup"):
+                        optimized_name = f"{selected_lineup} (Optimized)"
+                        st.session_state.custom_lineups[optimized_name] = optimized_player_ids
+                        st.success(f"Optimized lineup saved as '{optimized_name}'")
+                else:
+                    st.warning("Could not create optimized lineup. Please try again.")
+            
+            except Exception as e:
+                st.error(f"Error during optimization: {e}")
 
 # Page: ML Prediction
 elif page == "ML Prediction":
-    st.title("ML Prediction 🧠")
+    st.title("ML Prediction ⚙️")
     
     st.markdown("""
     ### Train a machine learning model to predict lineup performance
@@ -628,18 +983,28 @@ elif page == "ML Prediction":
     The model will predict various metrics and show you which player statistics are most important for performance!
     """)
     
-    # Load data
+    # Load data with type checking for player_id
     try:
         players_df = load_nba_players()
         player_stats = load_player_stats()
         teams_df = load_team_data()
+        
+        # Force player_id to be string for consistent comparison
+        players_df['player_id'] = players_df['player_id'].astype(str)
+        if 'player_id' in player_stats.columns:
+            player_stats['player_id'] = player_stats['player_id'].astype(str)
+        
+        # Debug verification of names
+        print("Player names check:")
+        for idx, player in players_df.head(5).iterrows():
+            print(f"ID: {player['player_id']}, Name: {player['name']}")
     except Exception as e:
         st.error(f"Error loading data: {e}")
         st.stop()
     
-    # Preprocessing player stats to get a single entry per player with averaged stats
+    # Preprocessing player stats - guarantee consistent player names
     try:
-        # Group stats by player_id and calculate mean for each stat
+        # Group stats by player_id and calculate mean for each numeric column
         avg_player_stats = player_stats.groupby('player_id').mean(numeric_only=True).reset_index()
         
         # Make sure we have required columns
@@ -648,21 +1013,60 @@ elif page == "ML Prediction":
             if col not in avg_player_stats.columns:
                 avg_player_stats[col] = 0.0
         
-        # Merge with player info to get player names
+        # Join with player names from the players_df to ensure consistent naming
+        avg_player_stats = pd.merge(
+            avg_player_stats,
+            players_df[['player_id', 'name']],
+            on='player_id',
+            how='left'
+        )
+        
+        # Add player_name column if not exists
         if 'player_name' not in avg_player_stats.columns:
-            # Try to join with player name from player_stats if available
-            if 'player_name' in player_stats.columns:
-                player_names = player_stats[['player_id', 'player_name']].drop_duplicates()
-                avg_player_stats = pd.merge(avg_player_stats, player_names, on='player_id', how='left')
-            else:
-                # Otherwise use the name from players_df
-                avg_player_stats = pd.merge(avg_player_stats, players_df[['player_id', 'name']], on='player_id', how='left')
-                avg_player_stats['player_name'] = avg_player_stats['name']
+            avg_player_stats['player_name'] = avg_player_stats['name']
+            
+        # Log processed data shape
+        print(f"Processed avg_player_stats: {avg_player_stats.shape[0]} rows, columns: {avg_player_stats.columns.tolist()}")
     
     except Exception as e:
         st.error(f"Error preprocessing player stats: {e}")
-        avg_player_stats = player_stats.copy()
+        st.error(f"Columns in player_stats: {player_stats.columns.tolist() if 'player_stats' in locals() else 'No data'}")
+        st.error(f"Columns in players_df: {players_df.columns.tolist() if 'players_df' in locals() else 'No data'}")
+        # Create a minimal fallback dataset
+        avg_player_stats = pd.DataFrame({
+            'player_id': players_df['player_id'],
+            'name': players_df['name'],
+            'player_name': players_df['name'],
+            'pts': np.random.uniform(10, 25, len(players_df)),
+            'reb': np.random.uniform(3, 10, len(players_df)),
+            'ast': np.random.uniform(2, 8, len(players_df)),
+            'stl': np.random.uniform(0.5, 2, len(players_df)),
+            'blk': np.random.uniform(0.2, 1.5, len(players_df)),
+            'fg_pct': np.random.uniform(0.4, 0.55, len(players_df)),
+            'fg3_pct': np.random.uniform(0.3, 0.45, len(players_df)),
+            'ft_pct': np.random.uniform(0.7, 0.9, len(players_df))
+        })
     
+    # Add built-in lineup selector for ML page
+    st.subheader("Pre-made Lineups")
+    builtin_lineups = list(st.session_state.custom_lineups.keys())
+    if builtin_lineups:
+        selected_lineup = st.selectbox(
+            "Choose a pre-made lineup:",
+            options=["None"] + builtin_lineups,
+            index=0,
+            key="ml_lineup_selector"
+        )
+        
+        if selected_lineup != "None":
+            if st.button("Load Selected Lineup", key="ml_load_lineup"):
+                st.session_state.selected_players = st.session_state.custom_lineups[selected_lineup].copy()
+                st.session_state.current_lineup_name = selected_lineup
+                st.success(f"Loaded {selected_lineup}")
+                st.rerun()
+    else:
+        st.info("No built-in lineups available.")
+        
     # Player Selection Section
     st.subheader("Player Selection 🏀")
     
@@ -685,7 +1089,7 @@ elif page == "ML Prediction":
                 selected_player = st.selectbox(
                     f"Select {pos}",
                     options=players_in_pos['player_id'].tolist(),
-                    format_func=lambda x: players_df[players_df['player_id'] == x]['name'].iloc[0],
+                    format_func=lambda x: players_df[players_df['player_id'] == x]['name'].iloc[0] if not players_df[players_df['player_id'] == x].empty else f"Unknown Player ({x})",
                     key=f"pos_{pos}"
                 )
                 if selected_player:
@@ -697,27 +1101,44 @@ elif page == "ML Prediction":
     if len(selected_players) > 0:
         st.subheader("Your Lineup 👥")
         
-        # Get stats for selected players
-        lineup_stats = avg_player_stats[avg_player_stats['player_id'].isin(selected_players)]
-        lineup_players = players_df[players_df['player_id'].isin(selected_players)]
+        # Get stats for selected players - using direct player lookup rather than merging
+        lineup_display = []
         
-        # Create a DataFrame with player details for display
-        try:
-            # Merge with player info to get names
-            display_df = pd.merge(
-                lineup_players[['player_id', 'name', 'position']],
-                lineup_stats[['player_id', 'pts', 'reb', 'ast', 'stl', 'blk']],
-                on='player_id',
-                how='left'
-            )
+        for player_id in selected_players:
+            # Get player info
+            player_info = players_df[players_df['player_id'] == player_id]
+            if player_info.empty:
+                continue
+                
+            # Get player stats
+            player_stats_row = avg_player_stats[avg_player_stats['player_id'] == player_id]
             
-            # Display the lineup in a table
+            # Create row for display
+            player_row = {
+                'player_id': player_id,
+                'name': player_info['name'].iloc[0],
+                'position': player_info['position'].iloc[0],
+                'pts': player_stats_row['pts'].iloc[0] if not player_stats_row.empty and 'pts' in player_stats_row else 0,
+                'reb': player_stats_row['reb'].iloc[0] if not player_stats_row.empty and 'reb' in player_stats_row else 0,
+                'ast': player_stats_row['ast'].iloc[0] if not player_stats_row.empty and 'ast' in player_stats_row else 0,
+                'stl': player_stats_row['stl'].iloc[0] if not player_stats_row.empty and 'stl' in player_stats_row else 0,
+                'blk': player_stats_row['blk'].iloc[0] if not player_stats_row.empty and 'blk' in player_stats_row else 0
+            }
+            lineup_display.append(player_row)
+        
+        # Create a dataframe for display
+        display_df = pd.DataFrame(lineup_display)
+        
+        # Display the lineup in a table
+        if not display_df.empty:
             st.dataframe(
                 display_df[['name', 'position', 'pts', 'reb', 'ast', 'stl', 'blk']].sort_values('position'),
                 use_container_width=True
             )
-        except Exception as e:
-            st.error(f"Error displaying lineup statistics: {e}")
+        else:
+            st.warning("No stats available for selected players")
+            # Fallback display with just names
+            lineup_players = players_df[players_df['player_id'].isin(selected_players)]
             st.dataframe(lineup_players[['name', 'position']], use_container_width=True)
         
         if len(selected_players) == 5:
@@ -748,41 +1169,43 @@ elif page == "ML Prediction":
             if st.button("Train Model"):
                 with st.spinner("Training model..."):
                     try:
-                        # Use preprocessed averaged data for training
-                        # Train model using the new function
-                        model, X_test, y_test, top_features, feature_importances, mse, y_pred = train_lineup_prediction_model(
-                            avg_player_stats, 
-                            target_metric, 
-                            n_estimators=n_estimators, 
-                            max_depth=max_depth
-                        )
-                        
-                        st.success(f"Model trained successfully! MSE: {mse:.2f}")
-                        
-                        # Results Section
-                        st.subheader("Model Results 📊")
-                        
-                        # Display feature importance
-                        st.markdown("#### Feature Importance")
-                        
-                        # Create feature importance chart with improved visibility
-                        if len(top_features) > 0 and len(feature_importances) > 0:
+                        # Verify the data has the necessary columns before training
+                        if all(col in avg_player_stats.columns for col in required_columns + ['player_id']):
+                            # Train model using the function from src.ml.lineup_prediction
+                            model, X_test, y_test, top_features, feature_importances, mse, y_pred = train_lineup_prediction_model(
+                                avg_player_stats, 
+                                target_metric, 
+                                n_estimators=n_estimators, 
+                                max_depth=max_depth
+                            )
+                            
+                            st.success(f"Model trained successfully! MSE: {mse:.2f}")
+                            
+                            # Results Section
+                            st.subheader("Model Results 📊")
+                            
+                            # Store feature importance results in session state to ensure persistence
+                            st.session_state.top_features = top_features
+                            st.session_state.feature_importances = feature_importances
+                            
+                            # Display feature importance chart using px.bar
                             fig = px.bar(
                                 x=feature_importances,
                                 y=top_features,
                                 orientation='h',
                                 labels={'x': 'Importance', 'y': 'Feature'},
-                                title=f'Top Features for Predicting {target_metric.upper()}',
-                                color=feature_importances,
-                                color_continuous_scale='Blues'
+                                title=f'Top Features for Predicting {target_metric.upper()}'
                             )
+                            
+                            # Make plot larger and more readable
                             fig.update_layout(
                                 height=400,
                                 xaxis_title="Relative Importance",
                                 yaxis_title="Feature",
-                                margin=dict(l=10, r=10, t=30, b=10),
-                                coloraxis_showscale=False
+                                margin=dict(l=40, r=40, t=40, b=40),
+                                yaxis={'categoryorder':'total ascending'}  # Sort bars
                             )
+                            
                             st.plotly_chart(fig, use_container_width=True)
                             
                             # Explain feature importance
@@ -790,80 +1213,62 @@ elif page == "ML Prediction":
                             **What this means**: 
                             The chart above shows which statistics most strongly influence player performance in the selected metric. 
                             Longer bars indicate features that have more impact on the prediction.
-                            """)
-                        else:
-                            st.warning("No feature importance data available")
-                        
-                        # Show prediction scatter plot
-                        st.markdown("#### Model Performance")
-                        
-                        # Create scatter plot of predicted vs actual values
-                        fig = px.scatter(
-                            x=y_test,
-                            y=y_pred,
-                            labels={'x': f'Actual {target_metric.upper()}', 'y': f'Predicted {target_metric.upper()}'},
-                            title=f'Prediction vs Actual for {target_metric.upper()}'
-                        )
-                        
-                        # Add diagonal line for perfect predictions
-                        try:
-                            min_val = min(min(y_test), min(y_pred))
-                            max_val = max(max(y_test), max(y_pred))
                             
-                            fig.add_trace(
+                            For example, if points (PTS) has a high importance for predicting rebounds, it suggests that 
+                            players who score more points also tend to grab more rebounds, possibly because they're more 
+                            involved in the game or have more opportunities near the basket.
+                            """)
+                            
+                            # Add Model Performance Visualization
+                            st.subheader("Model Performance")
+                            
+                            # Create a DataFrame for plotting predictions vs actual
+                            performance_df = pd.DataFrame({
+                                'Predicted': y_pred,
+                                'Actual': y_test
+                            })
+                            
+                            # Scatter plot of predicted vs actual
+                            perf_fig = px.scatter(
+                                performance_df, 
+                                x='Actual', 
+                                y='Predicted',
+                                title=f"Predicted vs Actual {target_metric.upper()}",
+                                labels={'Predicted': f'Predicted {target_metric.upper()}', 
+                                       'Actual': f'Actual {target_metric.upper()}'}
+                            )
+                            
+                            # Add a perfect prediction line
+                            min_val = min(performance_df['Actual'].min(), performance_df['Predicted'].min())
+                            max_val = max(performance_df['Actual'].max(), performance_df['Predicted'].max())
+                            
+                            perf_fig.add_trace(
                                 go.Scatter(
                                     x=[min_val, max_val],
                                     y=[min_val, max_val],
                                     mode='lines',
-                                    line=dict(color='red', dash='dash'),
-                                    name='Perfect Prediction'
+                                    name='Perfect Prediction',
+                                    line=dict(color='red', dash='dash')
                                 )
                             )
-                        except (ValueError, TypeError) as e:
-                            st.warning(f"Could not add perfect prediction line due to data issue: {e}")
-                        
-                        fig.update_layout(
-                            height=500,
-                            margin=dict(l=10, r=10, t=50, b=10)
-                        )
-                        
-                        st.plotly_chart(fig, use_container_width=True)
-                        
-                        # Add interpretation explanation
-                        st.markdown("""
-                        **How to interpret this plot**:
-                        - Each point represents a player in the test dataset
-                        - The x-axis shows the actual statistic value
-                        - The y-axis shows what our model predicted
-                        - The red diagonal line represents perfect predictions (where predicted = actual)
-                        - Points close to the line indicate accurate predictions
-                        - Points above the line are overestimations (model predicted higher than actual)
-                        - Points below the line are underestimations (model predicted lower than actual)
-                        - A tighter clustering of points around the line indicates a more accurate model
-                        """)
-                        
-                        # Provide insights and tips based on the model results
-                        st.markdown("#### Lineup Insights")
-                        
-                        try:
-                            # Get average value for the target metric
-                            avg_metric = avg_player_stats[target_metric].mean(numeric_only=True)
                             
-                            # Calculate average for selected lineup
-                            lineup_avg = lineup_stats[target_metric].mean(numeric_only=True)
+                            st.plotly_chart(perf_fig, use_container_width=True)
                             
-                            if lineup_avg > avg_metric:
-                                st.info(f"Your lineup is above average in {target_metric} (Lineup: {lineup_avg:.1f} vs League Avg: {avg_metric:.1f})")
-                            else:
-                                st.warning(f"Your lineup is below average in {target_metric} (Lineup: {lineup_avg:.1f} vs League Avg: {avg_metric:.1f})")
-                        except Exception as e:
-                            st.warning(f"Could not calculate lineup insights: {e}")
-                        
-                        # Suggest improvements based on feature importance
-                        st.markdown("##### Suggested Improvements")
-                        st.write(f"Based on our model, these stats have the biggest impact on {target_metric}:")
-                        for i in range(min(3, len(top_features))):
-                            st.write(f"{i+1}. Focus on improving **{top_features[i]}**")
+                            # Add explanatory text for model performance
+                            st.markdown("""
+                            **Understanding the Model Performance Plot:**
+                            
+                            This scatter plot shows how well our model predicts the actual performance:
+                            - Each point represents a lineup's predicted vs actual statistic
+                            - Points close to the red dashed line indicate accurate predictions
+                            - Points above the line mean the model underestimated performance
+                            - Points below the line mean the model overestimated performance
+                            
+                            The tighter the clustering around the line, the more accurate our model is.
+                            """)
+                        else:
+                            missing_cols = [col for col in required_columns + ['player_id'] if col not in avg_player_stats.columns]
+                            st.error(f"Missing required columns for training: {missing_cols}")
                             
                     except Exception as e:
                         st.error(f"Error training model: {e}")

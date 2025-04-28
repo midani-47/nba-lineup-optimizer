@@ -183,20 +183,15 @@ def load_team_data():
     print("Creating sample team data...")
     return create_sample_teams()
 
-def create_sample_players():
+def create_sample_player_data():
     """
-    Create sample player data with real NBA player names and teams.
+    Create sample player data with standardized naming.
+    This ensures first and last names are properly paired.
     
     Returns:
-        pandas.DataFrame: DataFrame with sample player data
+        DataFrame containing player information
     """
-    print("Creating sample player data with real NBA players...")
-    
-    # Get real team data from static resource (this is fast)
-    nba_teams = teams.get_teams()
-    teams_dict = {team['id']: team['full_name'] for team in nba_teams}
-    
-    # Real NBA player data (2023-2024 season)
+    # Get real NBA player data (2023-2024 season with correct full names)
     real_players = [
         # Lakers
         {"name": "LeBron James", "team_id": 1610612747, "position": "SF/PF", "height": "6'9\"", "weight": 250, "age": 39},
@@ -218,81 +213,35 @@ def create_sample_players():
         {"name": "Draymond Green", "team_id": 1610612744, "position": "PF", "weight": 230, "height": "6'6\"", "age": 34},
         {"name": "Andrew Wiggins", "team_id": 1610612744, "position": "SF", "weight": 197, "height": "6'7\"", "age": 29},
         {"name": "Jonathan Kuminga", "team_id": 1610612744, "position": "PF", "weight": 210, "height": "6'7\"", "age": 21},
-        
-        # Bucks
-        {"name": "Giannis Antetokounmpo", "team_id": 1610612749, "position": "PF", "weight": 242, "height": "6'11\"", "age": 29},
-        {"name": "Damian Lillard", "team_id": 1610612749, "position": "PG", "weight": 195, "height": "6'2\"", "age": 33},
-        {"name": "Khris Middleton", "team_id": 1610612749, "position": "SF", "weight": 222, "height": "6'7\"", "age": 32},
-        {"name": "Brook Lopez", "team_id": 1610612749, "position": "C", "weight": 282, "height": "7'0\"", "age": 36},
-        {"name": "Bobby Portis", "team_id": 1610612749, "position": "PF/C", "weight": 250, "height": "6'10\"", "age": 29},
-        
-        # Nuggets
-        {"name": "Nikola Jokic", "team_id": 1610612743, "position": "C", "weight": 284, "height": "6'11\"", "age": 29},
-        {"name": "Jamal Murray", "team_id": 1610612743, "position": "PG", "weight": 215, "height": "6'4\"", "age": 27},
-        {"name": "Michael Porter Jr.", "team_id": 1610612743, "position": "SF", "weight": 218, "height": "6'10\"", "age": 25},
-        {"name": "Aaron Gordon", "team_id": 1610612743, "position": "PF", "weight": 235, "height": "6'8\"", "age": 28},
-        {"name": "Kentavious Caldwell-Pope", "team_id": 1610612743, "position": "SG", "weight": 204, "height": "6'5\"", "age": 31},
     ]
     
-    # Add more players from other teams to get 360 total players
-    for team in nba_teams:
-        # Skip teams we've already added manually
-        if team['id'] in [1610612747, 1610612738, 1610612744, 1610612749, 1610612743]:
-            continue
-            
-        # Add players for each remaining team based on positions
-        positions = ['PG', 'SG', 'SF', 'PF', 'C', 'PG/SG', 'SG/SF', 'SF/PF', 'PF/C']
-        team_name = team['full_name']
-        team_id = team['id']
-        
-        # Add key players from real NBA teams
-        if team['full_name'] == 'Philadelphia 76ers':
-            real_players.extend([
-                {"name": "Joel Embiid", "team_id": team_id, "position": "C", "weight": 280, "height": "7'0\"", "age": 30},
-                {"name": "Tyrese Maxey", "team_id": team_id, "position": "PG", "weight": 200, "height": "6'2\"", "age": 23},
-                {"name": "Tobias Harris", "team_id": team_id, "position": "PF", "weight": 226, "height": "6'8\"", "age": 31},
-            ])
-        elif team['full_name'] == 'Dallas Mavericks':
-            real_players.extend([
-                {"name": "Luka Doncic", "team_id": team_id, "position": "PG/SF", "weight": 230, "height": "6'7\"", "age": 25},
-                {"name": "Kyrie Irving", "team_id": team_id, "position": "PG", "weight": 195, "height": "6'2\"", "age": 32},
-                {"name": "Tim Hardaway Jr.", "team_id": team_id, "position": "SG/SF", "weight": 205, "height": "6'5\"", "age": 32},
-            ])
-        elif team['full_name'] == 'Phoenix Suns':
-            real_players.extend([
-                {"name": "Kevin Durant", "team_id": team_id, "position": "SF/PF", "weight": 240, "height": "6'10\"", "age": 35},
-                {"name": "Devin Booker", "team_id": team_id, "position": "SG", "weight": 206, "height": "6'5\"", "age": 27},
-                {"name": "Bradley Beal", "team_id": team_id, "position": "SG", "weight": 207, "height": "6'4\"", "age": 30},
-            ])
-        # Add remaining teams - just adding a few key players for each to save space
-        # The full list would be too long for this example
-        else:
-            # For other teams, add 3 players with realistic positions
-            for i in range(3):
-                position = positions[i % len(positions)]
-                real_players.append({
-                    "name": f"{team_name} Player {i+1}",  # Generic name for other players
-                    "team_id": team_id,
-                    "position": position,
-                    "weight": random.randint(180, 280),
-                    "height": f"{random.randint(5, 7)}'{random.randint(0, 11)}",
-                    "age": random.randint(20, 35)
-                })
-    
-    # Create full player records with IDs and consistent fields
+    # Create complete player records with IDs
     sample_players = []
     player_id = 1000
     
+    # List of NBA team names for other players
+    team_names = [
+        "Atlanta Hawks", "Boston Celtics", "Brooklyn Nets", "Charlotte Hornets",
+        "Chicago Bulls", "Cleveland Cavaliers", "Dallas Mavericks", "Denver Nuggets",
+        "Detroit Pistons", "Golden State Warriors", "Houston Rockets", "Indiana Pacers",
+        "Los Angeles Clippers", "Los Angeles Lakers", "Memphis Grizzlies", "Miami Heat",
+        "Milwaukee Bucks", "Minnesota Timberwolves", "New Orleans Pelicans", "New York Knicks",
+        "Oklahoma City Thunder", "Orlando Magic", "Philadelphia 76ers", "Phoenix Suns",
+        "Portland Trail Blazers", "Sacramento Kings", "San Antonio Spurs", "Toronto Raptors",
+        "Utah Jazz", "Washington Wizards"
+    ]
+    
+    # Adding the main star players first
     for player in real_players:
-        # Split name into first/last
+        # Split the full name correctly into first and last name
         name_parts = player["name"].split(" ", 1)
         first_name = name_parts[0]
         last_name = name_parts[1] if len(name_parts) > 1 else ""
         
-        # Create complete player record
+        # Create player record with correct naming
         player_record = {
-            'player_id': player_id,
-            'name': player["name"],
+            'player_id': str(player_id),  # Convert to string for consistency
+            'name': player["name"],  # Full name
             'first_name': first_name,
             'last_name': last_name,
             'active': True,
@@ -300,9 +249,64 @@ def create_sample_players():
             'weight': player.get("weight", 200),
             'position': player.get("position", ""),
             'team_id': player["team_id"],
-            'team': teams_dict.get(player["team_id"], ""),
+            'team': next((team for team in team_names if "Lakers" in team and player["team_id"] == 1610612747) or 
+                         (team for team in team_names if "Celtics" in team and player["team_id"] == 1610612738) or
+                         (team for team in team_names if "Warriors" in team and player["team_id"] == 1610612744) or
+                         ("Unknown Team",)),
             'age': player.get("age", 25),
-            'from_year': datetime.now().year - random.randint(1, 15)
+            'from_year': 2020
+        }
+        
+        sample_players.append(player_record)
+        player_id += 1
+    
+    # Generate more realistic players to fill out rosters
+    positions = ["PG", "SG", "SF", "PF", "C", "PG/SG", "SG/SF", "SF/PF", "PF/C"]
+    
+    # Real NBA first names and last names (keeping pairs together)
+    real_player_names = [
+        "Giannis Antetokounmpo", "Nikola Jokic", "Luka Doncic", "Joel Embiid", "Kevin Durant",
+        "Damian Lillard", "Ja Morant", "Trae Young", "Devin Booker", "Karl-Anthony Towns",
+        "Zion Williamson", "Donovan Mitchell", "Bam Adebayo", "Jimmy Butler", "Paul George",
+        "Kawhi Leonard", "Bradley Beal", "Kyrie Irving", "Khris Middleton", "Demar DeRozan",
+        "Zach LaVine", "Pascal Siakam", "Fred VanVleet", "Jalen Brunson", "Darius Garland",
+        "Jamal Murray", "Michael Porter Jr.", "Jaren Jackson Jr.", "Paolo Banchero", "Cade Cunningham"
+    ]
+    
+    # Add more players to reach 100 total players
+    for i in range(len(sample_players), 100):
+        # Choose team, position, and name
+        team_idx = random.randint(0, len(team_names) - 1)
+        team_name = team_names[team_idx]
+        position = random.choice(positions)
+        
+        # Either use a real NBA player name or generate a fictional one
+        if i < len(real_player_names) + len(sample_players):
+            full_name = real_player_names[i - len(sample_players)]
+            name_parts = full_name.split(" ", 1)
+        else:
+            # Generate a fictional name
+            first_names = ["James", "Michael", "Chris", "David", "John", "Robert", "William", "Richard", "Thomas", "Anthony"]
+            last_names = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Miller", "Davis", "Wilson", "Taylor", "Clark"]
+            first_name = random.choice(first_names)
+            last_name = random.choice(last_names)
+            full_name = f"{first_name} {last_name}"
+            name_parts = [first_name, last_name]
+        
+        # Create player record
+        player_record = {
+            'player_id': str(player_id),
+            'name': full_name,
+            'first_name': name_parts[0],
+            'last_name': name_parts[1] if len(name_parts) > 1 else "",
+            'active': True,
+            'height': f"{random.randint(5, 7)}'{random.randint(0, 11)}\"",
+            'weight': random.randint(180, 280),
+            'position': position,
+            'team_id': random.randint(1000, 1030),
+            'team': team_name,
+            'age': random.randint(19, 38),
+            'from_year': random.randint(2015, 2023)
         }
         
         sample_players.append(player_record)
@@ -360,7 +364,7 @@ def create_sample_player_stats():
     if os.path.exists(PLAYERS_FILE):
         players_df = pd.read_csv(PLAYERS_FILE)
     else:
-        players_df = create_sample_players()
+        players_df = create_sample_player_data()
     
     # Create sample data for each player
     all_stats = []
@@ -443,44 +447,26 @@ def create_sample_player_stats():
         for game_idx in range(20):
             game_date = (datetime.now() - timedelta(days=game_idx)).strftime('%Y-%m-%d')
             
-            # Add game-to-game variation (±20% from base stats)
-            variation = 0.2
-            pts = max(0, base_pts * random.uniform(1-variation, 1+variation))
-            reb = max(0, base_reb * random.uniform(1-variation, 1+variation))
-            ast = max(0, base_ast * random.uniform(1-variation, 1+variation))
-            stl = max(0, base_stl * random.uniform(1-variation, 1+variation))
-            blk = max(0, base_blk * random.uniform(1-variation, 1+variation))
-            
-            # Less variation for percentages
-            small_variation = 0.1
-            fg_pct = max(0, min(1, base_fg_pct * random.uniform(1-small_variation, 1+small_variation)))
-            fg3_pct = max(0, min(1, base_fg3_pct * random.uniform(1-small_variation, 1+small_variation)))
-            ft_pct = max(0, min(1, base_ft_pct * random.uniform(1-small_variation, 1+small_variation)))
-            
-            # Common stats
-            minutes = random.randint(24 if is_star else 12, 38 if is_star else 28)
-            tov = random.uniform(0.8, 3.8) if is_star else random.uniform(0.5, 2)
-            pf = random.uniform(1, 3.5)
-            plus_minus = random.uniform(-15, 15)
+            # Add game-to-game variation (±15% from season average)
+            variation = 0.15
             
             game_stats = {
                 'player_id': player['player_id'],
                 'player_name': player['name'],
                 'game_date': game_date,
-                'pts': round(pts, 1),
-                'reb': round(reb, 1),
-                'ast': round(ast, 1),
-                'stl': round(stl, 1),
-                'blk': round(blk, 1),
-                'fg_pct': round(fg_pct, 3),
-                'fg3_pct': round(fg3_pct, 3),
-                'ft_pct': round(ft_pct, 3),
-                'min': minutes,
-                'tov': round(tov, 1),
-                'pf': round(pf, 1),
-                'plus_minus': round(plus_minus, 1)
+                'pts': round(player['pts'] * (1 + random.uniform(-variation, variation)), 1),
+                'reb': round((player['reb'] + player['reb']) * (1 + random.uniform(-variation, variation)), 1),
+                'ast': round(player['ast'] * (1 + random.uniform(-variation, variation)), 1),
+                'stl': round(player['stl'] * (1 + random.uniform(-variation, variation)), 1),
+                'blk': round(player['blk'] * (1 + random.uniform(-variation, variation)), 1),
+                'fg_pct': round(max(0, min(1, player['fg_pct'] * (1 + random.uniform(-variation/2, variation/2)))), 3),
+                'fg3_pct': round(max(0, min(1, player['fg3_pct'] * (1 + random.uniform(-variation/2, variation/2)))), 3),
+                'ft_pct': round(max(0, min(1, player['ft_pct'] * (1 + random.uniform(-variation/2, variation/2)))), 3),
+                'min': round(player['min'] * (1 + random.uniform(-variation/2, variation/2))),
+                'tov': round(player['tov'] * (1 + random.uniform(-variation, variation)), 1),
+                'pf': round(player['pf'] * (1 + random.uniform(-variation, variation)), 1),
+                'plus_minus': round(player['plus_minus'] * (1 + random.uniform(-variation, variation)), 1)
             }
-            
             all_stats.append(game_stats)
     
     # Create DataFrame
@@ -735,7 +721,7 @@ def import_real_nba_data(force_update=False):
         print(f"Error fetching player data: {e}")
         print("Falling back to sample player data...")
         # Fall back to sample data
-        players_df = create_sample_players()
+        players_df = create_sample_player_data()
         stats_df = create_sample_player_stats()
     
     # Save data to cache
@@ -890,12 +876,11 @@ def create_sample_player_stats_for_real_players(players_df):
     stats_df = pd.DataFrame(all_stats)
     return stats_df
 
-# Fix the enhance_player_dataset function to use correct team columns
 def enhance_player_dataset():
     """
     Enhance the player dataset by tripling the number of players while maintaining realistic data.
     This function loads existing player data, generates new players based on team data,
-    and saves the enhanced dataset.
+    and saves the enhanced dataset. Ensures player names are consistent and not mixed up.
     
     Returns:
         pandas.DataFrame: The enhanced player dataset
@@ -921,7 +906,7 @@ def enhance_player_dataset():
         teams = pd.read_csv(teams_path)
     
     # Get the highest player_id to start new IDs from
-    max_player_id = players['player_id'].max()
+    max_player_id = int(players['player_id'].max()) if players['player_id'].dtype == 'object' else int(players['player_id'].max())
     current_players_count = len(players)
     new_players_count = current_players_count * 2  # Tripling = original + 2x more
     
@@ -929,24 +914,34 @@ def enhance_player_dataset():
     new_players = []
     new_stats = []
     
-    # Real NBA player first names and last names for generating realistic names
-    first_names = [
-        "James", "Michael", "Chris", "Kevin", "Anthony", "Stephen", "Russell", "Damian", 
-        "Giannis", "Joel", "Devin", "Jayson", "Kawhi", "Paul", "Jimmy", "Donovan", 
-        "Trae", "Zion", "Luka", "Kyrie", "Ja", "Bam", "Bradley", "Nikola", "Jamal",
-        "Brandon", "De'Aaron", "John", "Zach", "Jrue", "Tyler", "Malcolm", "Khris",
-        "Pascal", "Kyle", "Fred", "Gordon", "Aaron", "Draymond", "Jerami", "Lou",
-        "Evan", "Marcus", "Ben", "Lamelo", "Cade", "Paolo", "Victor", "Jaylen"
+    # Real NBA full names to ensure consistency (not mixing first/last names)
+    real_player_names = [
+        "Tim Hardaway Jr.", "Marcus Smart", "Robert Williams III", "De'Aaron Fox", "Buddy Hield",
+        "Harrison Barnes", "Mike Conley", "Rudy Gobert", "Anthony Edwards", "DeMar DeRozan",
+        "Nikola Vucevic", "Lonzo Ball", "Alex Caruso", "RJ Barrett", "Julius Randle",
+        "Mitchell Robinson", "Shai Gilgeous-Alexander", "Josh Giddey", "Chet Holmgren", 
+        "Franz Wagner", "Paolo Banchero", "Markelle Fultz", "Tyrese Maxey", "Tobias Harris",
+        "Tyrese Haliburton", "Myles Turner", "Mikal Bridges", "Cam Johnson", "Ben Simmons",
+        "Nicolas Claxton", "Jalen Brunson", "Caris LeVert", "Evan Mobley", "Jarrett Allen"
     ]
     
-    last_names = [
-        "James", "Jordan", "Paul", "Durant", "Davis", "Curry", "Westbrook", "Lillard",
-        "Antetokounmpo", "Embiid", "Booker", "Tatum", "Leonard", "George", "Butler", "Mitchell",
-        "Young", "Williamson", "Doncic", "Irving", "Morant", "Adebayo", "Beal", "Jokic", "Murray",
-        "Ingram", "Fox", "Wall", "LaVine", "Holiday", "Herro", "Brogdon", "Middleton",
-        "Siakam", "Lowry", "VanVleet", "Hayward", "Gordon", "Green", "Grant", "Williams",
-        "Fournier", "Smart", "Simmons", "Ball", "Cunningham", "Banchero", "Wembanyama", "Brown"
-    ]
+    # Add more players with NBA-inspired names to reach desired count
+    for i in range(len(real_player_names), new_players_count):
+        first_names = ["Kyle", "Tyler", "Jordan", "Isaiah", "Jalen", "Brandon", "Malik", "Marcus", 
+                      "Jared", "Terry", "Gary", "Aaron", "Eric", "Dillon", "Bogdan", "Spencer", 
+                      "Gordon", "Wendell", "Evan", "Larry", "Dennis", "Patrick", "Malcolm"]
+        
+        last_names = ["Walker", "Porter", "Robinson", "Harris", "Jackson", "Thompson", "Mitchell", 
+                     "Gordon", "Grant", "Powell", "Lopez", "Collins", "Young", "Brooks", "Bridges", 
+                     "Dinwiddie", "Carter", "Hayward", "Fournier", "Nance", "Schröder", "Mills", 
+                     "Brogdon", "Green", "Beasley", "Rozier"]
+        
+        # Generate full name ensuring no duplication (combine differently)
+        first_name = first_names[i % len(first_names)]
+        last_name = last_names[(i * 3) % len(last_names)]  # Use different index pattern
+        full_name = f"{first_name} {last_name}"
+        
+        real_player_names.append(full_name)
     
     # Realistic heights and weights by position
     position_attributes = {
@@ -964,8 +959,8 @@ def enhance_player_dataset():
         
         # Randomly select a team from existing teams
         team = teams.sample(1).iloc[0]
-        team_id = team['team_id']
-        team_name = team['name']  # Changed from 'full_name' to 'name'
+        team_id = team['team_id'] if 'team_id' in team else random.randint(1000, 1030)
+        team_name = team['name'] if 'name' in team else "Unknown Team"
         
         # Generate a random position
         positions = ["PG", "SG", "SF", "PF", "C"]
@@ -996,14 +991,15 @@ def enhance_player_dataset():
         # Random year they joined (between 2010 and 2024)
         from_year = np.random.randint(2010, 2025)
         
-        # Generate name
-        first_name = np.random.choice(first_names)
-        last_name = np.random.choice(last_names)
-        full_name = f"{first_name} {last_name}"
+        # Get a consistent full name from our prepared list
+        full_name = real_player_names[i % len(real_player_names)]
+        name_parts = full_name.split(" ", 1)
+        first_name = name_parts[0]
+        last_name = name_parts[1] if len(name_parts) > 1 else ""
         
-        # Create player record
+        # Create player record with consistent naming
         new_player = {
-            'player_id': new_player_id,
+            'player_id': str(new_player_id),  # Store as string for consistency
             'name': full_name,
             'first_name': first_name,
             'last_name': last_name,
@@ -1075,7 +1071,7 @@ def enhance_player_dataset():
         # Add some random variation for 10 games
         for game in range(10):
             # Generate a random opponent from teams
-            opponent_team = teams.sample(1).iloc[0]['team_id']
+            opponent_team = teams.sample(1).iloc[0]['team_id'] if 'team_id' in teams.columns else random.randint(1000, 1030)
             
             # Add some game-to-game variation
             pts = max(0, pts_base + np.random.normal(0, pts_base * 0.2))
@@ -1089,9 +1085,10 @@ def enhance_player_dataset():
             fg3_pct = max(0, min(1, fg3_pct_base + np.random.normal(0, 0.07)))
             ft_pct = max(0, min(1, ft_pct_base + np.random.normal(0, 0.06)))
             
-            # Create game stat record
+            # Create game stat record with player name included
             game_stat = {
-                'player_id': new_player_id,
+                'player_id': str(new_player_id),  # Store as string for consistency
+                'player_name': full_name,  # Include full name to ensure consistency
                 'game_id': f"G{new_player_id}_{game}",
                 'date': (datetime.now().date() - pd.Timedelta(days=game)).strftime('%Y-%m-%d'),
                 'home_team': team_id,
@@ -1114,9 +1111,26 @@ def enhance_player_dataset():
     new_players_df = pd.DataFrame(new_players)
     new_stats_df = pd.DataFrame(new_stats)
     
+    # Ensure player_id is string in both DataFrames for consistent merging
+    new_players_df['player_id'] = new_players_df['player_id'].astype(str)
+    new_stats_df['player_id'] = new_stats_df['player_id'].astype(str)
+    
     # Combine with existing data
+    # First ensure the existing data has player_id as string too
+    players['player_id'] = players['player_id'].astype(str)
+    if 'player_id' in stats.columns:
+        stats['player_id'] = stats['player_id'].astype(str)
+    
     enhanced_players = pd.concat([players, new_players_df], ignore_index=True)
     enhanced_stats = pd.concat([stats, new_stats_df], ignore_index=True)
+    
+    # Make sure player_name is consistent with the full name from players dataframe
+    player_names = enhanced_players[['player_id', 'name']].drop_duplicates()
+    player_names.columns = ['player_id', 'player_name']
+    
+    # Update player names in stats
+    enhanced_stats = enhanced_stats.drop(columns=['player_name'] if 'player_name' in enhanced_stats.columns else [])
+    enhanced_stats = pd.merge(enhanced_stats, player_names, on='player_id', how='left')
     
     # Save enhanced datasets
     enhanced_players.to_csv(players_path, index=False)
