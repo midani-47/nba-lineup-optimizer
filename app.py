@@ -10,7 +10,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 from src.data_loader import (
     load_nba_players, 
     load_player_stats, 
-    load_team_data
+    load_team_data,
+    import_real_nba_data
 )
 from src.visualization.player_charts import (
     plot_player_radar_chart, 
@@ -60,6 +61,28 @@ if 'current_lineup_name' not in st.session_state:
 if 'optimization_strategy' not in st.session_state:
     st.session_state.optimization_strategy = "balanced"
 
+# Create some example lineups for demonstration purposes if none exist
+if not st.session_state.custom_lineups:
+    # Only add example lineups if players data is loaded
+    if 'players' not in locals():
+        players, player_stats, teams = load_data()
+        
+    # Check if we have enough players to create example lineups
+    if len(players) >= 10:
+        # Get some star players for example lineups
+        stars = players[players['name'].str.contains('LeBron|Curry|Giannis|Jokic|Doncic|Tatum', case=False, na=False)]
+        
+        # Create example lineups if we have enough star players
+        if len(stars) >= 5:
+            example_lineup1 = stars.iloc[0:5]['name'].tolist()
+            st.session_state.custom_lineups["All-Star Lineup"] = example_lineup1
+            
+            # Try to create a second lineup with different players
+            remaining_players = players[~players['name'].isin(example_lineup1)]
+            if len(remaining_players) >= 5:
+                example_lineup2 = remaining_players.iloc[0:5]['name'].tolist()
+                st.session_state.custom_lineups["Backup Lineup"] = example_lineup2
+
 # Load data
 @st.cache_data
 def load_data():
@@ -73,6 +96,25 @@ players, player_stats, teams = load_data()
 # Page: Browse Players
 if page == "Browse Players":
     st.header("Browse NBA Players")
+    
+    # Add option to import complete real NBA data
+    with st.expander("Import Real NBA Player Data"):
+        st.warning("This will fetch real NBA player data from the NBA API. It may take a few minutes to complete.")
+        
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            force_update = st.checkbox("Force update (ignore cache)", value=False)
+        
+        update_button = st.button("Import Real NBA Data")
+        
+        if update_button:
+            with st.spinner("Importing NBA data... This may take several minutes. Please wait."):
+                try:
+                    players, player_stats, teams = import_real_nba_data(force_update=force_update)
+                    st.success("Real NBA player data imported successfully!")
+                    st.rerun()  # Refresh the app to show the new data
+                except Exception as e:
+                    st.error(f"Error importing NBA data: {e}")
     
     # Filters
     col1, col2, col3 = st.columns(3)
@@ -163,7 +205,7 @@ elif page == "Create Lineup":
         
         # Display currently selected players
         if not st.session_state.selected_players:
-            st.info("You haven't selected any players yet. Go to 'Browse Players' to add players to your lineup.")
+            st.info("You haven't selected any players yet. Use the player picker below to add players.")
         else:
             for i, player_name in enumerate(st.session_state.selected_players):
                 col_a, col_b = st.columns([4, 1])
@@ -173,6 +215,46 @@ elif page == "Create Lineup":
                     if st.button("✕", key=f"remove_{i}"):
                         st.session_state.selected_players.pop(i)
                         st.rerun()
+        
+        # Add player selection directly in Create Lineup page
+        st.subheader("Add Players")
+        
+        # Add filters for easier player selection
+        selected_team = st.selectbox(
+            "Filter by Team",
+            ["All Teams"] + sorted(players['team'].fillna("Unknown").astype(str).unique().tolist()),
+            key="create_lineup_team_filter"
+        )
+        
+        selected_position = st.selectbox(
+            "Filter by Position",
+            ["All Positions"] + sorted(players['position'].fillna("Unknown").astype(str).unique().tolist()),
+            key="create_lineup_position_filter"
+        )
+        
+        # Apply filters
+        filtered_players = players.copy()
+        if selected_team != "All Teams":
+            filtered_players = filtered_players[filtered_players['team'] == selected_team]
+        if selected_position != "All Positions":
+            filtered_players = filtered_players[filtered_players['position'].fillna("Unknown").str.contains(selected_position)]
+        
+        # Player selection
+        player_to_add = st.selectbox(
+            "Select a player to add:",
+            filtered_players['name'].tolist(),
+            key="create_lineup_player_select"
+        )
+        
+        if st.button("Add Player"):
+            if len(st.session_state.selected_players) < 5:
+                if player_to_add not in st.session_state.selected_players:
+                    st.session_state.selected_players.append(player_to_add)
+                    st.rerun()
+                else:
+                    st.warning(f"{player_to_add} is already in your lineup!")
+            else:
+                st.error("You can only have 5 players in a lineup. Remove a player first.")
         
         # Save lineup
         if len(st.session_state.selected_players) > 0:
@@ -207,6 +289,12 @@ elif page == "Create Lineup":
                     # Display average statistics for the lineup - handle numeric columns properly
                     # Only include numeric columns for mean calculation
                     numeric_cols = selected_stats.select_dtypes(include=['number']).columns.tolist()
+                    
+                    # Remove player_id from numeric_cols if it's there to avoid the duplicate column error
+                    if 'player_id' in numeric_cols:
+                        numeric_cols.remove('player_id')
+                    
+                    # Group by player_id and calculate means
                     avg_stats = selected_stats.groupby('player_id')[numeric_cols].mean().reset_index()
                     
                     # Merge with player names
