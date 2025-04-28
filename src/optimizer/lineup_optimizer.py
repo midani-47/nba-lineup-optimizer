@@ -37,18 +37,23 @@ def optimize_lineup_for_scoring(player_ids: List[str], player_stats: pd.DataFram
                 player_stat_filtered[col] = 0.0
     
     # Calculate average stats per player
-    avg_stats = player_stat_filtered.groupby('player_id').mean(numeric_only=True).reset_index()
-    
-    # Create a scoring metric based on offensive contribution
-    # Points + (Assists * 2.5) + (3P% * 50)
-    avg_stats['scoring_metric'] = avg_stats['pts'] + (avg_stats['ast'] * 2.5) + (avg_stats['fg3_pct'] * 50)
-    
-    # Sort players by scoring metric
-    sorted_players = avg_stats.sort_values('scoring_metric', ascending=False)
-    
-    # Get the top 5 players by scoring metric
-    top_players = sorted_players.head(5)['player_id'].tolist()
-    
+    try:
+        avg_stats = player_stat_filtered.groupby('player_id').mean(numeric_only=True).reset_index()
+        
+        # Create a scoring metric based on offensive contribution
+        # Points + (Assists * 2.5) + (3P% * 50)
+        avg_stats['scoring_metric'] = avg_stats['pts'] + (avg_stats['ast'] * 2.5) + (avg_stats['fg3_pct'] * 50)
+        
+        # Sort players by scoring metric
+        sorted_players = avg_stats.sort_values('scoring_metric', ascending=False)
+        
+        # Get the top 5 players by scoring metric
+        top_players = sorted_players.head(5)['player_id'].tolist()
+    except (ValueError, TypeError) as e:
+        print(f"Error in optimize_lineup_for_scoring: {e}")
+        # Fallback to simple selection
+        return player_ids[:5]
+        
     # Check if we have a balanced lineup (at least one player per position category)
     position_categories = {'G': ['PG', 'SG'], 'F': ['SF', 'PF'], 'C': ['C']}
     
@@ -67,60 +72,52 @@ def optimize_lineup_for_scoring(player_ids: List[str], player_stats: pd.DataFram
     has_forward = any(pos in position_categories['F'] for pos in top_players_positions)
     has_center = any(pos in position_categories['C'] for pos in top_players_positions)
     
-    # If lineup is not balanced, replace players to ensure balance
-    if not (has_guard and has_forward and has_center):
-        # Start with top players
-        optimized_lineup = []
-        
-        # Add to optimized lineup
-        for player_id in top_players:
-            optimized_lineup.append(player_id)
-        
-        # Find what positions we're missing
-        missing_categories = []
-        if not has_guard:
-            missing_categories.append('G')
-        if not has_forward:
-            missing_categories.append('F')
-        if not has_center:
-            missing_categories.append('C')
-        
-        # For each missing category, replace the lowest scoring player with the highest scoring player of that category
-        for category in missing_categories:
-            # Find the lowest scoring player in the lineup
-            try:
-                lowest_scorer_id = min(optimized_lineup, key=lambda pid: float(avg_stats[avg_stats['player_id'] == pid]['scoring_metric'].values[0]) if len(avg_stats[avg_stats['player_id'] == pid]['scoring_metric'].values) > 0 else 0)
-                
-                # Find the highest scoring player of the missing category
-                category_positions = position_categories[category]
-                category_players = player_info_filtered[player_info_filtered['position'].isin(category_positions)]['player_id'].tolist()
-                
-                # If we have players in this category, find the best one
-                if category_players:
-                    # Get best player of this category by scoring metric
-                    category_stats = avg_stats[avg_stats['player_id'].isin(category_players)]
-                    if not category_stats.empty:
-                        best_category_player = category_stats.sort_values('scoring_metric', ascending=False).iloc[0]['player_id']
-                        
-                        # Replace the lowest scorer with the best category player if not already in lineup
-                        if best_category_player not in optimized_lineup:
-                            optimized_lineup.remove(lowest_scorer_id)
-                            optimized_lineup.append(best_category_player)
-            except (ValueError, IndexError):
-                # Skip if there's an issue finding the players
-                continue
-        
-        # Ensure we have exactly 5 players
-        if len(optimized_lineup) > 5:
-            return optimized_lineup[:5]
-        elif len(optimized_lineup) < 5:
-            # Add more players from the original list to reach 5
-            remaining_players = [p for p in player_ids if p not in optimized_lineup]
-            optimized_lineup.extend(remaining_players[:5-len(optimized_lineup)])
-            
-        return optimized_lineup
+    # If we have a balanced lineup, return it
+    if has_guard and has_forward and has_center:
+        return top_players
     
-    return top_players
+    # Otherwise, try to create a balanced lineup
+    final_lineup = []
+    remaining_players = sorted_players['player_id'].tolist()
+    
+    # Add a guard if needed
+    if not has_guard:
+        for player_id in remaining_players:
+            if player_id not in final_lineup:
+                player = player_info_filtered[player_info_filtered['player_id'] == player_id].iloc[0]
+                position = player['position']
+                if position in position_categories['G']:
+                    final_lineup.append(player_id)
+                    break
+    
+    # Add a forward if needed
+    if not has_forward:
+        for player_id in remaining_players:
+            if player_id not in final_lineup:
+                player = player_info_filtered[player_info_filtered['player_id'] == player_id].iloc[0]
+                position = player['position']
+                if position in position_categories['F']:
+                    final_lineup.append(player_id)
+                    break
+    
+    # Add a center if needed
+    if not has_center:
+        for player_id in remaining_players:
+            if player_id not in final_lineup:
+                player = player_info_filtered[player_info_filtered['player_id'] == player_id].iloc[0]
+                position = player['position']
+                if position in position_categories['C']:
+                    final_lineup.append(player_id)
+                    break
+    
+    # Add remaining top players until we have 5
+    for player_id in top_players + remaining_players:
+        if player_id not in final_lineup and len(final_lineup) < 5:
+            final_lineup.append(player_id)
+            if len(final_lineup) == 5:
+                break
+    
+    return final_lineup
 
 def optimize_lineup_for_defense(player_ids: List[str], player_stats: pd.DataFrame, player_info: pd.DataFrame) -> List[str]:
     """
@@ -155,17 +152,22 @@ def optimize_lineup_for_defense(player_ids: List[str], player_stats: pd.DataFram
                 player_stat_filtered[col] = 0.0
     
     # Calculate average stats per player
-    avg_stats = player_stat_filtered.groupby('player_id').mean(numeric_only=True).reset_index()
-    
-    # Create a defensive metric based on defensive contribution
-    # (Steals * 2) + (Blocks * 2) + (Rebounds * 1.2)
-    avg_stats['defensive_metric'] = (avg_stats['stl'] * 2) + (avg_stats['blk'] * 2) + (avg_stats['reb'] * 1.2)
-    
-    # Sort players by defensive metric
-    sorted_players = avg_stats.sort_values('defensive_metric', ascending=False)
-    
-    # Get the top 5 players by defensive metric
-    top_players = sorted_players.head(5)['player_id'].tolist()
+    try:
+        avg_stats = player_stat_filtered.groupby('player_id').mean(numeric_only=True).reset_index()
+        
+        # Create a defensive metric based on defensive contribution
+        # (Steals * 2) + (Blocks * 2) + (Rebounds * 1.5)
+        avg_stats['defense_metric'] = (avg_stats['stl'] * 2) + (avg_stats['blk'] * 2) + (avg_stats['reb'] * 1.5)
+        
+        # Sort players by defensive metric
+        sorted_players = avg_stats.sort_values('defense_metric', ascending=False)
+        
+        # Get the top 5 players by defensive metric
+        top_players = sorted_players.head(5)['player_id'].tolist()
+    except (ValueError, TypeError) as e:
+        print(f"Error in optimize_lineup_for_defense: {e}")
+        # Fallback to simple selection
+        return player_ids[:5]
     
     # Check if we have a balanced lineup (at least one player per position category)
     position_categories = {'G': ['PG', 'SG'], 'F': ['SF', 'PF'], 'C': ['C']}
@@ -185,60 +187,52 @@ def optimize_lineup_for_defense(player_ids: List[str], player_stats: pd.DataFram
     has_forward = any(pos in position_categories['F'] for pos in top_players_positions)
     has_center = any(pos in position_categories['C'] for pos in top_players_positions)
     
-    # If lineup is not balanced, replace players to ensure balance
-    if not (has_guard and has_forward and has_center):
-        # Start with top players
-        optimized_lineup = []
-        
-        # Add to optimized lineup
-        for player_id in top_players:
-            optimized_lineup.append(player_id)
-        
-        # Find what positions we're missing
-        missing_categories = []
-        if not has_guard:
-            missing_categories.append('G')
-        if not has_forward:
-            missing_categories.append('F')
-        if not has_center:
-            missing_categories.append('C')
-        
-        # For each missing category, replace the lowest defensive player with the highest defensive player of that category
-        for category in missing_categories:
-            try:
-                # Find the lowest defensive player in the lineup
-                lowest_defender_id = min(optimized_lineup, key=lambda pid: float(avg_stats[avg_stats['player_id'] == pid]['defensive_metric'].values[0]) if len(avg_stats[avg_stats['player_id'] == pid]['defensive_metric'].values) > 0 else 0)
-                
-                # Find the highest defensive player of the missing category
-                category_positions = position_categories[category]
-                category_players = player_info_filtered[player_info_filtered['position'].isin(category_positions)]['player_id'].tolist()
-                
-                # If we have players in this category, find the best one
-                if category_players:
-                    # Get best player of this category by defensive metric
-                    category_stats = avg_stats[avg_stats['player_id'].isin(category_players)]
-                    if not category_stats.empty:
-                        best_category_player = category_stats.sort_values('defensive_metric', ascending=False).iloc[0]['player_id']
-                        
-                        # Replace the lowest defender with the best category player if not already in lineup
-                        if best_category_player not in optimized_lineup:
-                            optimized_lineup.remove(lowest_defender_id)
-                            optimized_lineup.append(best_category_player)
-            except (ValueError, IndexError):
-                # Skip if there's an issue finding the players
-                continue
-        
-        # Ensure we have exactly 5 players
-        if len(optimized_lineup) > 5:
-            return optimized_lineup[:5]
-        elif len(optimized_lineup) < 5:
-            # Add more players from the original list to reach 5
-            remaining_players = [p for p in player_ids if p not in optimized_lineup]
-            optimized_lineup.extend(remaining_players[:5-len(optimized_lineup)])
-            
-        return optimized_lineup
+    # If we have a balanced lineup, return it
+    if has_guard and has_forward and has_center:
+        return top_players
     
-    return top_players
+    # Otherwise, try to create a balanced lineup
+    final_lineup = []
+    remaining_players = sorted_players['player_id'].tolist()
+    
+    # Add a guard if needed
+    if not has_guard:
+        for player_id in remaining_players:
+            if player_id not in final_lineup:
+                player = player_info_filtered[player_info_filtered['player_id'] == player_id].iloc[0]
+                position = player['position']
+                if position in position_categories['G']:
+                    final_lineup.append(player_id)
+                    break
+    
+    # Add a forward if needed
+    if not has_forward:
+        for player_id in remaining_players:
+            if player_id not in final_lineup:
+                player = player_info_filtered[player_info_filtered['player_id'] == player_id].iloc[0]
+                position = player['position']
+                if position in position_categories['F']:
+                    final_lineup.append(player_id)
+                    break
+    
+    # Add a center if needed
+    if not has_center:
+        for player_id in remaining_players:
+            if player_id not in final_lineup:
+                player = player_info_filtered[player_info_filtered['player_id'] == player_id].iloc[0]
+                position = player['position']
+                if position in position_categories['C']:
+                    final_lineup.append(player_id)
+                    break
+    
+    # Add remaining top players until we have 5
+    for player_id in top_players + remaining_players:
+        if player_id not in final_lineup and len(final_lineup) < 5:
+            final_lineup.append(player_id)
+            if len(final_lineup) == 5:
+                break
+    
+    return final_lineup
 
 def optimize_lineup_for_balanced(player_ids: List[str], player_stats: pd.DataFrame, player_info: pd.DataFrame) -> List[str]:
     """
@@ -273,36 +267,41 @@ def optimize_lineup_for_balanced(player_ids: List[str], player_stats: pd.DataFra
                 player_stat_filtered[col] = 0.0
     
     # Calculate average stats per player
-    avg_stats = player_stat_filtered.groupby('player_id').mean(numeric_only=True).reset_index()
-    
-    # Create offensive and defensive metrics
-    avg_stats['offensive_metric'] = avg_stats['pts'] + (avg_stats['ast'] * 2.5) + (avg_stats.get('fg3_pct', 0) * 50)
-    avg_stats['defensive_metric'] = (avg_stats['stl'] * 2) + (avg_stats['blk'] * 2) + (avg_stats['reb'] * 1.2)
-    
-    # Create balanced metric (equal weight to offense and defense)
-    # Normalize both metrics to 0-1 scale first to make them comparable
-    scaler = MinMaxScaler()
-    if len(avg_stats) > 1:  # Need at least 2 players for scaling
-        try:
-            # Scale both metrics to 0-1 range
-            avg_stats[['offensive_metric_scaled', 'defensive_metric_scaled']] = scaler.fit_transform(
-                avg_stats[['offensive_metric', 'defensive_metric']])
-            
-            # Combined metric is average of scaled metrics
-            avg_stats['balanced_metric'] = (avg_stats['offensive_metric_scaled'] + 
-                                           avg_stats['defensive_metric_scaled']) / 2
-        except (ValueError, TypeError):
-            # If scaling fails, use simple average of raw metrics
+    try:
+        avg_stats = player_stat_filtered.groupby('player_id').mean(numeric_only=True).reset_index()
+        
+        # Create offensive and defensive metrics
+        avg_stats['offensive_metric'] = avg_stats['pts'] + (avg_stats['ast'] * 2.5) + (avg_stats.get('fg3_pct', 0) * 50)
+        avg_stats['defensive_metric'] = (avg_stats['stl'] * 2) + (avg_stats['blk'] * 2) + (avg_stats['reb'] * 1.2)
+        
+        # Create balanced metric (equal weight to offense and defense)
+        # Normalize both metrics to 0-1 scale first to make them comparable
+        scaler = MinMaxScaler()
+        if len(avg_stats) > 1:  # Need at least 2 players for scaling
+            try:
+                # Scale both metrics to 0-1 range
+                avg_stats[['offensive_metric_scaled', 'defensive_metric_scaled']] = scaler.fit_transform(
+                    avg_stats[['offensive_metric', 'defensive_metric']])
+                
+                # Combined metric is average of scaled metrics
+                avg_stats['balanced_metric'] = (avg_stats['offensive_metric_scaled'] + 
+                                               avg_stats['defensive_metric_scaled']) / 2
+            except (ValueError, TypeError):
+                # If scaling fails, use simple average of raw metrics
+                avg_stats['balanced_metric'] = (avg_stats['offensive_metric'] + avg_stats['defensive_metric']) / 2
+        else:
+            # If only one player, use simple average
             avg_stats['balanced_metric'] = (avg_stats['offensive_metric'] + avg_stats['defensive_metric']) / 2
-    else:
-        # If only one player, use simple average
-        avg_stats['balanced_metric'] = (avg_stats['offensive_metric'] + avg_stats['defensive_metric']) / 2
-    
-    # Sort players by balanced metric
-    sorted_players = avg_stats.sort_values('balanced_metric', ascending=False)
-    
-    # Get the top 5 players by balanced metric
-    top_players = sorted_players.head(5)['player_id'].tolist()
+        
+        # Sort players by balanced metric
+        sorted_players = avg_stats.sort_values('balanced_metric', ascending=False)
+        
+        # Get the top 5 players by balanced metric
+        top_players = sorted_players.head(5)['player_id'].tolist()
+    except (ValueError, TypeError) as e:
+        print(f"Error in optimize_lineup_for_balanced: {e}")
+        # Fallback to simple selection
+        return player_ids[:5]
     
     # Check if we have a balanced lineup (at least one player per position category)
     position_categories = {'G': ['PG', 'SG'], 'F': ['SF', 'PF'], 'C': ['C']}
@@ -322,60 +321,52 @@ def optimize_lineup_for_balanced(player_ids: List[str], player_stats: pd.DataFra
     has_forward = any(pos in position_categories['F'] for pos in top_players_positions)
     has_center = any(pos in position_categories['C'] for pos in top_players_positions)
     
-    # If lineup is not balanced, replace players to ensure balance
-    if not (has_guard and has_forward and has_center):
-        # Start with top players
-        optimized_lineup = []
-        
-        # Add to optimized lineup
-        for player_id in top_players:
-            optimized_lineup.append(player_id)
-        
-        # Find what positions we're missing
-        missing_categories = []
-        if not has_guard:
-            missing_categories.append('G')
-        if not has_forward:
-            missing_categories.append('F')
-        if not has_center:
-            missing_categories.append('C')
-        
-        # For each missing category, replace the lowest balanced metric player with the highest balanced metric player of that category
-        for category in missing_categories:
-            try:
-                # Find the lowest balanced metric player in the lineup
-                lowest_balanced_id = min(optimized_lineup, key=lambda pid: float(avg_stats[avg_stats['player_id'] == pid]['balanced_metric'].values[0]) if len(avg_stats[avg_stats['player_id'] == pid]['balanced_metric'].values) > 0 else 0)
-                
-                # Find the highest balanced metric player of the missing category
-                category_positions = position_categories[category]
-                category_players = player_info_filtered[player_info_filtered['position'].isin(category_positions)]['player_id'].tolist()
-                
-                # If we have players in this category, find the best one
-                if category_players:
-                    # Get best player of this category by balanced metric
-                    category_stats = avg_stats[avg_stats['player_id'].isin(category_players)]
-                    if not category_stats.empty:
-                        best_category_player = category_stats.sort_values('balanced_metric', ascending=False).iloc[0]['player_id']
-                        
-                        # Replace the lowest balanced metric player with the best category player if not already in lineup
-                        if best_category_player not in optimized_lineup:
-                            optimized_lineup.remove(lowest_balanced_id)
-                            optimized_lineup.append(best_category_player)
-            except (ValueError, IndexError):
-                # Skip if there's an issue finding the players
-                continue
-        
-        # Ensure we have exactly 5 players
-        if len(optimized_lineup) > 5:
-            return optimized_lineup[:5]
-        elif len(optimized_lineup) < 5:
-            # Add more players from the original list to reach 5
-            remaining_players = [p for p in player_ids if p not in optimized_lineup]
-            optimized_lineup.extend(remaining_players[:5-len(optimized_lineup)])
-            
-        return optimized_lineup
+    # If we have a balanced lineup, return it
+    if has_guard and has_forward and has_center:
+        return top_players
     
-    return top_players
+    # Otherwise, try to create a balanced lineup
+    final_lineup = []
+    remaining_players = sorted_players['player_id'].tolist()
+    
+    # Add a guard if needed
+    if not has_guard:
+        for player_id in remaining_players:
+            if player_id not in final_lineup:
+                player = player_info_filtered[player_info_filtered['player_id'] == player_id].iloc[0]
+                position = player['position']
+                if position in position_categories['G']:
+                    final_lineup.append(player_id)
+                    break
+    
+    # Add a forward if needed
+    if not has_forward:
+        for player_id in remaining_players:
+            if player_id not in final_lineup:
+                player = player_info_filtered[player_info_filtered['player_id'] == player_id].iloc[0]
+                position = player['position']
+                if position in position_categories['F']:
+                    final_lineup.append(player_id)
+                    break
+    
+    # Add a center if needed
+    if not has_center:
+        for player_id in remaining_players:
+            if player_id not in final_lineup:
+                player = player_info_filtered[player_info_filtered['player_id'] == player_id].iloc[0]
+                position = player['position']
+                if position in position_categories['C']:
+                    final_lineup.append(player_id)
+                    break
+    
+    # Add remaining top players until we have 5
+    for player_id in top_players + remaining_players:
+        if player_id not in final_lineup and len(final_lineup) < 5:
+            final_lineup.append(player_id)
+            if len(final_lineup) == 5:
+                break
+    
+    return final_lineup
 
 def calculate_lineup_chemistry(player_ids: List[str], player_info: pd.DataFrame) -> float:
     """

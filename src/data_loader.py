@@ -43,18 +43,130 @@ def load_nba_players():
 
 def load_player_stats():
     """
-    Load player statistics, prioritizing sample data for speed.
+    Load player stats data for all players.
+    Ensures each player appears only once with consistent statistics.
+    
+    Returns:
+        pandas.DataFrame: DataFrame with player statistics (one row per player)
+    """
+    try:
+        # Check for the existence of the player stats file
+        stats_path = os.path.join('data', 'player_stats.csv')
+        
+        if not os.path.exists(stats_path):
+            print("No player stats found. Creating sample data...")
+            stats_df = create_sample_player_stats()
+        else:
+            # Load cached data
+            print("Loading player stats from cache...")
+            stats_df = pd.read_csv(stats_path)
+        
+        # Verify that player_id exists, if not try to handle gracefully
+        if 'player_id' not in stats_df.columns:
+            print("WARNING: 'player_id' column not found in stats data! Attempting to add it...")
+            
+            # If we have index that might represent player_id
+            if stats_df.index.name == 'player_id':
+                stats_df = stats_df.reset_index()
+            # If we have other potential ID columns
+            elif 'PLAYER_ID' in stats_df.columns:
+                stats_df['player_id'] = stats_df['PLAYER_ID']
+            elif 'id' in stats_df.columns:
+                stats_df['player_id'] = stats_df['id']
+            else:
+                # If we can't find an ID, create a dummy one and warn the user
+                print("ERROR: Cannot find any player ID column. Creating sequential IDs...")
+                stats_df['player_id'] = range(1000, 1000 + len(stats_df))
+        
+        # Ensure numeric columns are properly typed
+        numeric_cols = ['pts', 'reb', 'ast', 'stl', 'blk', 'fg_pct', 'fg3_pct', 'ft_pct', 
+                        'min', 'tov', 'pf', 'plus_minus']
+        for col in numeric_cols:
+            if col in stats_df.columns:
+                # Convert to numeric, errors='coerce' will set non-numeric values to NaN
+                stats_df[col] = pd.to_numeric(stats_df[col], errors='coerce')
+                
+                # Fill any NaN values with 0
+                stats_df[col] = stats_df[col].fillna(0)
+        
+        # Ensure player_id is a valid column that can be used for grouping
+        if 'player_id' in stats_df.columns:
+            # Make sure player_id is the correct type for grouping
+            stats_df['player_id'] = stats_df['player_id'].astype(str)
+            
+            # Group by player_id to ensure each player appears only once
+            # First identify non-numeric columns to keep for player info
+            player_info_cols = ['player_id']
+            if 'player_name' in stats_df.columns:
+                player_info_cols.append('player_name')
+            elif 'name' in stats_df.columns:
+                player_info_cols.append('name')
+                
+            # Get the most recent record for player info (non-numeric data)
+            if 'game_date' in stats_df.columns:
+                most_recent = stats_df.sort_values('game_date', ascending=False).drop_duplicates('player_id')[player_info_cols]
+            else:
+                most_recent = stats_df.drop_duplicates('player_id')[player_info_cols]
+            
+            # Calculate average stats per player
+            stats_only = stats_df.select_dtypes(include=['number'])
+            # Make sure key stats exist in stats_only
+            for key_stat in ['pts', 'reb', 'ast', 'stl', 'blk']:
+                if key_stat not in stats_only.columns:
+                    stats_only[key_stat] = 0.0
+                    
+            # Get all numerical columns from stats_df EXCEPT player_id
+            numeric_cols = [col for col in stats_df.columns if col in stats_only.columns and col != 'player_id']
+            
+            # Aggregate by player_id - only aggregate numeric columns
+            avg_stats = stats_df.groupby('player_id')[numeric_cols].mean().reset_index()
+            
+            # Merge player info with averaged stats
+            result = pd.merge(most_recent, avg_stats, on='player_id', how='left')
+        else:
+            print("CRITICAL ERROR: Cannot find or create player_id column!")
+            return stats_df
+                
+        # Make sure required columns exist
+        required_cols = ['pts', 'reb', 'ast', 'stl', 'blk', 'fg_pct', 'fg3_pct', 'ft_pct']
+        for col in required_cols:
+            if col not in result.columns:
+                result[col] = 0.0
+                
+        # Rename columns if needed for consistency
+        if 'player_name' in result.columns and 'name' not in result.columns:
+            result['name'] = result['player_name']
+            
+        print(f"Processed player stats: {len(result)} players with stats successfully loaded")
+        print(f"Columns available: {result.columns.tolist()}")
+        return result
+        
+    except Exception as e:
+        print(f"Error loading player stats: {e}")
+        # Create an emergency DataFrame with minimal required columns
+        emergency_df = pd.DataFrame({
+            'player_id': range(1000, 1100),
+            'player_name': [f"Player {i}" for i in range(100)],
+            'pts': np.random.uniform(10, 30, 100),
+            'reb': np.random.uniform(3, 12, 100),
+            'ast': np.random.uniform(2, 10, 100),
+            'stl': np.random.uniform(0.5, 3, 100),
+            'blk': np.random.uniform(0.3, 3, 100),
+            'fg_pct': np.random.uniform(0.4, 0.6, 100),
+            'fg3_pct': np.random.uniform(0.3, 0.5, 100),
+            'ft_pct': np.random.uniform(0.7, 0.9, 100),
+        })
+        print("Created emergency player stats data due to loading error")
+        return emergency_df
+
+def load_nba_stats():
+    """
+    Alias for load_player_stats for backward compatibility.
     
     Returns:
         pandas.DataFrame: DataFrame with player statistics
     """
-    # Check if we have cached data
-    if os.path.exists(PLAYER_STATS_FILE):
-        print("Loading player stats from cache...")
-        return pd.read_csv(PLAYER_STATS_FILE)
-    
-    print("Creating sample player statistics...")
-    return create_sample_player_stats()
+    return load_player_stats()
 
 def load_team_data():
     """

@@ -6,6 +6,8 @@ from typing import List, Dict, Any, Tuple
 import joblib
 import os
 import random
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
 
 class LineupPredictor:
     """
@@ -99,7 +101,6 @@ class LineupPredictor:
         y_defense = np.array(defensive_ratings)
         
         # Split data into train/test
-        from sklearn.model_selection import train_test_split
         X_train, X_test, y_off_train, y_off_test, y_def_train, y_def_test = train_test_split(
             X, y_offense, y_defense, test_size=0.2, random_state=42
         )
@@ -403,3 +404,66 @@ class LineupPredictor:
                     }
         
         return best_substitution 
+
+def train_lineup_prediction_model(player_stats, target_metric, n_estimators=100, max_depth=10):
+    """
+    Train a lineup prediction model based on player statistics.
+    
+    Parameters:
+    -----------
+    player_stats : pandas.DataFrame
+        DataFrame containing player statistics
+    target_metric : str
+        The metric to predict (pts, reb, ast, stl, blk)
+    n_estimators : int, default=100
+        Number of trees in the random forest
+    max_depth : int, default=10
+        Maximum depth of the trees
+        
+    Returns:
+    --------
+    tuple
+        (model, X_test, y_test, top_features, feature_importances, mse, y_pred)
+    """
+    # Ensure we have enough data
+    if len(player_stats) < 50:
+        # Generate more training data by resampling
+        player_stats = player_stats.sample(n=200, replace=True)
+    
+    # Select features - use all numeric columns except player_id and target
+    features = player_stats.select_dtypes(include=['number']).columns.tolist()
+    features = [f for f in features if f != 'player_id' and f != target_metric]
+    
+    # Prepare features and target
+    X = player_stats[features]
+    y = player_stats[target_metric]
+    
+    # Scale features
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+    
+    # Split the data
+    X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+    
+    # Train the model
+    model = RandomForestRegressor(
+        n_estimators=n_estimators,
+        max_depth=max_depth,
+        random_state=42
+    )
+    model.fit(X_train, y_train)
+    
+    # Get feature importance
+    importances = model.feature_importances_
+    indices = np.argsort(importances)[::-1]
+    
+    # Get top 10 features
+    top_indices = indices[:10]
+    top_features = [features[i] for i in top_indices]
+    feature_importances = [importances[i] for i in top_indices]
+    
+    # Evaluate the model
+    y_pred = model.predict(X_test)
+    mse = mean_squared_error(y_test, y_pred)
+    
+    return model, X_test, y_test, top_features, feature_importances, mse, y_pred 
