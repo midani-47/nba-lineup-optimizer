@@ -176,16 +176,33 @@ elif page == "Lineup Optimizer":
 elif page == "ML Prediction":
     st.sidebar.info("Train machine learning models and predict performance of your lineups with Random Forest algorithms.")
 
-# Selected players section in sidebar
-if st.session_state.selected_players:
-    st.sidebar.markdown("---")
-    st.sidebar.subheader("Current Lineup")
+# Show current lineup in the sidebar - this should be visible on all pages
+st.sidebar.markdown("---")
+st.sidebar.subheader("Current Lineup")
+
+# Display players from the Lineup Builder if available
+if 'lineup' in st.session_state and st.session_state.lineup:
+    for i, player in enumerate(st.session_state.lineup[:5]):
+        if 'name' in player and 'position' in player:
+            st.sidebar.text(f"{i+1}. {player['name']} ({player['position']})")
+        else:
+            st.sidebar.text(f"{i+1}. Player #{i+1}")
+    
+    # Show lineup completeness status
+    if len(st.session_state.lineup) < 5:
+        st.sidebar.info(f"{len(st.session_state.lineup)}/5 players selected")
+    else:
+        st.sidebar.success("Lineup complete! 5/5 players")
+# Fall back to selected_players if no lineup is built yet
+elif st.session_state.selected_players:
     for i, player_id in enumerate(st.session_state.selected_players[:5]):
         try:
             player = players[players['player_id'] == player_id].iloc[0]
             st.sidebar.text(f"{i+1}. {player['name']} ({player['position']})")
         except:
             st.sidebar.text(f"{i+1}. Player ID: {player_id}")
+else:
+    st.sidebar.info("No players selected yet. Build your lineup in the Lineup Builder page.")
 
 # Add footer
 st.sidebar.markdown("---")
@@ -771,6 +788,38 @@ elif page == "Lineup Optimizer":
                         original = lineup_summary[lineup_summary['Lineup'] == 'Original'].iloc[0]
                         optimized = lineup_summary[lineup_summary['Lineup'] == 'Optimized'].iloc[0]
                         
+                        # Create a more visually distinguishable bar chart
+                        stats_to_compare = ['PTS', 'AST', 'REB', 'STL', 'BLK']
+                        comparison_long = pd.melt(
+                            lineup_summary, 
+                            id_vars=['Lineup'],
+                            value_vars=stats_to_compare,
+                            var_name='Stat',
+                            value_name='Value'
+                        )
+                        
+                        fig2 = px.bar(
+                            comparison_long,
+                            x='Stat',
+                            y='Value',
+                            color='Lineup',
+                            barmode='group',
+                            title="Detailed Lineup Performance Comparison by Stat",
+                            color_discrete_map={
+                                'Original': '#FF6B6B',  # Red shade
+                                'Optimized': '#4ECDC4'  # Teal shade
+                            }
+                        )
+                        
+                        fig2.update_layout(
+                            xaxis_title="Statistic",
+                            yaxis_title="Value",
+                            legend_title="Lineup",
+                            height=500
+                        )
+                        
+                        st.plotly_chart(fig2)
+                        
                         st.subheader("Percentage Improvements")
                         
                         improvements = []
@@ -981,10 +1030,45 @@ elif page == "ML Prediction":
                         
                         # Get top features for prediction
                         top_features = importance_df.head(5)['Feature'].tolist()
+                        
+                        # Display feature importance plot in prediction tab
+                        st.subheader("Feature Importance")
+                        
+                        # Plot top 10 features
+                        top_n = min(10, len(importance_df))
+                        fig = px.bar(
+                            importance_df.head(top_n), 
+                            x='Importance', 
+                            y='Feature',
+                            orientation='h',
+                            title=f'Top {top_n} Most Important Features',
+                            color='Importance',
+                            color_continuous_scale='viridis'
+                        )
+                        
+                        # Update layout with better formatting
+                        fig.update_layout(
+                            yaxis={'categoryorder':'total ascending'},
+                            height=400,
+                            xaxis_title="Relative Importance",
+                            yaxis_title="Feature"
+                        )
+                        
+                        st.plotly_chart(fig)
+                        
+                        # Brief explanation of feature importance
+                        st.markdown("""
+                        **Understanding Feature Importance:**
+                        - Features with higher values have more influence on model predictions
+                        - Focus on these key metrics when building your lineup
+                        - This can help you identify which player statistics to prioritize
+                        """)
                     else:
                         # Use default features if mismatch
+                        st.warning("Feature importance could not be displayed due to a feature mismatch.")
                         top_features = feature_names[:5]
                 else:
+                    st.info("Feature importance is not available for this model type.")
                     top_features = feature_names[:5]
                 
                 # Input section for prediction
