@@ -42,12 +42,7 @@ This project demonstrates several key data science and machine learning concepts
 
 ### Requirements
 - Python 3.7+
-- Pandas
-- NumPy
-- Scikit-learn
-- NBA API
-- Streamlit
-- Plotly
+
 
 ### Installation
 1. Clone the repository
