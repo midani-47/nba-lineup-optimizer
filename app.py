@@ -468,41 +468,28 @@ elif page == "Lineup Builder":
         
         # Use columns for better display
         with player_container:
-            # Display players in a tabular format
-            cols = st.columns([2, 1, 1, 1, 1, 1, 1])
+            # Display players in a tabular format - REMOVED stats columns (PTS, REB, AST)
+            cols = st.columns([3, 2, 2, 1])
             cols[0].write("**Name**")
             cols[1].write("**Position**")
             cols[2].write("**Team**")
-            cols[3].write("**PTS**")
-            cols[4].write("**REB**")
-            cols[5].write("**AST**")
-            cols[6].write("**Add**")
+            cols[3].write("**Add**")
             
-            # Display each player with stats
+            # Display each player without stats
             for _, player in filtered_players.iterrows():
                 player_id = player['player_id']
                 player_name = player['name']
                 
-                # Get player stats
-                player_stats_data = {}
-                if 'player_id' in player_stats.columns:
-                    player_stat = player_stats[player_stats['player_id'] == player_id]
-                    if not player_stat.empty:
-                        player_stats_data = player_stat.mean(numeric_only=True).to_dict()
-                
-                # Display player details
-                cols = st.columns([2, 1, 1, 1, 1, 1, 1])
+                # Display player details - with team and position only
+                cols = st.columns([3, 2, 2, 1])
                 cols[0].write(player_name)
                 cols[1].write(player.get('position', 'N/A'))
                 cols[2].write(player.get('team', 'N/A'))
-                cols[3].write(f"{player_stats_data.get('pts', 0):.1f}" if 'pts' in player_stats_data else "0.0")
-                cols[4].write(f"{player_stats_data.get('reb', 0):.1f}" if 'reb' in player_stats_data else "0.0")
-                cols[5].write(f"{player_stats_data.get('ast', 0):.1f}" if 'ast' in player_stats_data else "0.0")
                 
                 # Check if player is already in lineup or if lineup is full
                 add_disabled = len(st.session_state.lineup) >= 5 or any(p['player_id'] == player_id for p in st.session_state.lineup)
                 
-                if cols[6].button(f"Add", key=f"add_{player_id}", disabled=add_disabled):
+                if cols[3].button(f"Add", key=f"add_{player_id}", disabled=add_disabled):
                     # Check if player is already in lineup
                     if not any(p['player_id'] == player_id for p in st.session_state.lineup):
                         # Only allow adding if we have fewer than 5 players
