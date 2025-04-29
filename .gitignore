@@ -4,7 +4,6 @@
 # Models - include these to make the app work right away
 !data/models/lineup_predictor/*.pkl
 
-
 # Python
 __pycache__/
 *.py[cod]
@@ -53,4 +52,9 @@ yarn-error.log*
 .idea/
 .vscode/
 *.swp
-*.swo 
+*.swo
+
+# But keep the model files in the repository
+!data/models/lineup_predictor/model.pkl
+!data/models/lineup_predictor/scaler.pkl
+!data/models/lineup_predictor/feature_names.txt 
