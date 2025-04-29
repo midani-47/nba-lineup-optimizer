@@ -1,3 +1,10 @@
+# Data files
+*.csv
+
+# Models - include these to make the app work right away
+!data/models/lineup_predictor/*.pkl
+
+
 # Python
 __pycache__/
 *.py[cod]
@@ -20,7 +27,7 @@ var/
 .installed.cfg
 *.egg
 venv/
-*.csv
+ENV/
 
 # Django
 *.log

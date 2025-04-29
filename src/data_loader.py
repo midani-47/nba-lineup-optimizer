@@ -14,6 +14,33 @@ PLAYERS_FILE = os.path.join(DATA_DIR, 'players.csv')
 PLAYER_STATS_FILE = os.path.join(DATA_DIR, 'player_stats.csv')
 TEAMS_FILE = os.path.join(DATA_DIR, 'teams.csv')
 
+# Team ID mapping for reliable team name assignment
+TEAM_ID_MAP = {
+    1610612747: "Los Angeles Lakers",
+    1610612738: "Boston Celtics",
+    1610612744: "Golden State Warriors",
+    1610612739: "Cleveland Cavaliers",
+    1610612755: "Philadelphia 76ers",
+    1610612746: "Los Angeles Clippers",
+    1610612748: "Miami Heat",
+    1610612750: "Minnesota Timberwolves",
+    1610612743: "Denver Nuggets",
+    1610612742: "Dallas Mavericks",
+    0: "Unknown Team"  # Default for missing team_id
+}
+
+def team_id_to_name(team_id):
+    """
+    Convert team ID to team name with proper error handling.
+    
+    Args:
+        team_id: The ID of the team to look up
+        
+    Returns:
+        String team name or default 'Unknown Team' if not found
+    """
+    return TEAM_ID_MAP.get(team_id, "Unknown Team")
+
 def load_nba_players():
     """
     Load NBA player data with caching.
@@ -248,11 +275,8 @@ def create_sample_player_data():
             'height': player.get("height", "6'0\""),
             'weight': player.get("weight", 200),
             'position': player.get("position", ""),
-            'team_id': player["team_id"],
-            'team': next((team for team in team_names if "Lakers" in team and player["team_id"] == 1610612747) or 
-                         (team for team in team_names if "Celtics" in team and player["team_id"] == 1610612738) or
-                         (team for team in team_names if "Warriors" in team and player["team_id"] == 1610612744) or
-                         ("Unknown Team",)),
+            'team_id': player.get("team_id", 0),  # Keep team_id for reference
+            'team': team_id_to_name(player.get("team_id", 0)),  # Use the mapping function
             'age': player.get("age", 25),
             'from_year': 2020
         }
@@ -260,64 +284,51 @@ def create_sample_player_data():
         sample_players.append(player_record)
         player_id += 1
     
-    # Generate more realistic players to fill out rosters
-    positions = ["PG", "SG", "SF", "PF", "C", "PG/SG", "SG/SF", "SF/PF", "PF/C"]
+    # Generate some additional random players to fill out the dataset
+    positions = ["PG", "SG", "SF", "PF", "C"]
+    first_names = ["James", "Michael", "John", "David", "Robert", "Kevin", "Chris", "Anthony", "Brandon", "Tyler",
+                  "Jordan", "Marcus", "Paul", "Devin", "Russell", "Joel", "Jalen", "Zion", "Trae", "Damian"]
+    last_names = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Miller", "Davis", "Wilson", "Anderson", "Thomas",
+                 "Jackson", "White", "Harris", "Martin", "Thompson", "Young", "Walker", "Hall", "Allen", "Wright"]
     
-    # Real NBA first names and last names (keeping pairs together)
-    real_player_names = [
-        "Giannis Antetokounmpo", "Nikola Jokic", "Luka Doncic", "Joel Embiid", "Kevin Durant",
-        "Damian Lillard", "Ja Morant", "Trae Young", "Devin Booker", "Karl-Anthony Towns",
-        "Zion Williamson", "Donovan Mitchell", "Bam Adebayo", "Jimmy Butler", "Paul George",
-        "Kawhi Leonard", "Bradley Beal", "Kyrie Irving", "Khris Middleton", "Demar DeRozan",
-        "Zach LaVine", "Pascal Siakam", "Fred VanVleet", "Jalen Brunson", "Darius Garland",
-        "Jamal Murray", "Michael Porter Jr.", "Jaren Jackson Jr.", "Paolo Banchero", "Cade Cunningham"
-    ]
-    
-    # Add more players to reach 100 total players
-    for i in range(len(sample_players), 100):
-        # Choose team, position, and name
-        team_idx = random.randint(0, len(team_names) - 1)
-        team_name = team_names[team_idx]
+    # Add additional players
+    for _ in range(85):  # Add 85 more players for a total of 100
+        # Choose a random first and last name
+        first_name = random.choice(first_names)
+        last_name = random.choice(last_names)
+        full_name = f"{first_name} {last_name}"
+        
+        # Choose a random position
         position = random.choice(positions)
         
-        # Either use a real NBA player name or generate a fictional one
-        if i < len(real_player_names) + len(sample_players):
-            full_name = real_player_names[i - len(sample_players)]
-            name_parts = full_name.split(" ", 1)
-        else:
-            # Generate a fictional name
-            first_names = ["James", "Michael", "Chris", "David", "John", "Robert", "William", "Richard", "Thomas", "Anthony"]
-            last_names = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Miller", "Davis", "Wilson", "Taylor", "Clark"]
-            first_name = random.choice(first_names)
-            last_name = random.choice(last_names)
-            full_name = f"{first_name} {last_name}"
-            name_parts = [first_name, last_name]
+        # Choose a random team
+        team_name = random.choice(team_names)
         
-        # Create player record
         player_record = {
-            'player_id': str(player_id),
+            'player_id': str(player_id),  # Convert to string for consistency
             'name': full_name,
-            'first_name': name_parts[0],
-            'last_name': name_parts[1] if len(name_parts) > 1 else "",
+            'first_name': first_name,
+            'last_name': last_name,
             'active': True,
-            'height': f"{random.randint(6, 7)}'{random.randint(0, 11)}\"",  # 6'0" to 7'11"
+            'height': f"{random.randint(72, 86)}\"",  # Height in inches
             'weight': random.randint(170, 290),
             'position': position,
-            'team_id': random.randint(1000, 1030),
             'team': team_name,
             'age': random.randint(19, 38),
-            'from_year': random.randint(2015, 2023)
+            'from_year': random.randint(2010, 2023)
         }
         
         sample_players.append(player_record)
         player_id += 1
     
-    # Create a DataFrame
+    # Create DataFrame
     players_df = pd.DataFrame(sample_players)
     
-    # Save to cache for future use
-    os.makedirs(DATA_DIR, exist_ok=True)
-    players_df.to_csv(PLAYERS_FILE, index=False)
+    # Ensure the data directory exists
+    os.makedirs('data', exist_ok=True)
+    
+    # Save to CSV
+    players_df.to_csv('data/players.csv', index=False)
     
     return players_df
 
