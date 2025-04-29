@@ -1,9 +1,6 @@
 # 🏀 NBA Lineup Optimizer
 
 
-![GIF](https://github.com/midani-47/midani-47/blob/main/gifs/Under-Construction-Sign-for-Locator.webp?raw=true)
-
-
 
 ## Overview
 This application showcases data science and machine learning techniques applied to NBA data. It allows users to create, optimize, and predict the performance of NBA lineups using statistical analysis and machine learning models.
