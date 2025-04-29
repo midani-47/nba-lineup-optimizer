@@ -818,107 +818,134 @@ elif page == "Lineup Optimizer":
                     # Show optimized lineup vs current lineup
                     st.subheader("Comparison: Optimized Lineup vs Original Lineup")
                     
-                    # Create a DataFrame to hold both lineups for comparison
-                    comparison_data = []
-                    
-                    # Add original lineup stats to the comparison data
-                    for player in st.session_state.optimized_lineup:
-                        player_stats = {
-                            'Player': player['name'],
-                            'PTS': player['pts'] if 'pts' in player else 0,
-                            'AST': player['ast'] if 'ast' in player else 0,
-                            'REB': player['reb'] if 'reb' in player else 0,
-                            'STL': player['stl'] if 'stl' in player else 0,
-                            'BLK': player['blk'] if 'blk' in player else 0,
-                            'Lineup': 'Original'
-                        }
+                    try:
+                        # Create a DataFrame to hold both lineups for comparison
+                        comparison_data = []
                         
-                        # Apply the same enhancement factors to individual player stats
-                        # for visualization consistency
-                        if optimization_type == "Scoring":
-                            player_stats['PTS'] *= enhancement_factor
-                            player_stats['AST'] *= 1.15
-                        elif optimization_type == "Defense":
-                            player_stats['STL'] *= enhancement_factor
-                            player_stats['BLK'] *= enhancement_factor
-                            player_stats['REB'] *= 1.15
-                        else:  # Balanced
-                            # Apply a moderate enhancement to all stats
-                            for stat in ['PTS', 'AST', 'REB', 'STL', 'BLK']:
-                                player_stats[stat] *= 1.1
-                                
-                        comparison_data.append(player_stats)
-                    
-                    # Add optimized lineup stats to the comparison data
-                    for player in optimized_lineup_stats:
-                        player_stats = {
-                            'Player': player['name'],
-                            'PTS': player['pts'] if 'pts' in player else 0,
-                            'AST': player['ast'] if 'ast' in player else 0,
-                            'REB': player['reb'] if 'reb' in player else 0,
-                            'STL': player['stl'] if 'stl' in player else 0,
-                            'BLK': player['blk'] if 'blk' in player else 0,
-                            'Lineup': 'Optimized'
-                        }
+                        # Safe function to get stat with default
+                        def get_stat(player_dict, stat, default=0):
+                            return player_dict.get(stat, default)
                         
-                        # Apply the same enhancement factors to individual player stats
-                        # for visualization consistency
-                        if optimization_type == "Scoring":
-                            player_stats['PTS'] *= enhancement_factor
-                            player_stats['AST'] *= 1.15
-                        elif optimization_type == "Defense":
-                            player_stats['STL'] *= enhancement_factor
-                            player_stats['BLK'] *= enhancement_factor
-                            player_stats['REB'] *= 1.15
-                        else:  # Balanced
-                            # Apply a moderate enhancement to all stats
-                            for stat in ['PTS', 'AST', 'REB', 'STL', 'BLK']:
-                                player_stats[stat] *= 1.1
-                                
-                        comparison_data.append(player_stats)
-                    
-                    # Create a DataFrame for visualization
-                    comparison_df = pd.DataFrame(comparison_data)
-                    
-                    # Calculate aggregated stats for each lineup
-                    lineup_summary = comparison_df.groupby('Lineup').sum().reset_index()
-                    
-                    # Create and display the bar chart
-                    fig = px.bar(
-                        comparison_df,
-                        x='Lineup',
-                        y=['PTS', 'AST', 'REB', 'STL', 'BLK'],
-                        barmode='group',
-                        title='Original vs Optimized Lineup Performance',
-                        color_discrete_map={
-                            'Original': '#1E88E5',  # Blue
-                            'Optimized': '#FF5252'  # Red
-                        }
-                    )
-                    
-                    # Improve the layout and appearance
-                    fig.update_layout(
-                        legend_title_text='Statistic',
-                        xaxis_title="Lineup Type",
-                        yaxis_title="Value",
-                        template="plotly_white",
-                        height=500
-                    )
-                    
-                    # Add annotations for improvement percentages
-                    for i, stat in enumerate(['pts', 'ast', 'reb', 'stl', 'blk']):
-                        if lineup_summary[lineup_summary['Lineup'] == 'Original'][stat].iloc[0] > 0:
-                            improvement = ((lineup_summary[lineup_summary['Lineup'] == 'Optimized'][stat].iloc[0] - lineup_summary[lineup_summary['Lineup'] == 'Original'][stat].iloc[0]) / lineup_summary[lineup_summary['Lineup'] == 'Original'][stat].iloc[0]) * 100
-                            if improvement > 0:
-                                fig.add_annotation(
-                                    x=1,  # Position at the Optimized bar
-                                    y=lineup_summary[lineup_summary['Lineup'] == 'Optimized'][stat].iloc[0] + 5,  # Slightly above the bar
-                                    text=f"+{improvement:.1f}%",
-                                    showarrow=False,
-                                    font=dict(size=10, color="#006400")  # Dark green
-                                )
-                    
-                    st.plotly_chart(fig, use_container_width=True)
+                        # Add original lineup stats to the comparison data
+                        for player in st.session_state.optimized_lineup:
+                            player_stats = {
+                                'Player': player['name'],
+                                'PTS': get_stat(player, 'pts'),
+                                'AST': get_stat(player, 'ast'),
+                                'REB': get_stat(player, 'reb'),
+                                'STL': get_stat(player, 'stl'),
+                                'BLK': get_stat(player, 'blk'),
+                                'Lineup': 'Original'
+                            }
+                            
+                            # Apply the same enhancement factors to individual player stats
+                            # for visualization consistency
+                            if optimization_type == "Scoring":
+                                player_stats['PTS'] *= enhancement_factor
+                                player_stats['AST'] *= 1.15
+                            elif optimization_type == "Defense":
+                                player_stats['STL'] *= enhancement_factor
+                                player_stats['BLK'] *= enhancement_factor
+                                player_stats['REB'] *= 1.15
+                            else:  # Balanced
+                                # Apply a moderate enhancement to all stats
+                                for stat in ['PTS', 'AST', 'REB', 'STL', 'BLK']:
+                                    player_stats[stat] *= 1.1
+                                    
+                            comparison_data.append(player_stats)
+                        
+                        # Add optimized lineup stats to the comparison data
+                        for player in optimized_lineup_stats:
+                            player_stats = {
+                                'Player': player['name'],
+                                'PTS': get_stat(player, 'pts'),
+                                'AST': get_stat(player, 'ast'),
+                                'REB': get_stat(player, 'reb'),
+                                'STL': get_stat(player, 'stl'),
+                                'BLK': get_stat(player, 'blk'),
+                                'Lineup': 'Optimized'
+                            }
+                            
+                            # Apply the same enhancement factors to individual player stats
+                            # for visualization consistency
+                            if optimization_type == "Scoring":
+                                player_stats['PTS'] *= enhancement_factor
+                                player_stats['AST'] *= 1.15
+                            elif optimization_type == "Defense":
+                                player_stats['STL'] *= enhancement_factor
+                                player_stats['BLK'] *= enhancement_factor
+                                player_stats['REB'] *= 1.15
+                            else:  # Balanced
+                                # Apply a moderate enhancement to all stats
+                                for stat in ['PTS', 'AST', 'REB', 'STL', 'BLK']:
+                                    player_stats[stat] *= 1.1
+                                    
+                            comparison_data.append(player_stats)
+                        
+                        # Create a DataFrame for visualization
+                        comparison_df = pd.DataFrame(comparison_data)
+                        
+                        # Calculate aggregated stats for each lineup
+                        # Handle possible missing columns
+                        stats_for_summary = ['PTS', 'AST', 'REB', 'STL', 'BLK']
+                        stats_in_df = [col for col in stats_for_summary if col in comparison_df.columns]
+                        
+                        if 'Lineup' in comparison_df.columns and stats_in_df:
+                            lineup_summary = comparison_df.groupby('Lineup')[stats_in_df].sum().reset_index()
+                            
+                            # Create and display the bar chart
+                            fig = px.bar(
+                                comparison_df,
+                                x='Lineup',
+                                y=stats_in_df,
+                                barmode='group',
+                                title='Original vs Optimized Lineup Performance',
+                                color_discrete_map={
+                                    'Original': '#1E88E5',  # Blue
+                                    'Optimized': '#FF5252'  # Red
+                                }
+                            )
+                            
+                            # Improve the layout and appearance
+                            fig.update_layout(
+                                legend_title_text='Statistic',
+                                xaxis_title="Lineup Type",
+                                yaxis_title="Value",
+                                template="plotly_white",
+                                height=500
+                            )
+                            
+                            # Add annotations for improvement percentages only if we have the necessary data
+                            if len(lineup_summary) > 1:  # Make sure we have both lineups
+                                for stat in stats_in_df:
+                                    try:
+                                        orig_val = lineup_summary[lineup_summary['Lineup'] == 'Original'][stat].iloc[0]
+                                        opt_val = lineup_summary[lineup_summary['Lineup'] == 'Optimized'][stat].iloc[0]
+                                        
+                                        if orig_val > 0:
+                                            improvement = ((opt_val - orig_val) / orig_val) * 100
+                                            if improvement > 0:
+                                                fig.add_annotation(
+                                                    x=1,  # Position at the Optimized bar
+                                                    y=opt_val + 5,  # Slightly above the bar
+                                                    text=f"+{improvement:.1f}%",
+                                                    showarrow=False,
+                                                    font=dict(size=10, color="#006400")  # Dark green
+                                                )
+                                    except Exception as annotation_error:
+                                        # Just skip this annotation if there's an error
+                                        pass
+                            
+                            st.plotly_chart(fig, use_container_width=True)
+                        else:
+                            st.error("Unable to create comparison visualization due to missing data columns.")
+                    except Exception as e:
+                        st.error(f"Error during comparison visualization: {str(e)}")
+                        with st.expander("Debug information"):
+                            st.write("Current lineup:")
+                            st.write([p.get('name', 'Unknown') for p in st.session_state.optimized_lineup])
+                            st.write("Optimized lineup:")
+                            st.write([p.get('name', 'Unknown') for p in optimized_lineup_stats])
                     
                     # Mark model as trained in session state
                     st.session_state.model_trained = True
@@ -958,10 +985,12 @@ elif page == "ML Prediction":
         border-radius: 8px !important;
         padding: 16px 24px !important;
         margin: 8px !important;
+        color: #8a1e1e !important; /* Blue text for better visibility */
     }
     .stTabs [aria-selected="true"] {
         background-color: #e6f0ff !important;
         border-bottom: 3px solid #4c8bf5 !important;
+        color: #4c8bf5 !important; /* Darker blue for selected tab */
     }
     </style>
     """
@@ -1374,8 +1403,6 @@ elif page == "ML Prediction":
                         # Show more detailed error information in an expander
                         with st.expander("View detailed error information"):
                             st.code(traceback.format_exc())
-                            st.write("Model features:", feature_names)
-                            st.write("Input features:", list(input_values.keys()))
             except Exception as e:
                 st.error(f"Error loading model: {str(e)}")
                 st.warning("Please train a new model before making predictions.")
