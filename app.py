@@ -393,6 +393,54 @@ elif page == "Lineup Builder":
     if 'player_id' in players_df.columns:
         players_df = players_df.drop_duplicates(subset=['player_id'])
     
+    # Show the current lineup FIRST before the player selection area
+    if st.session_state.lineup:
+        st.subheader("Your Lineup")
+        
+        # Check if lineup has 5 players and show appropriate message
+        if len(st.session_state.lineup) < 5:
+            st.info(f"You have {len(st.session_state.lineup)}/5 players. Add {5 - len(st.session_state.lineup)} more to complete your lineup.")
+        else:
+            st.success("Your lineup is complete! You can view it in the Lineup Optimizer.")
+            
+            # Save the current lineup to custom_lineups
+            if "current_lineup_name" not in st.session_state:
+                st.session_state.current_lineup_name = "My Lineup"
+                
+            # Allow user to name and save the lineup
+            col1, col2 = st.columns([3, 1])
+            with col1:
+                lineup_name = st.text_input("Lineup Name", value=st.session_state.current_lineup_name)
+            with col2:
+                if st.button("Save Lineup"):
+                    # Extract player IDs
+                    player_ids = [player['player_id'] for player in st.session_state.lineup]
+                    # Save to session state
+                    st.session_state.custom_lineups[lineup_name] = player_ids
+                    st.session_state.current_lineup_name = lineup_name
+                    st.success(f"Lineup '{lineup_name}' saved and ready for optimization!")
+        
+        # Display each player in the lineup with simplified info - no stats
+        for i, player in enumerate(st.session_state.lineup):
+            col1, col2 = st.columns([3, 1])
+            with col1:
+                st.write(f"**{i+1}. {player['name']}** ({player['position']} | {player['team']})")
+            with col2:
+                if st.button(f"Remove Player {i+1}", key=f"remove_{i}"):
+                    st.session_state.lineup.pop(i)
+                    st.rerun()
+        
+        # Add button to clear lineup
+        if st.button("Clear Lineup"):
+            st.session_state.lineup = []
+            st.success("Lineup cleared!")
+            st.rerun()
+            
+        st.markdown("---")
+    
+    # Filter section for available players
+    st.subheader("Add Players to Your Lineup")
+    
     # Filter by position if selected
     positions = ['All', 'PG', 'SG', 'SF', 'PF', 'C']
     if 'selected_position' not in st.session_state:
@@ -482,55 +530,6 @@ elif page == "Lineup Builder":
                         st.warning(f"{player_name} is already in your lineup.")
     else:
         st.warning("No players found matching the criteria.")
-    
-    # Show the current lineup with stats and remove buttons
-    if st.session_state.lineup:
-        st.subheader("Your Lineup")
-        
-        # Check if lineup has 5 players and show appropriate message
-        if len(st.session_state.lineup) < 5:
-            st.info(f"You have {len(st.session_state.lineup)}/5 players. Add {5 - len(st.session_state.lineup)} more to complete your lineup.")
-        else:
-            st.success("Your lineup is complete! You can view it in the Lineup Optimizer.")
-            
-            # Save the current lineup to custom_lineups
-            if "current_lineup_name" not in st.session_state:
-                st.session_state.current_lineup_name = "My Lineup"
-                
-            # Allow user to name and save the lineup
-            col1, col2 = st.columns([3, 1])
-            with col1:
-                lineup_name = st.text_input("Lineup Name", value=st.session_state.current_lineup_name)
-            with col2:
-                if st.button("Save Lineup"):
-                    # Extract player IDs
-                    player_ids = [player['player_id'] for player in st.session_state.lineup]
-                    # Save to session state
-                    st.session_state.custom_lineups[lineup_name] = player_ids
-                    st.session_state.current_lineup_name = lineup_name
-                    st.success(f"Lineup '{lineup_name}' saved and ready for optimization!")
-        
-        # Calculate total and average stats
-        for i, player in enumerate(st.session_state.lineup):
-            col1, col2 = st.columns([3, 1])
-            with col1:
-                st.write(f"**{player['name']}** ({player['position']})")
-                stats_str = []
-                for stat in ['pts', 'reb', 'ast', 'stl', 'blk']:
-                    if stat in player:
-                        stats_str.append(f"{stat.upper()}: {player[stat]:.1f}")
-                st.write(", ".join(stats_str))
-            with col2:
-                # Update the button to display player position 1-5 instead of 0-4
-                if st.button(f"Remove Player {i+1}", key=f"remove_{i}"):
-                    st.session_state.lineup.pop(i)
-                    st.rerun()
-    
-    # Add button to clear lineup
-    if st.session_state.lineup and st.button("Clear Lineup"):
-        st.session_state.lineup = []
-        st.success("Lineup cleared!")
-        st.rerun()
 
 # Page: Lineup Optimizer
 elif page == "Lineup Optimizer":
@@ -548,6 +547,9 @@ elif page == "Lineup Optimizer":
     if 'optimized_lineup' not in st.session_state:
         st.session_state.optimized_lineup = []
     
+    if 'selected_lineup_name' not in st.session_state:
+        st.session_state.selected_lineup_name = None
+    
     # Check if we have a lineup to optimize
     if not st.session_state.optimized_lineup or len(st.session_state.optimized_lineup) < 5:
         # If no lineup in session state, show saved lineups
@@ -556,8 +558,18 @@ elif page == "Lineup Optimizer":
         # Show saved lineups if any exist
         if st.session_state.custom_lineups:
             st.subheader("Or choose from your saved lineups:")
+            
             saved_lineups = list(st.session_state.custom_lineups.keys())
-            selected_lineup = st.selectbox("Select a lineup", saved_lineups)
+            
+            # Use the stored selection if available, otherwise default to first lineup
+            default_index = 0
+            if st.session_state.selected_lineup_name in saved_lineups:
+                default_index = saved_lineups.index(st.session_state.selected_lineup_name)
+                
+            selected_lineup = st.selectbox("Select a lineup", saved_lineups, index=default_index)
+            
+            # Store the selected lineup name
+            st.session_state.selected_lineup_name = selected_lineup
             
             if st.button("Load Selected Lineup"):
                 player_ids = st.session_state.custom_lineups[selected_lineup]
@@ -787,14 +799,14 @@ elif page == "Lineup Optimizer":
                         comparison_data.append(player_stats)
                     
                     # Add optimized lineup stats to the comparison data
-                    for player in optimized_lineup:
+                    for player in optimized_lineup_stats:
                         player_stats = {
                             'Player': player['name'],
-                            'PTS': player['pts'],
-                            'AST': player['ast'],
-                            'REB': player['reb'],
-                            'STL': player['stl'],
-                            'BLK': player['blk'],
+                            'PTS': player['pts'] if 'pts' in player else 0,
+                            'AST': player['ast'] if 'ast' in player else 0,
+                            'REB': player['reb'] if 'reb' in player else 0,
+                            'STL': player['stl'] if 'stl' in player else 0,
+                            'BLK': player['blk'] if 'blk' in player else 0,
                             'Lineup': 'Optimized'
                         }
                         comparison_data.append(player_stats)
@@ -986,7 +998,14 @@ elif page == "ML Prediction":
         
         # Team filter for training
         teams = ["All Teams"] + sorted(player_stats['team'].dropna().unique().tolist() if 'team' in player_stats.columns else [])
-        selected_team = st.selectbox("Train on data from:", teams)
+        
+        # Add custom lineups to the training options
+        custom_lineup_options = []
+        if st.session_state.custom_lineups:
+            custom_lineup_options = [f"Lineup: {name}" for name in st.session_state.custom_lineups.keys()]
+            teams = teams + custom_lineup_options
+        
+        selected_team_or_lineup = st.selectbox("Train on data from:", teams)
         
         # Target variable selection
         target_options = [col for col in player_stats.columns if col in ['pts', 'ast', 'reb', 'stl', 'blk', 'fg_pct', 'fg3_pct', 'ft_pct']]
@@ -1003,10 +1022,26 @@ elif page == "ML Prediction":
         if st.button("Train Model") and target_variable:
             with st.spinner("Training model, please wait..."):
                 try:
-                    # Filter data if team is selected
-                    filtered_stats = player_stats
-                    if selected_team != "All Teams" and 'team' in player_stats.columns:
-                        filtered_stats = player_stats[player_stats['team'] == selected_team]
+                    # Check if selection is a custom lineup
+                    if selected_team_or_lineup.startswith("Lineup:"):
+                        lineup_name = selected_team_or_lineup.replace("Lineup: ", "")
+                        if lineup_name in st.session_state.custom_lineups:
+                            # Get player IDs from the lineup
+                            player_ids = st.session_state.custom_lineups[lineup_name]
+                            # Convert to strings to ensure consistent comparison
+                            player_ids = [str(pid) for pid in player_ids]
+                            # Filter player_stats to only include players in this lineup
+                            filtered_stats = player_stats[player_stats['player_id'].astype(str).isin(player_ids)]
+                            st.info(f"Training model on {len(filtered_stats)} records from lineup: {lineup_name}")
+                        else:
+                            # Fallback to all data if lineup not found
+                            filtered_stats = player_stats
+                            st.warning(f"Lineup '{lineup_name}' not found. Using all available data.")
+                    else:
+                        # Filter data if team is selected
+                        filtered_stats = player_stats
+                        if selected_team_or_lineup != "All Teams" and 'team' in player_stats.columns:
+                            filtered_stats = player_stats[player_stats['team'] == selected_team_or_lineup]
                     
                     # Prepare data for training
                     if 'player_id' in filtered_stats.columns:
