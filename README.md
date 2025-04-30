@@ -31,6 +31,14 @@ This application showcases data science and machine learning techniques applied 
 - Predict offensive and defensive ratings for lineups
 - Get recommendations for lineup improvements
 
+## Tech Stack
+- **Python**: Core programming language
+- **Streamlit**: Web application framework for data science
+- **Pandas/NumPy**: Data manipulation and analysis
+- **Plotly**: Interactive data visualization
+- **scikit-learn**: Machine learning models (Random Forest)
+- **joblib**: Model serialization
+
 ## Data Science & Machine Learning Techniques
 This project demonstrates several key data science and machine learning concepts:
 
@@ -45,11 +53,22 @@ This project demonstrates several key data science and machine learning concepts
 ### Requirements
 - Python 3.7+
 
-
 ### Installation
 1. Clone the repository
-2. Install dependencies: `pip install -r requirements.txt`
-3. Run the application: `streamlit run app.py`
+2. (Recommended) Create and activate a virtual environment:
+   ```
+   python -m venv venv
+   
+   # On Windows
+   venv\Scripts\activate
+   
+   # On macOS/Linux
+   source venv/bin/activate
+   ```
+3. Install dependencies: `pip install -r requirements.txt`
+4. Run the application: `streamlit run app.py`
+
+**Note**: While the application can run without a virtual environment, using one is recommended to avoid potential conflicts with other Python packages.
 
 ## Project Structure
 - `app.py`: Main Streamlit application
