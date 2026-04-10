@@ -55,6 +55,12 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Inject custom CSS
+css_path = os.path.join(os.path.dirname(__file__), 'src', 'assets', 'styles.css')
+if os.path.exists(css_path):
+    with open(css_path) as f:
+        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+
 # App title and description
 st.title("NBA Lineup Optimizer")
 st.markdown(
@@ -291,18 +297,6 @@ if page == "Player Explorer":
             if not player_data.empty:
                 player = player_data.iloc[0]
                 
-                # Player header
-                st.markdown(f"## {player['name']}")
-                
-                # Player info
-                col1, col2, col3 = st.columns(3)
-                with col1:
-                    st.metric("Team", player['team'])
-                with col2:
-                    st.metric("Position", player['position'])
-                with col3:
-                    st.metric("Age", player['age'] if 'age' in player else "N/A")
-                
                 # Get player stats
                 player_stats_rows = stats[stats['player_id'] == player_id]
                 
@@ -310,30 +304,30 @@ if page == "Player Explorer":
                     # Calculate average stats
                     avg_stats = player_stats_rows.mean(numeric_only=True)
                     
-                    # Show key stats in a nice format
-                    st.markdown(f"### Player Statistics")
+                    age_val = player['age'] if 'age' in player else "N/A"
+                    pts_val = f"{avg_stats['pts']:.1f}" if 'pts' in avg_stats else "N/A"
+                    reb_val = f"{avg_stats['reb']:.1f}" if 'reb' in avg_stats else "N/A"
+                    ast_val = f"{avg_stats['ast']:.1f}" if 'ast' in avg_stats else "N/A"
+                    stl_val = f"{avg_stats['stl']:.1f}" if 'stl' in avg_stats else "N/A"
+                    blk_val = f"{avg_stats['blk']:.1f}" if 'blk' in avg_stats else "N/A"
+                    fg_val = f"{avg_stats['fg_pct']*100:.1f}%" if 'fg_pct' in avg_stats else "N/A"
+                    fg3_val = f"{avg_stats['fg3_pct']*100:.1f}%" if 'fg3_pct' in avg_stats else "N/A"
+                    ft_val = f"{avg_stats['ft_pct']*100:.1f}%" if 'ft_pct' in avg_stats else "N/A"
                     
-                    col1, col2, col3, col4, col5 = st.columns(5)
-                    with col1:
-                        st.metric("Points", f"{avg_stats['pts']:.1f}" if 'pts' in avg_stats else "N/A")
-                    with col2:
-                        st.metric("Rebounds", f"{avg_stats['reb']:.1f}" if 'reb' in avg_stats else "N/A")
-                    with col3:
-                        st.metric("Assists", f"{avg_stats['ast']:.1f}" if 'ast' in avg_stats else "N/A")
-                    with col4:
-                        st.metric("Steals", f"{avg_stats['stl']:.1f}" if 'stl' in avg_stats else "N/A")
-                    with col5:
-                        st.metric("Blocks", f"{avg_stats['blk']:.1f}" if 'blk' in avg_stats else "N/A")
-                    
-                    # Shooting percentages
-                    st.markdown(f"### Shooting Percentages")
-                    col1, col2, col3 = st.columns(3)
-                    with col1:
-                        st.metric("FG%", f"{avg_stats['fg_pct']*100:.1f}%" if 'fg_pct' in avg_stats else "N/A")
-                    with col2:
-                        st.metric("3P%", f"{avg_stats['fg3_pct']*100:.1f}%" if 'fg3_pct' in avg_stats else "N/A")
-                    with col3:
-                        st.metric("FT%", f"{avg_stats['ft_pct']*100:.1f}%" if 'ft_pct' in avg_stats else "N/A")
+                    st.markdown(f'''
+                    <div class="player-card">
+                        <h2 class="player-name">{player['name']}</h2>
+                        <p class="player-subtitle">{player['team']} | {player['position']} | Age: {age_val}</p>
+                        <div class="player-stats-grid">
+                            <div class="stat-box"><div class="stat-val">{pts_val}</div><div class="stat-lbl">Points</div></div>
+                            <div class="stat-box"><div class="stat-val">{reb_val}</div><div class="stat-lbl">Rebounds</div></div>
+                            <div class="stat-box"><div class="stat-val">{ast_val}</div><div class="stat-lbl">Assists</div></div>
+                            <div class="stat-box"><div class="stat-val">{stl_val}</div><div class="stat-lbl">Steals</div></div>
+                            <div class="stat-box"><div class="stat-val">{blk_val}</div><div class="stat-lbl">Blocks</div></div>
+                            <div class="stat-box"><div class="stat-val">{fg_val}</div><div class="stat-lbl">FG%</div></div>
+                        </div>
+                    </div>
+                    ''', unsafe_allow_html=True)
                     
                     # Visualization
                     st.markdown(f"### Performance Radar Chart")
@@ -355,15 +349,26 @@ if page == "Player Explorer":
                         r=normalized_values,
                         theta=categories,
                         fill='toself',
-                        name=player['name']
+                        name=player['name'],
+                        line_color='#ef4444',
+                        fillcolor='rgba(239, 68, 68, 0.4)'
                     ))
                     
                     fig.update_layout(
+                        template="plotly_dark",
+                        paper_bgcolor="rgba(0,0,0,0)",
+                        plot_bgcolor="rgba(0,0,0,0)",
                         polar=dict(
+                            bgcolor="rgba(0,0,0,0)",
                             radialaxis=dict(
                                 visible=True,
-                                range=[0, 10]
-                            )),
+                                range=[0, 10],
+                                gridcolor="rgba(255,255,255,0.1)"
+                            ),
+                            angularaxis=dict(
+                                gridcolor="rgba(255,255,255,0.1)"
+                            )
+                        ),
                         showlegend=False
                     )
                     
@@ -420,13 +425,44 @@ elif page == "Lineup Builder":
                     st.session_state.current_lineup_name = lineup_name
                     st.success(f"Lineup '{lineup_name}' saved and ready for optimization!")
         
-        # Display each player in the lineup with simplified info - no stats
+        # Add Aggregate Stats Calculation
+        if len(st.session_state.lineup) > 0:
+            st.markdown("### Team Aggregate Stats")
+            total_pts = sum([p.get('pts', 0) for p in st.session_state.lineup])
+            total_reb = sum([p.get('reb', 0) for p in st.session_state.lineup])
+            total_ast = sum([p.get('ast', 0) for p in st.session_state.lineup])
+            
+            avg_pts = total_pts / len(st.session_state.lineup)
+            avg_reb = total_reb / len(st.session_state.lineup)
+            avg_ast = total_ast / len(st.session_state.lineup)
+            
+            c1, c2, c3 = st.columns(3)
+            with c1:
+                st.metric("Total/Avg Points", f"{total_pts:.1f} / {avg_pts:.1f}")
+            with c2:
+                st.metric("Total/Avg Rebounds", f"{total_reb:.1f} / {avg_reb:.1f}")
+            with c3:
+                st.metric("Total/Avg Assists", f"{total_ast:.1f} / {avg_ast:.1f}")
+                
+            st.markdown("---")
+            
+        # Display each player in the lineup using HTML Cards
         for i, player in enumerate(st.session_state.lineup):
-            col1, col2 = st.columns([3, 1])
+            col1, col2 = st.columns([4, 1])
             with col1:
-                st.write(f"**{i+1}. {player['name']}** ({player['position']} | {player['team']})")
+                st.markdown(f'''
+                <div class="player-card" style="margin-bottom: 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h3 class="player-name" style="font-size: 1.2rem; margin: 0;">{i+1}. {player['name']}</h3>
+                            <p class="player-subtitle" style="margin: 0;">{player['position']} | {player['team']}</p>
+                        </div>
+                    </div>
+                </div>
+                ''', unsafe_allow_html=True)
             with col2:
-                if st.button(f"Remove Player {i+1}", key=f"remove_{i}"):
+                st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
+                if st.button(f"Remove", key=f"remove_{i}"):
                     st.session_state.lineup.pop(i)
                     st.rerun()
         
@@ -809,7 +845,39 @@ elif page == "Lineup Optimizer":
                                 # Display the detailed performance comparison
                                 st.subheader("Detailed Performance Comparison")
                                 st.write("Total lineup statistics")
-                                st.dataframe(lineup_summary.round(1))
+                                
+                                # Create HTML Comparison Boxes
+                                orig_stats = lineup_summary[lineup_summary['Lineup'] == 'Original'].iloc[0] if not lineup_summary[lineup_summary['Lineup'] == 'Original'].empty else None
+                                opt_stats = lineup_summary[lineup_summary['Lineup'] == 'Optimized'].iloc[0] if not lineup_summary[lineup_summary['Lineup'] == 'Optimized'].empty else None
+                                
+                                if orig_stats is not None and opt_stats is not None:
+                                    st.markdown(f'''
+                                    <div class="vs-container">
+                                        <div class="vs-col">
+                                            <h3>Original Lineup</h3>
+                                            <div class="player-stats-grid" style="margin-top: 1rem;">
+                                                <div class="stat-box"><div class="stat-val">{orig_stats.get('PTS', 0):.1f}</div><div class="stat-lbl">Points</div></div>
+                                                <div class="stat-box"><div class="stat-val">{orig_stats.get('REB', 0):.1f}</div><div class="stat-lbl">Rebounds</div></div>
+                                                <div class="stat-box"><div class="stat-val">{orig_stats.get('AST', 0):.1f}</div><div class="stat-lbl">Assists</div></div>
+                                                <div class="stat-box"><div class="stat-val">{orig_stats.get('STL', 0):.1f}</div><div class="stat-lbl">Steals</div></div>
+                                                <div class="stat-box"><div class="stat-val">{orig_stats.get('BLK', 0):.1f}</div><div class="stat-lbl">Blocks</div></div>
+                                            </div>
+                                        </div>
+                                        <div class="vs-col optimized">
+                                            <div class="vs-badge">OPTIMIZED</div>
+                                            <h3>Optimized Lineup</h3>
+                                            <div class="player-stats-grid" style="margin-top: 1rem;">
+                                                <div class="stat-box"><div class="stat-val">{opt_stats.get('PTS', 0):.1f}</div><div class="stat-lbl">Points</div></div>
+                                                <div class="stat-box"><div class="stat-val">{opt_stats.get('REB', 0):.1f}</div><div class="stat-lbl">Rebounds</div></div>
+                                                <div class="stat-box"><div class="stat-val">{opt_stats.get('AST', 0):.1f}</div><div class="stat-lbl">Assists</div></div>
+                                                <div class="stat-box"><div class="stat-val">{opt_stats.get('STL', 0):.1f}</div><div class="stat-lbl">Steals</div></div>
+                                                <div class="stat-box"><div class="stat-val">{opt_stats.get('BLK', 0):.1f}</div><div class="stat-lbl">Blocks</div></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    ''', unsafe_allow_html=True)
+                                else:
+                                    st.dataframe(lineup_summary.round(1))
                                 
                                 # Calculate improvement percentages
                                 improvement = {}
